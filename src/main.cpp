@@ -5,14 +5,12 @@
 #include <SDL_image.h>
 #include <cstdio>
 #include <cstdlib>
+#include <unistd.h>
 #include "defs.hpp"
 #include "opengl.hpp"
-#include "test.hpp"
+#include "game/state.hpp"
 
 namespace core {
-
-static const int WIDTH = 1280;
-static const int HEIGHT = 720;
 
 SDL_Window *window;
 SDL_GLContext context;
@@ -100,6 +98,13 @@ void swap_window()
     SDL_GL_SwapWindow(window);
 }
 
+static void init_path()
+{
+    int r = chdir("../data");
+    if (r)
+        die("Could not find data directory.");
+}
+
 void init()
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -142,6 +147,8 @@ void init()
 
     if (!GLEW_VERSION_2_1)
         die("OpenGL 2.1 is missing");
+
+    init_path();
 }
 
 void term()
@@ -158,8 +165,48 @@ int main(int argc, char *argv[])
     (void) argc;
     (void) argv;
 
+    const unsigned MIN_TICKS1 = 1000 / core::MAXFPS;
+    const unsigned MIN_TICKS = MIN_TICKS1 > 0 ? MIN_TICKS1 : 1;
+
     core::init();
-    test::test_sprite_sheet(core::WIDTH, core::HEIGHT);
+
+    {
+        bool do_quit = false;
+        unsigned last_frame = SDL_GetTicks();
+        game::state state;
+        state.init();
+        while (!do_quit) {
+            SDL_Event e;
+            while (SDL_PollEvent(&e)) {
+                switch (e.common.type) {
+                case SDL_QUIT:
+                    do_quit = true;
+                    break;
+
+                case SDL_MOUSEBUTTONDOWN:
+                    state.event_click(
+                        e.button.x,
+                        core::HEIGHT - 1 - e.button.y,
+                        e.button.button);
+                    break;
+                }
+            }
+
+            state.draw(SDL_GetTicks());
+            core::swap_window();
+
+            unsigned now = SDL_GetTicks();
+            unsigned delta = now - last_frame;
+            if (delta < MIN_TICKS) {
+                SDL_Delay(MIN_TICKS - delta);
+                now = SDL_GetTicks();
+            }
+
+            last_frame = now;
+        }
+        state.term();
+    }
+
     core::term();
 
     return 0;

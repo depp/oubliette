@@ -8,6 +8,10 @@
 
 namespace core {
 
+static const int WIDTH = 1280;
+static const int HEIGHT = 720;
+static const int MAXFPS = 100;
+
 /// Cause the application to exit with the given human-readable reason.
 __attribute__((noreturn))
 void die(const char *reason);

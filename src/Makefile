@@ -3,7 +3,7 @@ main_exe	:= Oubliette
 all: $(main_exe)
 
 clean:
-	rm -f $(main_exe) *.d *.o
+	rm -f $(main_exe) *.d *.o game/*.d game/*.o
 
 .PHONY: all clean
 
@@ -18,7 +18,7 @@ depflags	= -MF $(patsubst %.o,%.d,$@) -MMD -MP
 warning_flags	= -Wall -Wextra -Wpointer-arith -Wformat-nonliteral
 CXXFLAGS	= -O0 -g -std=c++11 $(warning_flags) $(depflags) $(glew_cflags)
 
-sources := file.cpp main.cpp pack.cpp shader.cpp sprite_array.cpp sprite_orientation.cpp sprite_sheet.cpp surface.cpp test_sprite.cpp test_spritesheet.cpp
+sources := file.cpp main.cpp pack.cpp shader.cpp sprite_array.cpp sprite_orientation.cpp sprite_sheet.cpp surface.cpp test_sprite.cpp test_spritesheet.cpp game/allocator.cpp game/graphics.cpp game/physics.cpp game/state.cpp
 
 main.o sprite_sheet.o surface.o: CXXFLAGS += $(sdl_cflags)
 

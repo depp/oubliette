@@ -17,6 +17,11 @@ array::~array()
 {
 }
 
+void array::clear()
+{
+    array_.clear();
+}
+
 void array::add(rect tex, int x, int y)
 {
     short (*data)[4] = array_.insert(6);

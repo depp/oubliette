@@ -40,9 +40,7 @@ data &data::operator=(data &&other)
 
 bool data::read(data *outdata, const std::string &path)
 {
-    std::string fullpath("data/");
-    fullpath += path;
-    FILE *fp = std::fopen(fullpath.c_str(), "rb");
+    FILE *fp = std::fopen(path.c_str(), "rb");
     if (!fp) {
         std::fprintf(stderr, "Could not open file: %s\n", path.c_str());
         return false;

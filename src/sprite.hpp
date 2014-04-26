@@ -76,6 +76,8 @@ public:
     array &operator=(const array &other) = delete;
     array &operator=(array &&other) = delete;
 
+    /// Clear the array.
+    void clear();
     /// Add a sprite (tex) at the given lower-left coordinate.
     void add(rect tex, int x, int y);
     /// Add a sprite (tex) at the given lower-left coordinate.

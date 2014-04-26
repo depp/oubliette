@@ -29,8 +29,7 @@ sheet::sheet(const std::string &dirname, const sprite *sprites)
     std::size_t count = 0;
 
     {
-        std::string dirpath("data/");
-        dirpath += dirname;
+        std::string dirpath(dirname);
         dirpath += '/';
         std::unordered_map<std::string, std::size_t> imagenames;
         for (int i = 0; sprites[i].name; i++) {
