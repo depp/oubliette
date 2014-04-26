@@ -1,0 +1,8 @@
+width = 78
+tabsize = 4
+guards = true
+guardname = LD
+copyright_notice = <<EOF
+This file is part of LDBase.  LDBase is licensed under the terms
+of the 2-clause BSD license.  For more information, see LICENSE.txt.
+EOF
