@@ -1,5 +1,5 @@
 /* Copyright 2014 Dietrich Epp.
-   This file is part of LDBase.  LDBase is licensed under the terms
+   This file is part of Oubliette.  Oubliette is licensed under the terms
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "../defs.hpp"
 #include "defs.hpp"
@@ -35,6 +35,7 @@ physics_object &physics_system::create(int object)
     if (data.active)
         core::die("object exists");
     data.active = true;
+    return data;
 }
 
 void physics_system::destroy(int object)
