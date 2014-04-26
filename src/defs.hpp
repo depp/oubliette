@@ -8,8 +8,11 @@
 
 namespace core {
 
-static const int WIDTH = 1280;
-static const int HEIGHT = 720;
+static const int PWIDTH = 320;
+static const int PHEIGHT = 180;
+static const int SCALE = 4;
+static const int IWIDTH = PWIDTH * SCALE;
+static const int IHEIGHT = PHEIGHT * SCALE;
 static const int MAXFPS = 100;
 
 /// Cause the application to exit with the given human-readable reason.

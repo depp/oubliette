@@ -1,6 +1,7 @@
 /* Copyright 2014 Dietrich Epp.
    This file is part of Oubliette.  Oubliette is licensed under the terms
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
+#include <assert.h>
 #include "graphics.hpp"
 #include "state.hpp"
 #include "defs.hpp"
@@ -12,6 +13,17 @@
 #include <cstdio>
 namespace game {
 namespace graphics {
+
+static int round_up_pow2(int x)
+{
+    unsigned v = x - 1;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    return v + 1;
+}
 
 // ======================================================================
 
@@ -80,8 +92,8 @@ void sprite_system::draw()
         -1.0f);
     glUniform2f(
         prog.sprite->u_vertscale,
-        2.0 / core::WIDTH,
-        2.0 / core::HEIGHT);
+        2.0 / core::PWIDTH,
+        2.0 / core::PHEIGHT);
     glUniform2fv(prog.sprite->u_texscale, 1, sheet.texscale());
     array.set_attrib(prog.sprite->a_vert);
 
@@ -89,6 +101,8 @@ void sprite_system::draw()
 
     glDisableVertexAttribArray(prog.sprite->a_vert);
     glUseProgram(0);
+
+    core::check_gl_error(HERE);
 }
 
 // ======================================================================
@@ -147,8 +161,8 @@ void background_system::draw()
         -1.0f);
     glUniform2f(
         prog.sprite->u_vertscale,
-        2.0 / core::WIDTH,
-        2.0 / core::HEIGHT);
+        2.0 / core::PWIDTH,
+        2.0 / core::PHEIGHT);
     glUniform2fv(prog.sprite->u_texscale, 1, bgtex.scale);
     array.set_attrib(prog.sprite->a_vert);
 
@@ -156,6 +170,8 @@ void background_system::draw()
 
     glDisableVertexAttribArray(prog.sprite->a_vert);
     glUseProgram(0);
+
+    core::check_gl_error(HERE);
 }
 
 void background_system::set_level(const std::string &path)
@@ -169,6 +185,109 @@ void background_system::set_level(const std::string &path)
 
 // ======================================================================
 
+struct scale_system {
+    program_system &prog;
+    GLuint tex;
+    GLuint fbuf;
+    sprite::array array;
+    int width, height;
+    float scale[2];
+
+    scale_system(program_system &prog);
+
+    void begin();
+    void end();
+};
+
+scale_system::scale_system(program_system &prog)
+    : prog(prog)
+{
+    width = round_up_pow2(core::PWIDTH);
+    height = round_up_pow2(core::PHEIGHT);
+    scale[0] = 1.0f / width;
+    scale[1] = 1.0f / height;
+
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RGBA,
+        width,
+        height,
+        0,
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
+        nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenFramebuffers(1, &fbuf);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbuf);
+    glFramebufferTexture2D(
+        GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
+    GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+    glDrawBuffers(1, drawBuffers);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        core::die("Cannot render to framebuffer");
+
+    sprite::rect r = {
+        0, 0,
+        core::PWIDTH, core::PHEIGHT
+     };
+    array.add(r, 0, 0, sprite::orientation::FLIP_VERTICAL);
+    array.upload(GL_STATIC_DRAW);
+
+    core::check_gl_error(HERE);
+}
+
+void scale_system::begin()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, fbuf);
+    glViewport(0, 0, width, height);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glViewport(0, 0, core::PWIDTH, core::PHEIGHT);
+}
+
+void scale_system::end()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, core::IWIDTH, core::IHEIGHT);
+    glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glUseProgram(prog.sprite.prog());
+    glEnableVertexAttribArray(prog.sprite->a_vert);
+    glDisable(GL_BLEND);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex);
+
+    glUniform2f(
+        prog.sprite->u_vertoff,
+        -1.0f,
+        -1.0f);
+    glUniform2f(
+        prog.sprite->u_vertscale,
+        2.0 / core::PWIDTH,
+        2.0 / core::PHEIGHT);
+    glUniform2fv(prog.sprite->u_texscale, 1, scale);
+    array.set_attrib(prog.sprite->a_vert);
+
+    glDrawArrays(GL_TRIANGLES, 0, array.size());
+
+    glDisableVertexAttribArray(prog.sprite->a_vert);
+    glUseProgram(0);
+
+    core::check_gl_error(HERE);
+}
+
+// ======================================================================
+
 } // namespace graphics
 
 // ======================================================================
@@ -177,6 +296,7 @@ struct graphics_system::data {
     graphics::program_system prog;
     graphics::sprite_system sprite;
     graphics::background_system background;
+    graphics::scale_system scale;
 
     data();
 
@@ -185,7 +305,7 @@ struct graphics_system::data {
 };
 
 graphics_system::data::data()
-    : prog(), sprite(prog), background(prog)
+    : prog(), sprite(prog), background(prog), scale(prog)
 { }
 
 void graphics_system::data::update(state &s, int reltime)
@@ -196,11 +316,12 @@ void graphics_system::data::update(state &s, int reltime)
 
 void graphics_system::data::draw()
 {
-    glClearColor(0.125f, 0.125f, 0.125f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    scale.begin();
 
     background.draw();
     sprite.draw();
+
+    scale.end();
 }
 
 graphics_system::graphics_system()

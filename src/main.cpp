@@ -126,8 +126,8 @@ void init()
         "The Oubliette Within",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        WIDTH,
-        HEIGHT,
+        IWIDTH,
+        IHEIGHT,
         SDL_WINDOW_OPENGL);
     check_sdl_error(HERE);
     if (!window)
@@ -185,8 +185,8 @@ int main(int argc, char *argv[])
 
                 case SDL_MOUSEBUTTONDOWN:
                     state.event_click(
-                        e.button.x,
-                        core::HEIGHT - 1 - e.button.y,
+                        e.button.x / core::SCALE,
+                        (core::IHEIGHT - 1 - e.button.y) / core::SCALE,
                         e.button.button);
                     break;
                 }
