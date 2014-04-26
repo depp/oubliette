@@ -3,6 +3,7 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "graphics.hpp"
 #include "state.hpp"
+#include "defs.hpp"
 #include "../defs.hpp"
 #include "../opengl.hpp"
 #include "../shader.hpp"
@@ -36,11 +37,11 @@ void graphics_system::data::update(state &s, int reltime)
 {
     (void)reltime;
     array_sprite.clear();
+    scalar timefrac = reltime * (scalar) (1.0 / defs::FRAMETIME);
 
     for (auto i = s.physics.objects.begin(),
              e = s.physics.objects.end(); i != e; i++) {
-        auto pos = i->pos;
-        // std::printf("obj: %f, %f\n", pos.x, pos.y);
+        auto pos = i->lastpos + timefrac * (i->pos - i->lastpos);
         array_sprite.add(sheet.get(0), pos.x - 6, pos.y - 12);
     }
 

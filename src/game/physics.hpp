@@ -11,6 +11,7 @@ namespace game {
 struct physics_object {
     bool active;
     vec2 extent_min, extent_max;
+    vec2 lastpos;
     vec2 pos;
     vec2 vel;
     vec2 accel;

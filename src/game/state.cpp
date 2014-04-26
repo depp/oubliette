@@ -44,7 +44,7 @@ void state::event_click(int x, int y, int button)
     auto &p = physics.create(obj);
     p.extent_min = vec2::zero();
     p.extent_max = vec2::zero();
-    p.pos = vec2(x, y);
+    p.lastpos = p.pos = vec2(x, y);
     p.vel = vec2::zero();
     p.accel = vec2(0, -10);
 }

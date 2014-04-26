@@ -11,6 +11,7 @@ void physics_system::update()
     const scalar dt = 1e-3 * defs::FRAMETIME;
     for (auto i = objects.begin(), e = objects.end(); i != e; i++) {
         auto obj = *i;
+        i->lastpos = i->pos;
         vec2 accel = obj.accel;
         vec2 pos = obj.pos + dt * obj.vel + (dt * dt / 2) * accel;
         vec2 vel = obj.vel + dt * accel;
