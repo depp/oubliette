@@ -29,6 +29,7 @@ void state::draw(unsigned time)
 void state::init()
 {
     graphics.init();
+    graphics.set_level("main_wake");
 }
 
 void state::term()

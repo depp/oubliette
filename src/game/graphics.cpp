@@ -8,18 +8,175 @@
 #include "../opengl.hpp"
 #include "../shader.hpp"
 #include "../sprite.hpp"
+#include "../image.hpp"
 #include <cstdio>
 namespace game {
+namespace graphics {
+
+// ======================================================================
+
+struct program_system {
+    shader::program<shader::sprite> sprite;
+
+    program_system();
+};
+
+program_system::program_system()
+    : sprite("sprite", "sprite")
+{ }
+
+// ======================================================================
 
 static const sprite::sprite SPRITES[] = {
     { "player", 0, 0, 16, 24 },
     { nullptr, 0, 0, 0, 0 }
 };
 
-struct graphics_system::data {
-    shader::program<shader::sprite> prog_sprite;
+struct sprite_system {
+    program_system &prog;
     sprite::sheet sheet;
-    sprite::array array_sprite;
+    sprite::array array;
+
+    sprite_system(program_system &prog);
+
+    void update(state &s, int reltime);
+    void draw();
+};
+
+sprite_system::sprite_system(program_system &prog)
+    : prog(prog),
+      sheet("sprite", SPRITES)
+{ }
+
+void sprite_system::update(state &s, int reltime)
+{
+    array.clear();
+    scalar timefrac = reltime * (scalar) (1.0 / defs::FRAMETIME);
+
+    for (auto i = s.physics.objects.begin(),
+             e = s.physics.objects.end(); i != e; i++) {
+        vec2 offset(-6, -12);
+        auto pos = i->lastpos + timefrac * (i->pos - i->lastpos) + offset;
+        array.add(sheet.get(0), floorf(pos.x), floorf(pos.y));
+    }
+
+    array.upload(GL_DYNAMIC_DRAW);
+    core::check_gl_error(HERE);
+}
+
+void sprite_system::draw()
+{
+    glUseProgram(prog.sprite.prog());
+    glEnableVertexAttribArray(prog.sprite->a_vert);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, sheet.texture());
+
+    glUniform2f(
+        prog.sprite->u_vertoff,
+        -1.0f,
+        -1.0f);
+    glUniform2f(
+        prog.sprite->u_vertscale,
+        2.0 / core::WIDTH,
+        2.0 / core::HEIGHT);
+    glUniform2fv(prog.sprite->u_texscale, 1, sheet.texscale());
+    array.set_attrib(prog.sprite->a_vert);
+
+    glDrawArrays(GL_TRIANGLES, 0, array.size());
+
+    glDisableVertexAttribArray(prog.sprite->a_vert);
+    glUseProgram(0);
+}
+
+// ======================================================================
+
+struct background_system {
+    program_system &prog;
+    image::texture bgtex;
+    sprite::array array;
+
+    background_system(program_system &prog);
+
+    void update(state &s, int reltime);
+    void draw();
+
+    void set_level(const std::string &path);
+};
+
+background_system::background_system(program_system &prog)
+    : prog(prog)
+{ }
+
+void background_system::update(state &s, int reltime)
+{
+    (void)&s;
+    (void)reltime;
+
+    if (bgtex.tex == 0)
+        return;
+
+    array.clear();
+    sprite::rect r = {
+        0, 0,
+        bgtex.iwidth, bgtex.iheight
+    };
+    array.add(r, 0, 0);
+    array.upload(GL_DYNAMIC_DRAW);
+    core::check_gl_error(HERE);
+}
+
+void background_system::draw()
+{
+    if (bgtex.tex == 0)
+        return;
+
+    glUseProgram(prog.sprite.prog());
+    glEnableVertexAttribArray(prog.sprite->a_vert);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, bgtex.tex);
+
+    glUniform2f(
+        prog.sprite->u_vertoff,
+        -1.0f,
+        -1.0f);
+    glUniform2f(
+        prog.sprite->u_vertscale,
+        2.0 / core::WIDTH,
+        2.0 / core::HEIGHT);
+    glUniform2fv(prog.sprite->u_texscale, 1, bgtex.scale);
+    array.set_attrib(prog.sprite->a_vert);
+
+    glDrawArrays(GL_TRIANGLES, 0, array.size());
+
+    glDisableVertexAttribArray(prog.sprite->a_vert);
+    glUseProgram(0);
+}
+
+void background_system::set_level(const std::string &path)
+{
+    std::string fullpath("level/");
+    fullpath += path;
+    fullpath += ".png";
+
+    bgtex = image::texture::load(fullpath);
+}
+
+// ======================================================================
+
+} // namespace graphics
+
+// ======================================================================
+
+struct graphics_system::data {
+    graphics::program_system prog;
+    graphics::sprite_system sprite;
+    graphics::background_system background;
 
     data();
 
@@ -28,59 +185,22 @@ struct graphics_system::data {
 };
 
 graphics_system::data::data()
-    : prog_sprite("sprite", "sprite"),
-      sheet("sprite", SPRITES)
-{
-}
+    : prog(), sprite(prog), background(prog)
+{ }
 
 void graphics_system::data::update(state &s, int reltime)
 {
-    (void)reltime;
-    array_sprite.clear();
-    scalar timefrac = reltime * (scalar) (1.0 / defs::FRAMETIME);
-
-    for (auto i = s.physics.objects.begin(),
-             e = s.physics.objects.end(); i != e; i++) {
-        auto pos = i->lastpos + timefrac * (i->pos - i->lastpos);
-        array_sprite.add(sheet.get(0), pos.x - 6, pos.y - 12);
-    }
-
-    array_sprite.upload(GL_DYNAMIC_DRAW);
-    core::check_gl_error(HERE);
+    background.update(s, reltime);
+    sprite.update(s, reltime);
 }
 
 void graphics_system::data::draw()
 {
-    // Clear screen
-
     glClearColor(0.125f, 0.125f, 0.125f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Draw sprites
-
-    glUseProgram(prog_sprite.prog());
-    glEnableVertexAttribArray(prog_sprite->a_vert);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, sheet.texture());
-
-    glUniform2f(
-        prog_sprite->u_vertoff,
-        -1.0f,
-        -1.0f);
-    glUniform2f(
-        prog_sprite->u_vertscale,
-        2.0 / core::WIDTH,
-        2.0 / core::HEIGHT);
-    glUniform2fv(prog_sprite->u_texscale, 1, sheet.texscale());
-    array_sprite.set_attrib(prog_sprite->a_vert);
-
-    glDrawArrays(GL_TRIANGLES, 0, array_sprite.size());
-
-    glDisableVertexAttribArray(prog_sprite->a_vert);
-    glUseProgram(0);
+    background.draw();
+    sprite.draw();
 }
 
 graphics_system::graphics_system()
@@ -89,6 +209,13 @@ graphics_system::graphics_system()
 
 graphics_system::~graphics_system()
 {
+}
+
+graphics_system::data &graphics_system::getdata()
+{
+    if (!data_)
+        core::die("graphics not initialized");
+    return *data_;
 }
 
 void graphics_system::init()
@@ -103,10 +230,14 @@ void graphics_system::term()
 
 void graphics_system::draw(state &s, int reltime)
 {
-    if (!data_)
-        core::die("graphics not initialized");
-    data_->update(s, reltime);
-    data_->draw();
+    auto &d = getdata();
+    d.update(s, reltime);
+    d.draw();
+}
+
+void graphics_system::set_level(const std::string &path)
+{
+    getdata().background.set_level(path);
 }
 
 }

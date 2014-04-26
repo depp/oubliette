@@ -3,7 +3,6 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #ifndef LD_GAME_STATE_HPP
 #define LD_GAME_STATE_HPP
-
 #include "allocator.hpp"
 #include "graphics.hpp"
 #include "physics.hpp"
@@ -25,5 +24,4 @@ public:
 };
 
 }
-
 #endif

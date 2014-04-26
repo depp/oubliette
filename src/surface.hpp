@@ -18,6 +18,8 @@ struct surface {
     ~surface();
     surface &operator=(const surface &other) = delete;
     surface &operator=(surface &&other);
+    SDL_Surface *operator->() { return surfptr; }
+    const SDL_Surface *operator->() const { return surfptr; }
 };
 
 }
