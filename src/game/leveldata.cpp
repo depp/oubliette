@@ -18,12 +18,12 @@ struct spawninfo {
 
 static const spawninfo SPAWN_TYPES[leveldata::NTYPE] = {
     { "player", 16, 24, sprite::PLAYER },
-    { "door",   24, 32, sprite::PLAYER },
-    { "chest",  24, 24, sprite::PLAYER },
-    { "slime",  16, 16, sprite::PLAYER },
-    { "prof",   16, 24, sprite::PLAYER },
-    { "woman",  16, 24, sprite::PLAYER },
-    { "priest", 16, 24, sprite::PLAYER }
+    { "door",   24, 32, sprite::DOOR2 },
+    { "chest",  24, 24, sprite::CHEST },
+    { "slime",  16, 16, sprite::SLIME1 },
+    { "prof",   16, 24, sprite::PROFESSOR },
+    { "woman",  16, 24, sprite::WOMAN },
+    { "priest", 16, 24, sprite::PRIEST }
 };
 
 static const spawninfo &get_spawninfo(spawntype type)
@@ -160,6 +160,8 @@ void leveldata::write_level(
 
 std::string leveldata::level_path(const std::string &levelname)
 {
+    if (levelname.empty())
+        core::die("Empty level name");
     std::string path("level/");
     path += levelname;
     path += ".txt";

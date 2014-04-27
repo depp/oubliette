@@ -18,20 +18,25 @@ struct spawnpoint;
 class editor_system {
 private:
     const state &state_;
+    const std::string levelname_;
     std::vector<spawnpoint> entities_;
     int selection_;
     vec2 camera_pos_, camera_lastpos_;
     bool dragging_;
     int clickx_, clicky_;
     spawntype type_;
+    bool dirty_;
+    int savetime_;
 
     /// Get the selection under the given point.
     int hit(int x, int y);
     /// Convert window to world coordinates.
     void window_to_world(int &x, int &y);
+    /// Mark the editor as dirty.
+    void mark_dirty();
 
 public:
-    explicit editor_system(const state &st);
+    editor_system(const state &st, const std::string &levelname);
     editor_system(const editor_system &) = delete;
     editor_system(editor_system &&) = delete;
     ~editor_system();
@@ -43,13 +48,16 @@ public:
     /// Draw the editor data.
     void draw(::graphics::system &gr, int reltime);
     /// Load the level data into the editor.
-    void load_data(std::vector<spawnpoint> &&data);
+    void load_data();
     /// Save level data to disk.
-    void save_data(const std::string &levelname);
+    void save_data();
     /// Handle a mouse click event, or button == -1 for release.
     void mouse_click(int x, int y, int button);
     /// Handle a mouse movement event.
     void mouse_move(int x, int y);
+
+    /// Are there unsaved changes?
+    bool dirty() const { return dirty_; }
 };
 
 }

@@ -8,15 +8,20 @@
 #include "../defs.hpp"
 namespace game {
 
+static const int SAVETIME = 15;
+
 static const float EDITOR_CAMSPEED = 150.0f;
 
-editor_system::editor_system(const state &st)
+editor_system::editor_system(const state &st, const std::string &levelname)
     : state_(st),
+      levelname_(levelname),
       selection_(-1),
       camera_pos_(core::PWIDTH / 2, core::PHEIGHT / 2),
       camera_lastpos_(camera_pos_),
       dragging_(false),
-      type_(spawntype::PLAYER)
+      type_(spawntype::PLAYER),
+      dirty_(false),
+      savetime_(0)
 { }
 
 editor_system::~editor_system()
@@ -41,8 +46,19 @@ void editor_system::window_to_world(int &x, int &y)
     y += (int)std::round(cpos.y);
 }
 
+void editor_system::mark_dirty()
+{
+    dirty_ = true;
+    savetime_ = 0;
+}
+
 void editor_system::update()
 {
+    if (dirty_) {
+        savetime_++;
+        if (savetime_ >= SAVETIME)
+            save_data();
+    }
     camera_lastpos_ = camera_pos_;
     float speed = EDITOR_CAMSPEED * (1e-3 * defs::FRAMETIME);
     auto &c = state_.control();
@@ -56,16 +72,19 @@ void editor_system::draw(::graphics::system &gr, int reltime)
         i->draw(gr);
 }
 
-void editor_system::load_data(std::vector<spawnpoint> &&data)
+void editor_system::load_data()
 {
-    entities_ = std::move(data);
+    entities_ = leveldata::read_level(levelname_);
     selection_ = -1;
     dragging_ = false;
+    dirty_ = false;
 }
 
-void editor_system::save_data(const std::string &levelname)
+void editor_system::save_data()
 {
-    leveldata::write_level(levelname, entities_);
+    std::printf("Saving level %s\n", levelname_.c_str());
+    leveldata::write_level(levelname_, entities_);
+    dirty_ = false;
 }
 
 void editor_system::mouse_click(int x, int y, int button)
@@ -89,6 +108,7 @@ void editor_system::mouse_click(int x, int y, int button)
         break;
 
     case 3:
+        mark_dirty();
         clickx_ = 0;
         clicky_ = 0;
         selection_ = entities_.size();
@@ -109,6 +129,7 @@ void editor_system::mouse_move(int x, int y)
         auto &s = entities_.at(selection_);
         s.x = x + clickx_;
         s.y = y + clicky_;
+        mark_dirty();
     }
 }
 

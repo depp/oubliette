@@ -12,10 +12,7 @@ namespace game {
 
 state::state(bool edit_mode)
     : edit_mode_(edit_mode), initted_(false)
-{
-    if (edit_mode)
-        editor_.reset(new editor_system(*this));
-}
+{ }
 
 state::~state()
 { }
@@ -47,7 +44,7 @@ void state::advance(unsigned time)
 
     // std::printf("time = %u, nframes = %d\n", time, nframes);
     if (edit_mode_) {
-        if (nframes > 0) {
+        if (editor_ && nframes > 0) {
             editor_->update();
             control_.update();
         }
@@ -79,7 +76,8 @@ void state::draw(unsigned time)
     graphics_.begin();
 
     if (edit_mode_) {
-        editor_->draw(graphics_, reltime);
+        if (editor_)
+            editor_->draw(graphics_, reltime);
     } else {
         graphics_.set_camera_pos(camera_.get_pos(reltime));
         for (auto i = entities_.begin(), e = entities_.end(); i != e; i++) {
@@ -94,13 +92,13 @@ void state::draw(unsigned time)
 
 void state::mouse_click(int x, int y, int button)
 {
-    if (edit_mode_)
+    if (editor_)
         editor_->mouse_click(x, y, button);
 }
 
 void state::mouse_move(int x, int y)
 {
-    if (edit_mode_)
+    if (editor_)
         editor_->mouse_move(x, y);
 }
 
@@ -117,11 +115,11 @@ void state::set_level(const std::string &name)
     new_entities_.clear();
     control_.clear();
 
-    auto data = leveldata::read_level(name);
     if (edit_mode_) {
-        std::puts("EDIT MODE");
-        editor_->load_data(std::move(data));
+        editor_.reset(new editor_system(*this, name));
+        editor_->load_data();
     } else {
+        auto data = leveldata::read_level(name);
         if (data.empty())
             core::die("Could not load level");
         for (auto i = data.begin(), e = data.end(); i != e; i++)
@@ -131,7 +129,7 @@ void state::set_level(const std::string &name)
     level_.set_level(name);
     camera_ = camera_system(
         rect(vec2::zero(), vec2(level_.width(), level_.height())));
-    graphics_.set_level("main_wake");
+    graphics_.set_level(name);
 }
 
 void state::add_entity(std::unique_ptr<entity> &&ent)

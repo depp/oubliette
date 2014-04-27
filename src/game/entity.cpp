@@ -55,7 +55,7 @@ entity *entity::spawn(state &st, const struct spawnpoint &data)
         return new player(st, pos);
 
     default:
-        core::die("Unknown spawn type");
+        core::die("Cannot spawn entity, unknown type");
     }
 }
 
