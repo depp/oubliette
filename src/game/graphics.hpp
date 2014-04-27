@@ -14,12 +14,16 @@ class state;
 // Define the "sprite" enumeration
 #include "sprite_enum.hpp"
 
-/// The shader programs.
-struct program_data {
+/// The shader commons.
+struct common_data {
     shader::program<shader::sprite> sprite;
     shader::program<shader::tv> tv;
+    shader::program<shader::plain> plain;
 
-    program_data();
+    // Vertex transformation uniform.
+    float xform[4];
+
+    common_data();
 };
 
 /// The foreground sprites.
@@ -30,7 +34,7 @@ struct sprite_data {
     sprite_data();
     void clear();
     void upload();
-    void draw(const program_data &prog, game::vec2 camera);
+    void draw(const common_data &com);
 };
 
 /// The level background.
@@ -41,8 +45,17 @@ struct background_data {
     background_data();
     void clear();
     void upload();
-    void draw(const program_data &prog, game::vec2 camera);
+    void draw(const common_data &com);
     void set_level(const std::string &path);
+};
+
+/// Editor selection data.
+struct selection_data {
+    array::array<short[2]> array;
+
+    void clear();
+    void upload();
+    void draw(const common_data &com);
 };
 
 /// Pixel scaling data.
@@ -58,16 +71,17 @@ struct scale_data {
 
     scale_data();
     void begin();
-    void end(const program_data &prog);
+    void end(const common_data &com);
 };
 
 /// The graphics system.
 class system {
 private:
-    program_data prog_;
+    common_data common_;
     game::vec2 camera_;
     sprite_data sprite_;
     background_data background_;
+    selection_data selection_;
     scale_data scale_;
 
 public:
@@ -86,6 +100,8 @@ public:
     void add_sprite(sprite sp, game::vec2 pos, ::sprite::orientation orient);
     /// Set the camera target.
     void set_camera_pos(game::vec2 target);
+    /// Set the editor's selection.
+    void set_selection(game::irect rect);
 };
 
 }

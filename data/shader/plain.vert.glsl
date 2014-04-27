@@ -1,9 +1,10 @@
 #version 120
 
 attribute vec2 a_vert;
-uniform mat2 u_vertmat;
-uniform vec2 u_vertoff;
+uniform vec4 u_vertxform;
 
 void main() {
-    gl_Position = vec4(u_vertmat * a_vert + u_vertoff, 0.0, 1.0);
+    vec2 vertscale = u_vertxform.xy;
+    vec2 vertoff = u_vertxform.zw;
+    gl_Position = vec4(a_vert * vertscale + vertoff, 0.0, 1.0);
 }

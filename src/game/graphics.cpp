@@ -28,9 +28,10 @@ static int round_up_pow2(int x)
 
 // ======================================================================
 
-program_data::program_data()
+common_data::common_data()
     : sprite("sprite", "sprite"),
-      tv("tv", "tv")
+      tv("tv", "tv"),
+      plain("plain", "plain")
 { }
 
 // ======================================================================
@@ -49,31 +50,24 @@ void sprite_data::upload()
     array.upload(GL_DYNAMIC_DRAW);
 }
 
-void sprite_data::draw(const program_data &prog, vec2 camera)
+void sprite_data::draw(const common_data &com)
 {
-    glUseProgram(prog.sprite.prog());
-    glEnableVertexAttribArray(prog.sprite->a_vert);
+    glUseProgram(com.sprite.prog());
+    glEnableVertexAttribArray(com.sprite->a_vert);
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, sheet.texture());
 
-    glUniform2f(
-        prog.sprite->u_vertoff,
-        camera.x * (-2.0 / core::PWIDTH),
-        camera.y * (-2.0 / core::PHEIGHT));
-    glUniform2f(
-        prog.sprite->u_vertscale,
-        2.0 / core::PWIDTH,
-        2.0 / core::PHEIGHT);
-    glUniform2fv(prog.sprite->u_texscale, 1, sheet.texscale());
-    glUniform1i(prog.sprite->u_texture, 0);
-    array.set_attrib(prog.sprite->a_vert);
+    glUniform4fv(com.sprite->u_vertxform, 1, com.xform);
+    glUniform2fv(com.sprite->u_texscale, 1, sheet.texscale());
+    glUniform1i(com.sprite->u_texture, 0);
+    array.set_attrib(com.sprite->a_vert);
 
     glDrawArrays(GL_TRIANGLES, 0, array.size());
 
-    glDisableVertexAttribArray(prog.sprite->a_vert);
+    glDisableVertexAttribArray(com.sprite->a_vert);
     glUseProgram(0);
 
     core::check_gl_error(HERE);
@@ -103,34 +97,27 @@ void background_data::upload()
     core::check_gl_error(HERE);
 }
 
-void background_data::draw(const program_data &prog, vec2 camera)
+void background_data::draw(const common_data &com)
 {
     if (bgtex.tex == 0)
         return;
 
-    glUseProgram(prog.sprite.prog());
-    glEnableVertexAttribArray(prog.sprite->a_vert);
+    glUseProgram(com.sprite.prog());
+    glEnableVertexAttribArray(com.sprite->a_vert);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, bgtex.tex);
 
-    glUniform2f(
-        prog.sprite->u_vertoff,
-        camera.x * (-2.0 / core::PWIDTH),
-        camera.y * (-2.0 / core::PHEIGHT));
-    glUniform2f(
-        prog.sprite->u_vertscale,
-        2.0 / core::PWIDTH,
-        2.0 / core::PHEIGHT);
-    glUniform2fv(prog.sprite->u_texscale, 1, bgtex.scale);
-    glUniform1i(prog.sprite->u_texture, 0);
-    array.set_attrib(prog.sprite->a_vert);
+    glUniform4fv(com.sprite->u_vertxform, 1, com.xform);
+    glUniform2fv(com.sprite->u_texscale, 1, bgtex.scale);
+    glUniform1i(com.sprite->u_texture, 0);
+    array.set_attrib(com.sprite->a_vert);
 
     glDrawArrays(GL_TRIANGLES, 0, array.size());
 
-    glDisableVertexAttribArray(prog.sprite->a_vert);
+    glDisableVertexAttribArray(com.sprite->a_vert);
     glUseProgram(0);
 
     core::check_gl_error(HERE);
@@ -143,6 +130,45 @@ void background_data::set_level(const std::string &path)
     fullpath += ".png";
 
     bgtex = image::texture::load(fullpath);
+}
+
+// ======================================================================
+
+void selection_data::clear()
+{
+    array.clear();
+}
+
+void selection_data::upload()
+{
+    if (array.empty())
+        return;
+
+    array.upload(GL_DYNAMIC_DRAW);
+}
+
+void selection_data::draw(const common_data &com)
+{
+    if (array.empty())
+        return;
+
+    glUseProgram(com.plain.prog());
+    glEnableVertexAttribArray(com.plain->a_vert);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+    glUniform4fv(com.plain->u_vertxform, 1, com.xform);
+    glUniform4f(
+        com.plain->u_color,
+        0.4f, 0.0f, 0.4f, 0.0);
+    array.set_attrib(com.plain->a_vert);
+
+    glDrawArrays(GL_TRIANGLES, 0, array.size());
+
+    glDisableVertexAttribArray(com.plain->a_vert);
+    glUseProgram(0);
+    
+    core::check_gl_error(HERE);
 }
 
 // ======================================================================
@@ -213,7 +239,7 @@ void scale_data::begin()
     core::check_gl_error(HERE);
 }
 
-void scale_data::end(const program_data &prog)
+void scale_data::end(const common_data &com)
 {
     unsigned x = rng::global.next();
     float offsets[4] = {
@@ -228,8 +254,8 @@ void scale_data::end(const program_data &prog)
     glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(prog.tv.prog());
-    glEnableVertexAttribArray(prog.tv->a_vert);
+    glUseProgram(com.tv.prog());
+    glEnableVertexAttribArray(com.tv->a_vert);
     glDisable(GL_BLEND);
 
     glActiveTexture(GL_TEXTURE0);
@@ -241,17 +267,17 @@ void scale_data::end(const program_data &prog)
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, texnoise.tex);
 
-    glUniform1i(prog.tv->u_picture, 0);
-    glUniform1i(prog.tv->u_pattern, 1);
-    glUniform1i(prog.tv->u_banding, 2);
-    glUniform1i(prog.tv->u_noise, 3);
-    glUniform4fv(prog.tv->u_noiseoffset, 1, offsets);
-    glUniform2fv(prog.tv->u_texscale, 1, scale);
-    array.set_attrib(prog.tv->a_vert);
+    glUniform1i(com.tv->u_picture, 0);
+    glUniform1i(com.tv->u_pattern, 1);
+    glUniform1i(com.tv->u_banding, 2);
+    glUniform1i(com.tv->u_noise, 3);
+    glUniform4fv(com.tv->u_noiseoffset, 1, offsets);
+    glUniform2fv(com.tv->u_texscale, 1, scale);
+    array.set_attrib(com.tv->a_vert);
 
     glDrawArrays(GL_TRIANGLES, 0, array.size());
 
-    glDisableVertexAttribArray(prog.tv->a_vert);
+    glDisableVertexAttribArray(com.tv->a_vert);
     glUseProgram(0);
 
     core::check_gl_error(HERE);
@@ -270,20 +296,28 @@ void system::begin()
 {
     sprite_.clear();
     background_.clear();
+    selection_.clear();
 }
 
 void system::end()
 {
     sprite_.upload();
     background_.upload();
+    selection_.upload();
 }
 
 void system::draw()
 {
+    common_.xform[0] = 2.0 / core::PWIDTH;
+    common_.xform[1] = 2.0 / core::PHEIGHT;
+    common_.xform[2] = camera_.x * (-2.0 / core::PWIDTH);
+    common_.xform[3] = camera_.y * (-2.0 / core::PHEIGHT);
+
     scale_.begin();
-    background_.draw(prog_, camera_);
-    sprite_.draw(prog_, camera_);
-    scale_.end(prog_);
+    background_.draw(common_);
+    selection_.draw(common_);
+    sprite_.draw(common_);
+    scale_.end(common_);
 }
 
 void system::set_level(const std::string &path)
@@ -304,6 +338,18 @@ void system::add_sprite(sprite sp, vec2 pos,
 void system::set_camera_pos(vec2 target)
 {
     camera_ = vec2(std::floor(target.x), std::floor(target.y));
+}
+
+void system::set_selection(game::irect rect)
+{
+    selection_.array.clear();
+    auto d = selection_.array.insert(6);
+    d[0][0] = rect.x0; d[0][1] = rect.y0;
+    d[1][0] = rect.x1; d[1][1] = rect.y0;
+    d[2][0] = rect.x0; d[2][1] = rect.y1;
+    d[3][0] = rect.x0; d[3][1] = rect.y1;
+    d[4][0] = rect.x1; d[4][1] = rect.y0;
+    d[5][0] = rect.x1; d[5][1] = rect.y1;
 }
 
 }

@@ -82,6 +82,8 @@ public:
 
     /// Get the number of elements in the array.
     int size() const;
+    /// Determine whether the array is empty.
+    bool empty() const;
     /// Set the number of elements in the array to zero.
     void clear();
     /// Reserve space for the given total number of elements.
@@ -142,6 +144,12 @@ template<class T>
 int array<T>::size() const
 {
     return count_;
+}
+
+template<class T>
+bool array<T>::empty() const
+{
+    return count_ == 0;
 }
 
 template<class T>

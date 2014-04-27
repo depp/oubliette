@@ -67,8 +67,7 @@ struct plain {
     static const field ATTRIBUTES[];
 
     GLint a_vert;
-    GLint u_vertmat;
-    GLint u_vertoff;
+    GLint u_vertxform;
     GLint u_color;
 };
 
@@ -78,8 +77,7 @@ struct sprite {
     static const field ATTRIBUTES[];
 
     GLint a_vert;
-    GLint u_vertoff;
-    GLint u_vertscale;
+    GLint u_vertxform;
     GLint u_texscale;
     GLint u_texture;
 };

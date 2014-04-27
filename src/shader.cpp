@@ -133,8 +133,7 @@ GLuint load_program(const std::string &vertexshader,
 
 #define TYPE plain
 const field plain::UNIFORMS[] = {
-    FIELD(u_vertmat),
-    FIELD(u_vertoff),
+    FIELD(u_vertxform),
     FIELD(u_color),
     { nullptr, 0 }
 };
@@ -147,8 +146,7 @@ const field plain::ATTRIBUTES[] = {
 
 #define TYPE sprite
 const field sprite::UNIFORMS[] = {
-    FIELD(u_vertoff),
-    FIELD(u_vertscale),
+    FIELD(u_vertxform),
     FIELD(u_texscale),
     FIELD(u_texture),
     { nullptr, 0 }

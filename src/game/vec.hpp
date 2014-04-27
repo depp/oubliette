@@ -78,6 +78,11 @@ struct irect {
         return offset(std::floor(v.x), std::floor(v.y));
     }
 
+    irect expand(int amt)
+    {
+        return irect(x0 - amt, y0 - amt, x1 + amt, y1 + amt);
+    }
+
     static irect centered(int w, int h)
     {
         return irect(-(w/2), -(h/2), w - (w/2), h - (h/2));

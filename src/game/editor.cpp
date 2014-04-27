@@ -67,6 +67,8 @@ void editor_system::update()
 
 void editor_system::draw(::graphics::system &gr, int reltime)
 {
+    if (selection_ >= 0)
+        gr.set_selection(entities_.at(selection_).bounds().expand(2));
     gr.set_camera_pos(defs::interp(camera_lastpos_, camera_pos_, reltime));
     for (auto i = entities_.begin(), e = entities_.end(); i != e; i++)
         i->draw(gr);
