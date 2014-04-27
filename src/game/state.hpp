@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "camera.hpp"
 #include "control.hpp"
 #include "key.hpp"
 #include "levelmap.hpp"
@@ -31,6 +32,8 @@ private:
     control_system control_;
     /// The level collision map.
     levelmap level_;
+    /// The camera system.
+    camera_system camera_;
     /// The graphics system.
     graphics::system graphics_;
 
@@ -56,6 +59,8 @@ public:
     /// Add an entity to the game.
     void add_entity(std::unique_ptr<entity> &&ent);
     void add_entity(entity *ent);
+    /// Set the camera target.
+    void set_camera_target(const rect &target);
 
     const control_system control() const { return control_; }
     const levelmap &level() const { return level_; }

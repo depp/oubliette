@@ -2,6 +2,7 @@
    This file is part of Oubliette.  Oubliette is licensed under the terms
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "entity.hpp"
+#include "../defs.hpp"
 #include "defs.hpp"
 #include "state.hpp"
 #include "graphics.hpp"
@@ -13,6 +14,19 @@ using ::sprite::orientation;
 
 static const scalar DT = 1e-3 * defs::FRAMETIME;
 static const scalar INV_DT = 1.0 / (1e-3 * defs::FRAMETIME);
+
+static const int CAMERA_X = 16;
+static const int CAMERA_YS0 = 48, CAMERA_YS1 = 64;
+static const rect CAMERA_WALK(
+    -CAMERA_X,
+    core::PWIDTH / 2 - CAMERA_YS1,
+    +CAMERA_X,
+    core::PWIDTH / 2 - CAMERA_YS0);
+static const rect CAMERA_JUMP(
+    -CAMERA_X,
+    -core::PWIDTH / 2 + CAMERA_YS0,
+    +CAMERA_X,
+    core::PWIDTH / 2 - CAMERA_YS0);
 
 static const walking_stats PLAYER_STATS = {
     300.0f,
@@ -129,8 +143,7 @@ void physics_component::update(state &st, entity &e)
 
 vec2 physics_component::get_pos(int reltime)
 {
-    scalar frac = (scalar) reltime * (scalar)(1.0 / defs::FRAMETIME);
-    return lastpos + (pos - lastpos) * frac;
+    return defs::interp(lastpos, pos, reltime);
 }
 
 // ======================================================================
@@ -217,6 +230,10 @@ void player::update()
     walking.ymove = m_state.control().get_yaxis();
     walking.update(m_state, physics, PLAYER_STATS);
     physics.update(m_state, *this);
+
+    m_state.set_camera_target(
+        (physics.on_floor ? CAMERA_WALK : CAMERA_JUMP)
+        .offset(physics.pos));
 }
 
 void player::damage(int amount)

@@ -30,7 +30,7 @@ struct sprite_data {
     sprite_data();
     void clear();
     void upload();
-    void draw(const program_data &prog);
+    void draw(const program_data &prog, game::vec2 camera);
 };
 
 /// The level background.
@@ -41,7 +41,7 @@ struct background_data {
     background_data();
     void clear();
     void upload();
-    void draw(const program_data &prog);
+    void draw(const program_data &prog, game::vec2 camera);
     void set_level(const std::string &path);
 };
 
@@ -65,6 +65,7 @@ struct scale_data {
 class system {
 private:
     program_data prog_;
+    game::vec2 camera_;
     sprite_data sprite_;
     background_data background_;
     scale_data scale_;
@@ -83,6 +84,8 @@ public:
     void set_level(const std::string &path);
     /// Add a sprite to the screen.
     void add_sprite(sprite sp, game::vec2 pos, ::sprite::orientation orient);
+    /// Set the camera target.
+    void set_camera_pos(game::vec2 target);
 };
 
 }

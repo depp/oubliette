@@ -22,6 +22,9 @@ public:
     int hit_y1(irect r) const;
     /// Load the collision map for a level.
     void set_level(const std::string &name);
+
+    int width() const { return map.width; }
+    int height() const { return map.height; }
 };
 
 }

@@ -8,6 +8,7 @@
 #include "../defs.hpp"
 #include "../rand.hpp"
 namespace graphics {
+using game::vec2;
 
 static struct ::sprite::sprite SPRITES[] = {
 #include "sprite_array.hpp"
@@ -48,7 +49,7 @@ void sprite_data::upload()
     array.upload(GL_DYNAMIC_DRAW);
 }
 
-void sprite_data::draw(const program_data &prog)
+void sprite_data::draw(const program_data &prog, vec2 camera)
 {
     glUseProgram(prog.sprite.prog());
     glEnableVertexAttribArray(prog.sprite->a_vert);
@@ -60,8 +61,8 @@ void sprite_data::draw(const program_data &prog)
 
     glUniform2f(
         prog.sprite->u_vertoff,
-        -1.0f,
-        -1.0f);
+        camera.x * (-2.0 / core::PWIDTH),
+        camera.y * (-2.0 / core::PHEIGHT));
     glUniform2f(
         prog.sprite->u_vertscale,
         2.0 / core::PWIDTH,
@@ -102,7 +103,7 @@ void background_data::upload()
     core::check_gl_error(HERE);
 }
 
-void background_data::draw(const program_data &prog)
+void background_data::draw(const program_data &prog, vec2 camera)
 {
     if (bgtex.tex == 0)
         return;
@@ -117,8 +118,8 @@ void background_data::draw(const program_data &prog)
 
     glUniform2f(
         prog.sprite->u_vertoff,
-        -1.0f,
-        -1.0f);
+        camera.x * (-2.0 / core::PWIDTH),
+        camera.y * (-2.0 / core::PHEIGHT));
     glUniform2f(
         prog.sprite->u_vertscale,
         2.0 / core::PWIDTH,
@@ -259,6 +260,7 @@ void scale_data::end(const program_data &prog)
 // ======================================================================
 
 system::system()
+    : camera_(vec2::zero())
 { }
 
 system::~system()
@@ -279,8 +281,8 @@ void system::end()
 void system::draw()
 {
     scale_.begin();
-    background_.draw(prog_);
-    sprite_.draw(prog_);
+    background_.draw(prog_, camera_);
+    sprite_.draw(prog_, camera_);
     scale_.end(prog_);
 }
 
@@ -289,7 +291,7 @@ void system::set_level(const std::string &path)
     background_.set_level(path);
 }
 
-void system::add_sprite(sprite sp, game::vec2 pos,
+void system::add_sprite(sprite sp, vec2 pos,
                         ::sprite::orientation orient)
 {
     sprite_.array.add(
@@ -297,6 +299,11 @@ void system::add_sprite(sprite sp, game::vec2 pos,
         (int)std::floor(pos.x),
         (int)std::floor(pos.y),
         orient);
+}
+
+void system::set_camera_pos(vec2 target)
+{
+    camera_ = vec2(std::floor(target.x), std::floor(target.y));
 }
 
 }

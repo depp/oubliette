@@ -3,7 +3,7 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #ifndef LD_GAME_DEFS_HPP
 #define LD_GAME_DEFS_HPP
-
+#include "vec.hpp"
 namespace game {
 
 struct defs {
@@ -12,8 +12,13 @@ struct defs {
 
     /// Maximum interval between updates.
     static const int MAXUPDATE = 500;
+
+    static vec2 interp(vec2 a, vec2 b, int reltime)
+    {
+        scalar frac = (scalar) reltime * (scalar)(1.0 / defs::FRAMETIME);
+        return a + (b - a) * frac;
+    }
 };
 
 }
-
 #endif

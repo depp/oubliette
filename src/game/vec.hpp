@@ -55,7 +55,8 @@ struct rect {
     { }
 
     static bool test_intersect(const rect &a, const rect &b);
-    rect offset(vec2 v);
+    rect offset(vec2 v) const;
+    vec2 nearest(vec2 v) const;
 };
 
 /// Integer rectangle.

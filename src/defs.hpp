@@ -40,5 +40,4 @@ void delay(int msec);
 void swap_window();
 
 }
-
 #endif

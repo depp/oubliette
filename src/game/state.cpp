@@ -13,7 +13,6 @@ state::state()
     : initted_(false)
 {
     set_level("main_wake");
-    add_entity(new player(*this, vec2(234, 46)));
 }
 
 state::~state()
@@ -58,6 +57,7 @@ void state::advance(unsigned time)
             entity &ent = **i;
             ent.update();
         }
+        camera_.update();
     }
 }
 
@@ -66,6 +66,7 @@ void state::draw(unsigned time)
     advance(time);
     int reltime = time - frametime_;
     graphics_.begin();
+    graphics_.set_camera_pos(camera_.get_pos(reltime));
     for (auto i = entities_.begin(), e = entities_.end(); i != e; i++) {
         entity &ent = **i;
         ent.draw(graphics_, reltime);
@@ -88,7 +89,10 @@ void state::event_key(key k, bool state)
 
 void state::set_level(const std::string &name)
 {
+    add_entity(new player(*this, vec2(234, 46)));
     level_.set_level(name);
+    camera_ = camera_system(
+        rect(vec2::zero(), vec2(level_.width(), level_.height())));
     graphics_.set_level("main_wake");
 }
 
@@ -100,6 +104,11 @@ void state::add_entity(std::unique_ptr<entity> &&ent)
 void state::add_entity(entity *ent)
 {
     add_entity(std::unique_ptr<entity>(ent));
+}
+
+void state::set_camera_target(const rect &target)
+{
+    camera_.set_target(target);
 }
 
 }

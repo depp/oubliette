@@ -10,9 +10,30 @@ bool rect::test_intersect(const rect &a, const rect &b)
         a.min.y <= b.max.y && a.max.y >= b.min.y;
 }
 
-rect rect::offset(vec2 v)
+rect rect::offset(vec2 v) const
 {
     return rect(min + v, max + v);
+}
+
+vec2 rect::nearest(vec2 v) const
+{
+    vec2 r;
+
+    if (v.x < min.x)
+        r.x = min.x;
+    else if (v.x > max.x)
+        r.x = max.x;
+    else
+        r.x = v.x;
+
+    if (v.y < min.y)
+        r.y = min.y;
+    else if (v.y > max.y)
+        r.y = max.y;
+    else
+        r.y = v.y;
+
+    return r;
 }
 
 }
