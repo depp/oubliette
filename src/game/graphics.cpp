@@ -294,8 +294,8 @@ void system::add_sprite(sprite sp, game::vec2 pos,
 {
     sprite_.array.add(
         sprite_.sheet.get(static_cast<int>(sp)),
-        (int)std::floor(pos.x + 0.5f),
-        (int)std::floor(pos.y + 0.5f),
+        (int)std::floor(pos.x),
+        (int)std::floor(pos.y),
         orient);
 }
 

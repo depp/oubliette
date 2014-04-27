@@ -6,36 +6,61 @@
 #include <cmath>
 namespace game {
 
-bool levelmap::hit_test(int xmin, int ymin, int xmax, int ymax) const
+bool levelmap::hit_test(irect r) const
 {
-    if (xmin > xmax || ymin > ymax)
-        return false;
     const unsigned char *data = map.data;
     int w = map.width, h = map.height, rb = map.rowbytes;
-    if (xmin < 0 || xmax >= w)
+    if (r.x0 < 0 || r.x1 >= w)
         return true;
-    if (ymax < 0 || ymin >= h)
-        return false;
-    if (ymin < 0)
-        ymin = 0;
-    if (ymax >= h)
-        ymax = h - 1;
-    unsigned hit = 0;
-    for (int y = ymin; y <= ymax; y++) {
+    int y0 = r.y0 >= 0 ? r.y0 : 0;
+    int y1 = r.y1 <= h ? r.y1 : h;
+    for (int y = y0; y < y1; y++) {
+        unsigned hit = 0;
         const unsigned char *row = data + rb * y;
-        for (int x = xmin; x <= xmax; x++)
+        for (int x = r.x0; x <= r.x1; x++)
             hit |= row[x];
+        if (hit != 0)
+            return true;
     }
-    return hit != 0;
+    return false;
 }
 
-bool levelmap::hit_test(const rect &r) const
+int levelmap::hit_y0(irect r) const
 {
-    return hit_test(
-        (int)floor(r.min.x),
-        (int)floor(r.min.y),
-        (int)ceil(r.max.x),
-        (int)ceil(r.max.y));
+    const unsigned char *data = map.data;
+    int w = map.width, h = map.height, rb = map.rowbytes;
+    if (r.x0 < 0 || r.x1 >= w)
+        return r.y1 - r.y0;
+    int y0 = r.y0 >= 0 ? r.y0 : 0;
+    int y1 = r.y1 <= h ? r.y1 : h;
+    for (int y = y1; y > y0; y--) {
+        unsigned hit = 0;
+        const unsigned char *row = data + rb * (y - 1);
+        for (int x = r.x0; x <= r.x1; x++)
+            hit |= row[x];
+        if (hit != 0)
+            return y - r.y0;
+    }
+    return 0;
+}
+
+int levelmap::hit_y1(irect r) const
+{
+    const unsigned char *data = map.data;
+    int w = map.width, h = map.height, rb = map.rowbytes;
+    if (r.x0 < 0 || r.x1 >= w)
+        return r.y1 - r.y0;
+    int y0 = r.y0 >= 0 ? r.y0 : 0;
+    int y1 = r.y1 <= h ? r.y1 : h;
+    for (int y = y0; y < y1; y++) {
+        unsigned hit = 0;
+        const unsigned char *row = data + rb * y;
+        for (int x = r.x0; x <= r.x1; x++)
+            hit |= row[x];
+        if (hit != 0)
+            return r.y1 - y;
+    }
+    return 0;
 }
 
 void levelmap::set_level(const std::string &name)

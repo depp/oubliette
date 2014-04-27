@@ -42,6 +42,7 @@ inline scalar vec2::dot(vec2 u, vec2 v) { return u.x * v.x + u.y * v.y; }
 inline scalar vec2::dist2(vec2 u, vec2 v) { return (u - v).mag2(); }
 inline scalar vec2::dist(vec2 u, vec2 v) { return std::sqrt(dist2(u, v)); }
 
+// Floating-point rectangle.
 struct rect {
     vec2 min, max;
 
@@ -55,6 +56,31 @@ struct rect {
 
     static bool test_intersect(const rect &a, const rect &b);
     rect offset(vec2 v);
+};
+
+/// Integer rectangle.
+struct irect {
+    int x0, y0, x1, y1;
+
+    irect() { }
+    irect(int x0, int y0, int x1, int y1)
+        : x0(x0), y0(y0), x1(x1), y1(y1)
+    { }
+
+    irect offset(int x, int y)
+    {
+        return irect(x0 + x, y0 + y, x1 + x, y1 + y);
+    }
+
+    irect offset(vec2 v)
+    {
+        return offset(std::floor(v.x), std::floor(v.y));
+    }
+
+    static irect centered(int w, int h)
+    {
+        return irect(-(w/2), -(h/2), w - (w/2), h - (h/2));
+    }
 };
 
 }

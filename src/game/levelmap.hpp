@@ -8,16 +8,19 @@
 #include "vec.hpp"
 namespace game {
 
+/// Level collision map.
 class levelmap {
 private:
     image::bitmap map;
 
 public:
     /// Do a hit test against a rectangle.
-    /// Note that xmin == xmax means 1 pixel wide.
-    bool hit_test(int xmin, int ymin, int xmax, int ymax) const;
-    bool hit_test(const rect &r) const;
-
+    bool hit_test(irect r) const;
+    /// Returns the number of pixels to move up to clear collisions.
+    int hit_y0(irect r) const;
+    /// Returns the number of pixels to move down to clear collisions.
+    int hit_y1(irect r) const;
+    /// Load the collision map for a level.
     void set_level(const std::string &name);
 };
 

@@ -60,7 +60,7 @@ public:
     /// Link to the enclosing world state.
     state &m_state;
     /// The bounding box, in world coordinates.
-    rect m_bbox;
+    irect m_bbox;
     /// The entity's team.
     team m_team;
 };
@@ -69,13 +69,13 @@ public:
 class physics_component {
 public:
     // Only the accel should be changed by others.
-    rect bbox;
+    irect bbox;
     vec2 lastpos;
     vec2 pos;
     vec2 vel;
     vec2 accel;
 
-    physics_component(rect bbox, vec2 pos, vec2 vel);
+    physics_component(irect bbox, vec2 pos, vec2 vel);
 
     /// Update the physics component of this entity.
     void update(state &st, entity &e);
