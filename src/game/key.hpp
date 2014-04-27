@@ -5,8 +5,9 @@
 #define LD_GAME_KEY_HPP
 namespace game {
 
+/// Possible keys or buttons to press.
 enum class key {
-    UP, LEFT, RIGHT, DOWN
+    UP, LEFT, RIGHT, DOWN, SELECT, DELETE, PREV, NEXT, SHIFT
 };
 
 }

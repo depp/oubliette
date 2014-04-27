@@ -5,6 +5,7 @@
 #include <SDL_image.h>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <unistd.h>
 #include <memory>
 #include "defs.hpp"
@@ -186,6 +187,29 @@ static bool decode_key(int scancode, key *k)
         *k = key::RIGHT;
         return true;
 
+    case SDL_SCANCODE_SPACE:
+    case SDL_SCANCODE_RETURN:
+        *k = key::SELECT;
+        return true;
+
+    case SDL_SCANCODE_TAB:
+    case SDL_SCANCODE_PAGEDOWN:
+        *k = key::NEXT;
+        return true;
+
+    case SDL_SCANCODE_PAGEUP:
+        *k = key::PREV;
+
+    case SDL_SCANCODE_BACKSPACE:
+    case SDL_SCANCODE_DELETE:
+        *k = key::DELETE;
+        return true;
+
+    case SDL_SCANCODE_LSHIFT:
+    case SDL_SCANCODE_RSHIFT:
+        *k = key::SHIFT;
+        return true;
+
     default:
         return false;
     }
@@ -193,8 +217,14 @@ static bool decode_key(int scancode, key *k)
 
 int main(int argc, char *argv[])
 {
-    (void) argc;
-    (void) argv;
+    const char *edit_level = nullptr;
+    if (argc >= 2) {
+        if (!std::strcmp(argv[1], "--edit") || std::strcmp(argv[1], "-e")) {
+            if (argc >= 3) {
+                edit_level = argv[2];
+            }
+        }
+    }
 
     const unsigned MIN_TICKS1 = 1000 / core::MAXFPS;
     const unsigned MIN_TICKS = MIN_TICKS1 > 0 ? MIN_TICKS1 : 1;
@@ -204,7 +234,8 @@ int main(int argc, char *argv[])
     {
         bool do_quit = false;
         unsigned last_frame = SDL_GetTicks();
-        game::state gstate;
+        game::state gstate(edit_level != nullptr);
+        gstate.set_level(edit_level != nullptr ? edit_level : "main_wake");
         while (!do_quit) {
             SDL_Event e;
             while (SDL_PollEvent(&e)) {

@@ -16,14 +16,21 @@ class system;
 }
 namespace game {
 class entity;
+struct spawnpoint;
 
 /// State of the game world.
 class state {
 private:
+    /// Whether the world is in edit mode.
+    bool edit_mode_;
     /// Whether the state has been fully initialized.
     bool initted_;
     /// The timestamp of the last update.
     unsigned frametime_;
+    /// The current level name.
+    std::string levelname_;
+    /// The level spawnpoints.
+    std::vector<spawnpoint> spawnpoints_;
     /// List of all entities in the game.
     std::vector<std::unique_ptr<entity>> entities_;
     /// List of pending new entities.
@@ -39,9 +46,15 @@ private:
 
     /// Advance to the given frame.
     void advance(unsigned time);
+    /// Read level data.
+    void read_level();
+    /// Write level data.
+    void write_level() const;
+    /// Get the path to the level file.
+    std::string level_path() const;
 
 public:
-    state();
+    explicit state(bool edit_mode);
     state(const state &) = delete;
     state(state &&) = delete;
     ~state();

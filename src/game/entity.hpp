@@ -4,6 +4,7 @@
 #ifndef LD_GAME_ENTITY_HPP
 #define LD_GAME_ENTITY_HPP
 #include "vec.hpp"
+#include <string>
 namespace graphics {
 class system;
 }
@@ -36,6 +37,17 @@ enum class team {
 
     /// The enemies' shots.
     FOE_SHOT
+};
+
+/// Types of objects that can be spawned at level start.
+enum class spawntype {
+    PLAYER,
+    DOOR,
+    CHEST,
+    SLIME,
+    PROF,
+    WOMAN,
+    PRIEST
 };
 
 /// Generic game entity superclass.
@@ -135,6 +147,16 @@ public:
     virtual void update();
     virtual void damage(int amount);
     virtual void draw(::graphics::system &gr, int reltime);
+};
+
+/// Spawn point where an entity starts.
+struct spawnpoint {
+    spawntype type;
+    vec2 pos;
+    std::string data;
+
+    /// Draw the spawn point.  This is only used by the editor.
+    void draw(::graphics::system &gr);
 };
 
 }

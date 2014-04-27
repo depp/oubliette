@@ -20,7 +20,15 @@ float control_system::button_to_axis(key negative, key positive) const
 void control_system::clear()
 {
     for (int i = 0; i < NKEYS; i++)
-        keys[i] = false;
+        keys[i] = 0;
+}
+
+void control_system::update()
+{
+    for (int i = 0; i < NKEYS; i++) {
+        if (keys[i] == 1)
+            keys[i] = 2;
+    }
 }
 
 bool control_system::get_key(key k) const
@@ -28,7 +36,15 @@ bool control_system::get_key(key k) const
     int index = static_cast<int>(k);
     if (index < 0 || index >= NKEYS)
         core::die("Unknown key");
-    return keys[index];
+    return keys[index] != 0;
+}
+
+bool control_system::get_key_instant(key k) const
+{
+    int index = static_cast<int>(k);
+    if (index < 0 || index >= NKEYS)
+        core::die("Unknown key");
+    return keys[index] == 1;
 }
 
 void control_system::set_key(key k, bool state)
@@ -36,7 +52,12 @@ void control_system::set_key(key k, bool state)
     int index = static_cast<int>(k);
     if (index < 0 || index >= NKEYS)
         core::die("Unknown key");
-    keys[index] = state;
+    if (state) {
+        if (keys[index] == 0)
+            keys[index] = 1;
+    } else {
+        keys[index] = 0;
+    }
 }
 
 float control_system::get_xaxis() const
