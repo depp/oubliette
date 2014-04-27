@@ -8,6 +8,7 @@
 #include "../defs.hpp"
 namespace game {
 
+static const int SEL_NONE = -1;
 static const int SAVETIME = 15;
 
 static const float EDITOR_CAMSPEED = 150.0f;
@@ -15,10 +16,11 @@ static const float EDITOR_CAMSPEED = 150.0f;
 editor_system::editor_system(const state &st, const std::string &levelname)
     : state_(st),
       levelname_(levelname),
-      selection_(-1),
+      selection_(SEL_NONE),
       camera_pos_(core::PWIDTH / 2, core::PHEIGHT / 2),
       camera_lastpos_(camera_pos_),
       dragging_(false),
+      panning_(false),
       type_(spawntype::PLAYER),
       dirty_(false),
       savetime_(0)
@@ -36,7 +38,7 @@ int editor_system::hit(int x, int y)
             y >= bbox.y0 && y < bbox.y1)
             return i - b;
     }
-    return -1;
+    return SEL_NONE;
 }
 
 void editor_system::window_to_world(int &x, int &y)
@@ -54,7 +56,7 @@ void editor_system::mark_dirty()
 
 void editor_system::update()
 {
-    if (dirty_) {
+    if (dirty_ && !dragging_) {
         savetime_++;
         if (savetime_ >= SAVETIME)
             save_data();
@@ -77,8 +79,9 @@ void editor_system::draw(::graphics::system &gr, int reltime)
 void editor_system::load_data()
 {
     entities_ = leveldata::read_level(levelname_);
-    selection_ = -1;
+    selection_ = SEL_NONE;
     dragging_ = false;
+    panning_ = false;
     dirty_ = false;
 }
 
@@ -92,9 +95,10 @@ void editor_system::save_data()
 void editor_system::mouse_click(int x, int y, int button)
 {
     window_to_world(x, y);
+    dragging_ = false;
+    panning_ = false;
     switch (button) {
     case -1:
-        dragging_ = false;
         break;
 
     case 1:
@@ -104,9 +108,14 @@ void editor_system::mouse_click(int x, int y, int button)
             dragging_ = true;
             clickx_ = s.x - x;
             clicky_ = s.y - y;
-        } else {
-            dragging_ = false;
+            dragging_ = true;
         }
+        break;
+
+    case 2:
+        clickx_ = x;
+        clicky_ = y;
+        panning_ = true;
         break;
 
     case 3:
@@ -126,12 +135,16 @@ void editor_system::mouse_click(int x, int y, int button)
 
 void editor_system::mouse_move(int x, int y)
 {
-    window_to_world(x, y);
-    if (dragging_ && selection_ >= 0) {
+    if (dragging_) {
+        window_to_world(x, y);
         auto &s = entities_.at(selection_);
         s.x = x + clickx_;
         s.y = y + clicky_;
         mark_dirty();
+    } else if (panning_) {
+        camera_pos_.x = clickx_ - x + core::PWIDTH / 2;
+        camera_pos_.y = clicky_ - y + core::PHEIGHT / 2;
+        camera_lastpos_ = camera_pos_;
     }
 }
 

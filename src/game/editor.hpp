@@ -22,7 +22,7 @@ private:
     std::vector<spawnpoint> entities_;
     int selection_;
     vec2 camera_pos_, camera_lastpos_;
-    bool dragging_;
+    bool dragging_, panning_;
     int clickx_, clicky_;
     spawntype type_;
     bool dirty_;
