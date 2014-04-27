@@ -11,6 +11,9 @@ namespace game {
 using ::graphics::sprite;
 using ::sprite::orientation;
 
+static const scalar DT = 1e-3 * defs::FRAMETIME;
+static const scalar INV_DT = 1.0 / (1e-3 * defs::FRAMETIME);
+
 // ======================================================================
 
 entity::entity(state &st, team t)
@@ -40,14 +43,13 @@ physics_component::physics_component(rect bbox, vec2 pos, vec2 vel)
 
 void physics_component::update(state &st, entity &e)
 {
-    const scalar dt = 1e-3 * defs::FRAMETIME;
-
     lastpos = pos;
     vec2 frame_accel = accel;
-    vec2 new_pos = pos + dt * vel + (dt * dt / 2) * frame_accel;
-    vec2 new_vel = vel + dt * frame_accel;
+    vec2 new_pos = pos + DT * vel + (DT * DT / 2) * frame_accel;
+    vec2 new_vel = vel + DT * frame_accel;
 
     rect new_bbox = bbox.offset(new_pos);
+
     if (st.level().hit_test(new_bbox)) {
         new_pos = pos;
         new_vel = vec2::zero();
@@ -74,8 +76,15 @@ walking_component::walking_component()
 void walking_component::update(state &st, physics_component &physics)
 {
     (void)&st;
-    (void)&physics;
-    physics.accel = gravity;
+    static const float XACCEL = 600.0f, XSPEED = 120.0f;
+    vec2 accel = gravity;
+    float xaccel = (XSPEED * xmove - physics.vel.x) * INV_DT;
+    if (xaccel > XACCEL)
+        xaccel = XACCEL;
+    else if (xaccel < -XACCEL)
+        xaccel = -XACCEL;
+    accel.x += xaccel;
+    physics.accel = accel;
     xmove = 0.0f;
     ymove = 0.0f;
 }
@@ -87,6 +96,7 @@ player::player(state &st, vec2 pos)
       physics(rect(-4, -10, 4, 10), pos, vec2::zero())
 {
     walking.gravity = vec2(0, -100);
+    walking.gravity = vec2::zero();
 }
 
 player::~player()
@@ -94,6 +104,8 @@ player::~player()
 
 void player::update()
 {
+    walking.xmove = m_state.control().get_xaxis();
+    walking.ymove = m_state.control().get_xaxis();
     walking.update(m_state, physics);
     physics.update(m_state, *this);
 }

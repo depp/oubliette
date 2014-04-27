@@ -67,13 +67,12 @@ public:
 
 /// Physics component for an entity.
 class physics_component {
-private:
+public:
+    // Only the accel should be changed by others.
     rect bbox;
     vec2 lastpos;
     vec2 pos;
     vec2 vel;
-
-public:
     vec2 accel;
 
     physics_component(rect bbox, vec2 pos, vec2 vel);
