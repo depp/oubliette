@@ -22,11 +22,15 @@ static sdl::surface load_image(const std::string &path)
         core::die("Failed to load image");
     }
 
+    std::printf(
+        "loading %s (%dx%d, %s)\n",
+        path.c_str(),
+        image->w, image->h,
+        SDL_GetPixelFormatName(image->format->format));
+
     if (image->format->format == SDL_PIXELFORMAT_ARGB8888)
         return image;
 
-    std::printf("converting %s from 0x%08x\n",
-                path.c_str(), image->format->format);
     sdl::surface converted;
     converted.surfptr = SDL_ConvertSurfaceFormat(
         image.surfptr, SDL_PIXELFORMAT_ARGB8888, 0);
@@ -152,10 +156,6 @@ texture texture::load(const std::string &path)
     tex.theight = round_up_pow2(tex.iheight);
     tex.scale[0] = 1.0 / tex.twidth;
     tex.scale[1] = 1.0 / tex.theight;
-
-    std::printf(
-        "%s: %dx%d (%dx%d)\n",
-        path.c_str(), tex.iwidth, tex.iheight, tex.twidth, tex.theight);
 
     glGenTextures(1, &tex.tex);
     glBindTexture(GL_TEXTURE_2D, tex.tex);
