@@ -83,17 +83,32 @@ public:
     vec2 get_pos(int reltime);
 };
 
+/// Walking statistics.
+struct walking_stats {
+    float gravity;
+    float xaccel_ground;
+    float xspeed_ground;
+    float xaccel_air;
+    float xspeed_air;
+    int floordepth;
+    int jumptime;
+    float jumpaccel;
+    float jumpspeed;
+};
+
 /// Walking component for an entity.
 class walking_component {
 public:
     vec2 gravity;
     float xmove;
     float ymove;
+    int jumptime;
 
     walking_component();
 
     /// Update the walking component of this entity.
-    void update(state &st, physics_component &physics);
+    void update(state &st, physics_component &physics,
+                const walking_stats &stats);
 };
 
 // ======================================================================

@@ -14,6 +14,14 @@ using ::sprite::orientation;
 static const scalar DT = 1e-3 * defs::FRAMETIME;
 static const scalar INV_DT = 1.0 / (1e-3 * defs::FRAMETIME);
 
+static const walking_stats PLAYER_STATS = {
+    300.0f,
+    // Walking
+    600.0f, 120.0f, 80.0f, 150.0f, 3,
+    // Jumping
+    25, 200.0f, 150.0f
+};
+
 // ======================================================================
 
 entity::entity(state &st, team t)
@@ -125,32 +133,46 @@ vec2 physics_component::get_pos(int reltime)
 // ======================================================================
 
 walking_component::walking_component()
-    : gravity(vec2::zero()), xmove(0.0f), ymove(0.0f)
+    : gravity(vec2::zero()), xmove(0.0f), ymove(0.0f), jumptime(0)
 { }
 
-void walking_component::update(state &st, physics_component &physics)
+void walking_component::update(state &st, physics_component &physics,
+                               const walking_stats &stats)
 {
     (void)&st;
-    static const float XACCEL_GROUND = 600.0f, XSPEED_GROUND = 120.0f;
-    static const float XACCEL_AIR = 80.0f, XSPEED_AIR = 150.0f;
-    static const int FLOORDEPTH = 3;
-
-    vec2 accel = gravity;
+    vec2 accel = vec2(0, -stats.gravity);
 
     bool on_floor = st.level().hit_test(
-        irect(physics.bbox.x0, physics.bbox.y0 - FLOORDEPTH,
+        irect(physics.bbox.x0, physics.bbox.y0 - stats.floordepth,
               physics.bbox.y1, physics.bbox.y0)
         .offset(physics.pos));
     // std::printf("on floor: %s\n", on_floor ? "true" : "false");
 
-    float max_xspeed = on_floor ? XSPEED_GROUND : XSPEED_AIR;
-    float max_xaccel = on_floor ? XACCEL_GROUND : XACCEL_AIR;
+    float max_xspeed = on_floor ? stats.xspeed_ground : stats.xspeed_air;
+    float max_xaccel = on_floor ? stats.xaccel_ground : stats.xaccel_air;
     float xaccel = (max_xspeed * xmove - physics.vel.x) * INV_DT;
     if (xaccel > max_xaccel)
         xaccel = max_xaccel;
     else if (xaccel < -max_xaccel)
         xaccel = -max_xaccel;
     accel.x += xaccel;
+
+    if (physics.vel.y <= 1e-3f) {
+        jumptime = 0;
+        if (on_floor) {
+            if (ymove > 0.5f) {
+                jumptime = stats.jumptime;
+                accel.y += stats.jumpspeed * INV_DT;
+            }
+        }
+    } else {
+        if (jumptime > 0) {
+            jumptime--;
+            if (ymove > 0.0f)
+                accel.y += stats.jumpaccel * ymove;
+        }
+    }
+
     physics.accel = accel;
     xmove = 0.0f;
     ymove = 0.0f;
@@ -172,8 +194,8 @@ player::~player()
 void player::update()
 {
     walking.xmove = m_state.control().get_xaxis();
-    walking.ymove = m_state.control().get_xaxis();
-    walking.update(m_state, physics);
+    walking.ymove = m_state.control().get_yaxis();
+    walking.update(m_state, physics, PLAYER_STATS);
     physics.update(m_state, *this);
 }
 
