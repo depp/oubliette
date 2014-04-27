@@ -54,6 +54,9 @@ entity *entity::spawn(state &st, const struct spawnpoint &data)
     case spawntype::PLAYER:
         return new player(st, pos);
 
+    case spawntype::DOOR:
+        return new door(st, pos, data.data);
+
     default:
         core::die("Cannot spawn entity, unknown type");
     }
@@ -259,6 +262,29 @@ void player::draw(::graphics::system &gr, int reltime)
     gr.add_sprite(
         sprite::PLAYER,
         physics.get_pos(reltime) + vec2(-8, -12),
+        orientation::NORMAL);
+}
+
+// ======================================================================
+
+door::door(state &st, vec2 pos, const std::string target)
+    : entity(st, team::INTERACTIVE), m_pos(pos), m_target(target)
+{
+    m_bbox = irect::centered(24, 32).offset(pos);
+}
+
+door::~door()
+{ }
+
+void door::interact()
+{ }
+
+void door::draw(::graphics::system &gr, int reltime)
+{
+    (void)reltime;
+    gr.add_sprite(
+        sprite::DOOR2,
+        m_pos + vec2(-12, -16),
         orientation::NORMAL);
 }
 

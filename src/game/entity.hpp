@@ -141,5 +141,20 @@ public:
     virtual void draw(::graphics::system &gr, int reltime);
 };
 
+/// Doors between areas.
+class door : public entity {
+public:
+    const vec2 m_pos;
+    const std::string m_target;
+
+    door(state &st, vec2 pos, const std::string target);
+    virtual ~door();
+
+    /// Handle the player interacting with the object.
+    virtual void interact();
+    /// Draw the sprite to the graphics system.
+    virtual void draw(::graphics::system &gr, int reltime);
+};
+
 }
 #endif
