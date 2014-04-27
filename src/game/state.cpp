@@ -2,70 +2,104 @@
    This file is part of Oubliette.  Oubliette is licensed under the terms
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "defs.hpp"
+#include "entity.hpp"
 #include "state.hpp"
 #include "../opengl.hpp"
 #include <cstdio>
+#include <algorithm>
 namespace game {
 
 state::state()
-    : initted_(false),
-      physics(level)
+    : initted_(false)
+{
+    set_level("main_wake");
+    add_entity(new player(*this, vec2(234, 46)));
+}
+
+state::~state()
 { }
+
+struct entity_is_dead {
+    bool operator()(const std::unique_ptr<entity> &p) {
+        return p->m_team != team::DEAD;
+    }
+};
+
+void state::advance(unsigned time)
+{
+    unsigned nframes;
+    if (initted_) {
+        unsigned delta = time - frametime_;
+        if ((unsigned)delta > defs::MAXUPDATE) {
+            std::puts("Lag!");
+            nframes = 1;
+            frametime_ = time;
+        } else {
+            nframes = delta / defs::FRAMETIME;
+            frametime_ += nframes * defs::FRAMETIME;
+        }
+    } else {
+        initted_ = true;
+        frametime_ = time;
+        nframes = 1;
+    }
+
+    // std::printf("time = %u, nframes = %d\n", time, nframes);
+    for (unsigned i = 0; i < nframes; i++) {
+        auto part = std::stable_partition(
+            entities_.begin(), entities_.end(), entity_is_dead());
+        entities_.erase(part, entities_.end());
+        entities_.insert(
+            entities_.end(),
+            std::make_move_iterator(new_entities_.begin()),
+            std::make_move_iterator(new_entities_.end()));
+        new_entities_.clear();
+        for (auto i = entities_.begin(), e = entities_.end(); i != e; i++) {
+            entity &ent = **i;
+            ent.update();
+        }
+    }
+}
 
 void state::draw(unsigned time)
 {
-    unsigned delta;
-    if (initted_) {
-        delta = time - frametime_;
-    } else {
-        delta = 0;
-        initted_ = true;
-        frametime_ = time;
+    advance(time);
+    int reltime = time - frametime_;
+    graphics_.begin();
+    for (auto i = entities_.begin(), e = entities_.end(); i != e; i++) {
+        entity &ent = **i;
+        ent.draw(graphics_, reltime);
     }
-    int nframes;
-    if ((unsigned)delta > defs::MAXUPDATE) {
-        std::puts("Lag!");
-        nframes = 1;
-        frametime_ = time;
-    } else {
-        nframes = delta / defs::FRAMETIME;
-        frametime_ += nframes * defs::FRAMETIME;
-    }
-    for (int i = 0; i < nframes; i++) {
-        physics.update();
-    }
-
-    graphics.draw(*this, time - frametime_);
-}
-
-void state::init()
-{
-    graphics.init();
-    set_level("main_wake");
-}
-
-void state::term()
-{
-    graphics.term();
+    graphics_.end();
+    graphics_.draw();
 }
 
 void state::event_click(int x, int y, int button)
 {
     if (button != 1 && button != 3)
         return;
-    auto obj = allocator.create();
-    auto &p = physics.create(obj);
-    p.extent_min = vec2(-6, -10);
-    p.extent_max = vec2(6, 10);
-    p.lastpos = p.pos = vec2(x, y);
-    p.vel = vec2::zero();
-    p.accel = vec2(0, -100);
+    std::printf("click (%d, %d)\n", x, y);
+}
+
+void state::event_key(key k, bool state)
+{
+    control_.set_key(k, state);
 }
 
 void state::set_level(const std::string &name)
 {
-    level.set_level(name);
-    graphics.set_level("main_wake");
+    level_.set_level(name);
+    graphics_.set_level("main_wake");
+}
+
+void state::add_entity(std::unique_ptr<entity> &&ent)
+{
+    new_entities_.push_back(std::move(ent));
+}
+
+void state::add_entity(entity *ent)
+{
+    add_entity(std::unique_ptr<entity>(ent));
 }
 
 }

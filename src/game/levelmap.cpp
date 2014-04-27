@@ -3,6 +3,7 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "levelmap.hpp"
 #include <cstdlib>
+#include <cmath>
 namespace game {
 
 bool levelmap::hit_test(int xmin, int ymin, int xmax, int ymax) const
@@ -26,6 +27,15 @@ bool levelmap::hit_test(int xmin, int ymin, int xmax, int ymax) const
             hit |= row[x];
     }
     return hit != 0;
+}
+
+bool levelmap::hit_test(const rect &r) const
+{
+    return hit_test(
+        (int)floor(r.min.x),
+        (int)floor(r.min.y),
+        (int)ceil(r.max.x),
+        (int)ceil(r.max.y));
 }
 
 void levelmap::set_level(const std::string &name)

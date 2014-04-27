@@ -3,7 +3,6 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #ifndef LD_GAME_VEC_HPP
 #define LD_GAME_VEC_HPP
-
 #include <cmath>
 namespace game {
 
@@ -43,6 +42,20 @@ inline scalar vec2::dot(vec2 u, vec2 v) { return u.x * v.x + u.y * v.y; }
 inline scalar vec2::dist2(vec2 u, vec2 v) { return (u - v).mag2(); }
 inline scalar vec2::dist(vec2 u, vec2 v) { return std::sqrt(dist2(u, v)); }
 
-}
+struct rect {
+    vec2 min, max;
 
+    rect() { }
+    rect(vec2 min, vec2 max)
+        : min(min), max(max)
+    { }
+    rect(float x0, float y0, float x1, float y1)
+        : min(x0, y0), max(x1, y1)
+    { }
+
+    static bool test_intersect(const rect &a, const rect &b);
+    rect offset(vec2 v);
+};
+
+}
 #endif

@@ -4,28 +4,85 @@
 #ifndef LD_GAME_GRAPHICS_HPP
 #define LD_GAME_GRAPHICS_HPP
 #include <memory>
-namespace image {
-struct texture;
-}
-namespace game {
+#include "../sprite.hpp"
+#include "../shader.hpp"
+#include "../image.hpp"
+#include "vec.hpp"
+namespace graphics {
 class state;
 
-class graphics_system {
-private:
-    struct data;
+// Define the "sprite" enumeration
+#include "sprite_enum.hpp"
 
-    std::unique_ptr<data> data_;
-    data &getdata();
+/// The shader programs.
+struct program_data {
+    shader::program<shader::sprite> sprite;
+    shader::program<shader::tv> tv;
+
+    program_data();
+};
+
+/// The foreground sprites.
+struct sprite_data {
+    ::sprite::sheet sheet;
+    ::sprite::array array;
+
+    sprite_data();
+    void clear();
+    void upload();
+    void draw(const program_data &prog);
+};
+
+/// The level background.
+struct background_data {
+    image::texture bgtex;
+    ::sprite::array array;
+
+    background_data();
+    void clear();
+    void upload();
+    void draw(const program_data &prog);
+    void set_level(const std::string &path);
+};
+
+/// Pixel scaling data.
+struct scale_data {
+    GLuint tex;
+    GLuint fbuf;
+    array::array<float[4]> array;
+    int width, height;
+    image::texture texpattern;
+    image::texture texbanding;
+    image::texture texnoise;
+    float scale[2];
+
+    scale_data();
+    void begin();
+    void end(const program_data &prog);
+};
+
+/// The graphics system.
+class system {
+private:
+    program_data prog_;
+    sprite_data sprite_;
+    background_data background_;
+    scale_data scale_;
 
 public:
-    graphics_system();
-    ~graphics_system();
+    system();
+    ~system();
 
-    void init();
-    void term();
-    void draw(state &s, int reltime);
-
+    /// Begin updates to the graphics state.
+    void begin();
+    /// End updates to the graphics data.
+    void end();
+    /// Draw the world, at a time relative to the last update.
+    void draw();
+    /// Set the current level.
     void set_level(const std::string &path);
+    /// Add a sprite to the screen.
+    void add_sprite(sprite sp, game::vec2 pos, ::sprite::orientation orient);
 };
 
 }

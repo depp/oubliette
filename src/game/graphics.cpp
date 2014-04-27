@@ -6,14 +6,13 @@
 #include "state.hpp"
 #include "defs.hpp"
 #include "../defs.hpp"
-#include "../opengl.hpp"
-#include "../shader.hpp"
-#include "../sprite.hpp"
-#include "../image.hpp"
 #include "../rand.hpp"
-#include <cstdio>
-namespace game {
 namespace graphics {
+
+static struct ::sprite::sprite SPRITES[] = {
+#include "sprite_array.hpp"
+    { nullptr, 0, 0, 0, 0 }
+};
 
 static int round_up_pow2(int x)
 {
@@ -28,58 +27,28 @@ static int round_up_pow2(int x)
 
 // ======================================================================
 
-struct program_system {
-    shader::program<shader::sprite> sprite;
-    shader::program<shader::tv> tv;
-
-    program_system();
-};
-
-program_system::program_system()
+program_data::program_data()
     : sprite("sprite", "sprite"),
       tv("tv", "tv")
 { }
 
 // ======================================================================
 
-static const sprite::sprite SPRITES[] = {
-    { "player", 0, 0, 16, 24 },
-    { nullptr, 0, 0, 0, 0 }
-};
-
-struct sprite_system {
-    program_system &prog;
-    sprite::sheet sheet;
-    sprite::array array;
-
-    sprite_system(program_system &prog);
-
-    void update(state &s, int reltime);
-    void draw();
-};
-
-sprite_system::sprite_system(program_system &prog)
-    : prog(prog),
-      sheet("sprite", SPRITES)
+sprite_data::sprite_data()
+    : sheet("sprite", SPRITES)
 { }
 
-void sprite_system::update(state &s, int reltime)
+void sprite_data::clear()
 {
     array.clear();
-    scalar timefrac = reltime * (scalar) (1.0 / defs::FRAMETIME);
-
-    for (auto i = s.physics.objects.begin(),
-             e = s.physics.objects.end(); i != e; i++) {
-        vec2 offset(-6, -12);
-        auto pos = i->lastpos + timefrac * (i->pos - i->lastpos) + offset;
-        array.add(sheet.get(0), floorf(pos.x), floorf(pos.y));
-    }
-
-    array.upload(GL_DYNAMIC_DRAW);
-    core::check_gl_error(HERE);
 }
 
-void sprite_system::draw()
+void sprite_data::upload()
+{
+    array.upload(GL_DYNAMIC_DRAW);
+}
+
+void sprite_data::draw(const program_data &prog)
 {
     glUseProgram(prog.sprite.prog());
     glEnableVertexAttribArray(prog.sprite->a_vert);
@@ -111,33 +80,20 @@ void sprite_system::draw()
 
 // ======================================================================
 
-struct background_system {
-    program_system &prog;
-    image::texture bgtex;
-    sprite::array array;
-
-    background_system(program_system &prog);
-
-    void update(state &s, int reltime);
-    void draw();
-
-    void set_level(const std::string &path);
-};
-
-background_system::background_system(program_system &prog)
-    : prog(prog)
+background_data::background_data()
 { }
 
-void background_system::update(state &s, int reltime)
+void background_data::clear()
 {
-    (void)&s;
-    (void)reltime;
+    array.clear();
+}
 
+void background_data::upload()
+{
     if (bgtex.tex == 0)
         return;
 
-    array.clear();
-    sprite::rect r = {
+    ::sprite::rect r = {
         0, 0,
         bgtex.iwidth, bgtex.iheight
     };
@@ -146,7 +102,7 @@ void background_system::update(state &s, int reltime)
     core::check_gl_error(HERE);
 }
 
-void background_system::draw()
+void background_data::draw(const program_data &prog)
 {
     if (bgtex.tex == 0)
         return;
@@ -179,7 +135,7 @@ void background_system::draw()
     core::check_gl_error(HERE);
 }
 
-void background_system::set_level(const std::string &path)
+void background_data::set_level(const std::string &path)
 {
     std::string fullpath("level/");
     fullpath += path;
@@ -190,25 +146,7 @@ void background_system::set_level(const std::string &path)
 
 // ======================================================================
 
-struct scale_system {
-    program_system &prog;
-    GLuint tex;
-    GLuint fbuf;
-    array::array<float[4]> array;
-    int width, height;
-    image::texture texpattern;
-    image::texture texbanding;
-    image::texture texnoise;
-    float scale[2];
-
-    scale_system(program_system &prog);
-
-    void begin();
-    void end();
-};
-
-scale_system::scale_system(program_system &prog)
-    : prog(prog)
+scale_data::scale_data()
 {
     width = round_up_pow2(core::PWIDTH);
     height = round_up_pow2(core::PHEIGHT);
@@ -259,7 +197,7 @@ scale_system::scale_system(program_system &prog)
     core::check_gl_error(HERE);
 }
 
-void scale_system::begin()
+void scale_data::begin()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, fbuf);
     glViewport(0, 0, width, height);
@@ -274,7 +212,7 @@ void scale_system::begin()
     core::check_gl_error(HERE);
 }
 
-void scale_system::end()
+void scale_data::end(const program_data &prog)
 {
     unsigned x = rng::global.next();
     float offsets[4] = {
@@ -320,77 +258,45 @@ void scale_system::end()
 
 // ======================================================================
 
-} // namespace graphics
-
-// ======================================================================
-
-struct graphics_system::data {
-    graphics::program_system prog;
-    graphics::sprite_system sprite;
-    graphics::background_system background;
-    graphics::scale_system scale;
-
-    data();
-
-    void update(state &s, int reltime);
-    void draw();
-};
-
-graphics_system::data::data()
-    : prog(), sprite(prog), background(prog), scale(prog)
+system::system()
 { }
 
-void graphics_system::data::update(state &s, int reltime)
+system::~system()
+{ }
+
+void system::begin()
 {
-    background.update(s, reltime);
-    sprite.update(s, reltime);
+    sprite_.clear();
+    background_.clear();
 }
 
-void graphics_system::data::draw()
+void system::end()
 {
-    scale.begin();
-
-    background.draw();
-    sprite.draw();
-
-    scale.end();
+    sprite_.upload();
+    background_.upload();
 }
 
-graphics_system::graphics_system()
+void system::draw()
 {
+    scale_.begin();
+    background_.draw(prog_);
+    sprite_.draw(prog_);
+    scale_.end(prog_);
 }
 
-graphics_system::~graphics_system()
+void system::set_level(const std::string &path)
 {
+    background_.set_level(path);
 }
 
-graphics_system::data &graphics_system::getdata()
+void system::add_sprite(sprite sp, game::vec2 pos,
+                        ::sprite::orientation orient)
 {
-    if (!data_)
-        core::die("graphics not initialized");
-    return *data_;
-}
-
-void graphics_system::init()
-{
-    data_.reset(new data());
-}
-
-void graphics_system::term()
-{
-    data_.reset(nullptr);
-}
-
-void graphics_system::draw(state &s, int reltime)
-{
-    auto &d = getdata();
-    d.update(s, reltime);
-    d.draw();
-}
-
-void graphics_system::set_level(const std::string &path)
-{
-    getdata().background.set_level(path);
+    sprite_.array.add(
+        sprite_.sheet.get(static_cast<int>(sp)),
+        (int)std::floor(pos.x + 0.5f),
+        (int)std::floor(pos.y + 0.5f),
+        orient);
 }
 
 }

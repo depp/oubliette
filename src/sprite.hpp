@@ -3,14 +3,12 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #ifndef LD_SPRITE_HPP
 #define LD_SPRITE_HPP
-
 #include "array.hpp"
 #include "opengl.hpp"
 #include <array>
 #include <cstdlib>
 #include <vector>
 #include <string>
-
 namespace sprite {
 
 /// Orthogonal orientations for 2D sprites.
@@ -91,5 +89,4 @@ public:
 };
 
 }
-
 #endif

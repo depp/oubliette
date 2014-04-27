@@ -3,33 +3,62 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #ifndef LD_GAME_STATE_HPP
 #define LD_GAME_STATE_HPP
+#include <memory>
 #include <string>
-#include "allocator.hpp"
-#include "graphics.hpp"
+#include <vector>
+#include "control.hpp"
+#include "key.hpp"
 #include "levelmap.hpp"
-#include "physics.hpp"
+#include "graphics.hpp"
+namespace graphics {
+class system;
+}
 namespace game {
+class entity;
 
+/// State of the game world.
 class state {
 private:
-public:
+    /// Whether the state has been fully initialized.
     bool initted_;
+    /// The timestamp of the last update.
     unsigned frametime_;
+    /// List of all entities in the game.
+    std::vector<std::unique_ptr<entity>> entities_;
+    /// List of pending new entities.
+    std::vector<std::unique_ptr<entity>> new_entities_;
+    /// The control (i.e. player input) system.
+    control_system control_;
+    /// The level collision map.
+    levelmap level_;
+    /// The graphics system.
+    graphics::system graphics_;
 
-    allocator_system allocator;
-    levelmap level;
-    graphics_system graphics;
-    physics_system physics;
+    /// Advance to the given frame.
+    void advance(unsigned time);
 
+public:
     state();
+    state(const state &) = delete;
+    state(state &&) = delete;
+    ~state();
+    state &operator=(const state &) = delete;
+    state &operator=(state &&) = delete;
 
-    void init();
-    void term();
+    /// Draw the game state to the screen.
     void draw(unsigned time);
-
+    /// Handle a mouse click event.
     void event_click(int x, int y, int button);
-
+    /// Handle a keyboard event.
+    void event_key(key k, bool state);
+    /// Set the current level.
     void set_level(const std::string &name);
+    /// Add an entity to the game.
+    void add_entity(std::unique_ptr<entity> &&ent);
+    void add_entity(entity *ent);
+
+    const control_system control() const { return control_; }
+    const levelmap &level() const { return level_; }
 };
 
 }

@@ -11,7 +11,6 @@
 #include "opengl.hpp"
 #include "rand.hpp"
 #include "game/state.hpp"
-
 namespace core {
 
 SDL_Window *window;
@@ -163,6 +162,35 @@ void term()
 
 }
 
+using game::key;
+static bool decode_key(int scancode, key *k)
+{
+    switch (scancode) {
+    case SDL_SCANCODE_W:
+    case SDL_SCANCODE_UP:
+        *k = key::UP;
+        return true;
+
+    case SDL_SCANCODE_A:
+    case SDL_SCANCODE_LEFT:
+        *k = key::LEFT;
+        return true;
+
+    case SDL_SCANCODE_S:
+    case SDL_SCANCODE_DOWN:
+        *k = key::DOWN;
+        return true;
+
+    case SDL_SCANCODE_D:
+    case SDL_SCANCODE_RIGHT:
+        *k = key::RIGHT;
+        return true;
+
+    default:
+        return false;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     (void) argc;
@@ -176,9 +204,7 @@ int main(int argc, char *argv[])
     {
         bool do_quit = false;
         unsigned last_frame = SDL_GetTicks();
-        std::unique_ptr<game::state> statep(new game::state());
-        auto &state = *statep;
-        state.init();
+        game::state gstate;
         while (!do_quit) {
             SDL_Event e;
             while (SDL_PollEvent(&e)) {
@@ -188,15 +214,22 @@ int main(int argc, char *argv[])
                     break;
 
                 case SDL_MOUSEBUTTONDOWN:
-                    state.event_click(
+                    gstate.event_click(
                         e.button.x / core::SCALE,
                         (core::IHEIGHT - 1 - e.button.y) / core::SCALE,
                         e.button.button);
                     break;
+
+                case SDL_KEYDOWN:
+                case SDL_KEYUP:
+                    key k;
+                    if (decode_key(e.key.keysym.scancode, &k))
+                        gstate.event_key(k, e.common.type == SDL_KEYDOWN);
+                    break;
                 }
             }
 
-            state.draw(SDL_GetTicks());
+            gstate.draw(SDL_GetTicks());
             core::swap_window();
 
             unsigned now = SDL_GetTicks();
@@ -208,7 +241,6 @@ int main(int argc, char *argv[])
 
             last_frame = now;
         }
-        state.term();
     }
 
     core::term();
