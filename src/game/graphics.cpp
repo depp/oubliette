@@ -10,6 +10,7 @@
 #include "../shader.hpp"
 #include "../sprite.hpp"
 #include "../image.hpp"
+#include "../rand.hpp"
 #include <cstdio>
 namespace game {
 namespace graphics {
@@ -29,12 +30,14 @@ static int round_up_pow2(int x)
 
 struct program_system {
     shader::program<shader::sprite> sprite;
+    shader::program<shader::tv> tv;
 
     program_system();
 };
 
 program_system::program_system()
-    : sprite("sprite", "sprite")
+    : sprite("sprite", "sprite"),
+      tv("tv", "tv")
 { }
 
 // ======================================================================
@@ -95,6 +98,7 @@ void sprite_system::draw()
         2.0 / core::PWIDTH,
         2.0 / core::PHEIGHT);
     glUniform2fv(prog.sprite->u_texscale, 1, sheet.texscale());
+    glUniform1i(prog.sprite->u_texture, 0);
     array.set_attrib(prog.sprite->a_vert);
 
     glDrawArrays(GL_TRIANGLES, 0, array.size());
@@ -164,6 +168,7 @@ void background_system::draw()
         2.0 / core::PWIDTH,
         2.0 / core::PHEIGHT);
     glUniform2fv(prog.sprite->u_texscale, 1, bgtex.scale);
+    glUniform1i(prog.sprite->u_texture, 0);
     array.set_attrib(prog.sprite->a_vert);
 
     glDrawArrays(GL_TRIANGLES, 0, array.size());
@@ -189,8 +194,11 @@ struct scale_system {
     program_system &prog;
     GLuint tex;
     GLuint fbuf;
-    sprite::array array;
+    array::array<float[4]> array;
     int width, height;
+    image::texture texpattern;
+    image::texture texbanding;
+    image::texture texnoise;
     float scale[2];
 
     scale_system(program_system &prog);
@@ -234,12 +242,19 @@ scale_system::scale_system(program_system &prog)
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         core::die("Cannot render to framebuffer");
 
-    sprite::rect r = {
-        0, 0,
-        core::PWIDTH, core::PHEIGHT
-     };
-    array.add(r, 0, 0, sprite::orientation::FLIP_VERTICAL);
+    float (*data)[4] = array.insert(6);
+    float u = (float) core::PWIDTH, v = (float) core::PHEIGHT;
+    data[0][0] = -1.0f; data[0][1] = -1.0f; data[0][2] = 0; data[0][3] = 0;
+    data[1][0] = +1.0f; data[1][1] = -1.0f; data[1][2] = u; data[1][3] = 0;
+    data[2][0] = -1.0f; data[2][1] = +1.0f; data[2][2] = 0; data[2][3] = v;
+    data[3][0] = -1.0f; data[3][1] = +1.0f; data[3][2] = 0; data[3][3] = v;
+    data[4][0] = +1.0f; data[4][1] = -1.0f; data[4][2] = u; data[4][3] = 0;
+    data[5][0] = +1.0f; data[5][1] = +1.0f; data[5][2] = u; data[5][3] = v;
     array.upload(GL_STATIC_DRAW);
+
+    texpattern = image::texture::load("tv/pattern.png");
+    texbanding = image::texture::load_1d("tv/banding.png");
+    texnoise = image::texture::load("tv/noise.png");
 
     core::check_gl_error(HERE);
 }
@@ -248,39 +263,56 @@ void scale_system::begin()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, fbuf);
     glViewport(0, 0, width, height);
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(
+        20.0f / 255.0f,
+        12.0f / 255.0f,
+        28.0f / 255.0f,
+        0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glViewport(0, 0, core::PWIDTH, core::PHEIGHT);
+
+    core::check_gl_error(HERE);
 }
 
 void scale_system::end()
 {
+    unsigned x = rng::global.next();
+    float offsets[4] = {
+        (float)((x >>  0) & 255),
+        (float)((x >>  8) & 255),
+        (float)((x >> 16) & 255),
+        (float)((x >> 24) & 255)
+    };
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, core::IWIDTH, core::IHEIGHT);
     glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(prog.sprite.prog());
-    glEnableVertexAttribArray(prog.sprite->a_vert);
+    glUseProgram(prog.tv.prog());
+    glEnableVertexAttribArray(prog.tv->a_vert);
     glDisable(GL_BLEND);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texpattern.tex);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_1D, texbanding.tex);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, texnoise.tex);
 
-    glUniform2f(
-        prog.sprite->u_vertoff,
-        -1.0f,
-        -1.0f);
-    glUniform2f(
-        prog.sprite->u_vertscale,
-        2.0 / core::PWIDTH,
-        2.0 / core::PHEIGHT);
-    glUniform2fv(prog.sprite->u_texscale, 1, scale);
-    array.set_attrib(prog.sprite->a_vert);
+    glUniform1i(prog.tv->u_picture, 0);
+    glUniform1i(prog.tv->u_pattern, 1);
+    glUniform1i(prog.tv->u_banding, 2);
+    glUniform1i(prog.tv->u_noise, 3);
+    // glUniform4fv(prog.tv->u_noiseoffset, 1, offsets);
+    glUniform2fv(prog.tv->u_texscale, 1, scale);
+    array.set_attrib(prog.tv->a_vert);
 
     glDrawArrays(GL_TRIANGLES, 0, array.size());
 
-    glDisableVertexAttribArray(prog.sprite->a_vert);
+    glDisableVertexAttribArray(prog.tv->a_vert);
     glUseProgram(0);
 
     core::check_gl_error(HERE);

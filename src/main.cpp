@@ -9,6 +9,7 @@
 #include <memory>
 #include "defs.hpp"
 #include "opengl.hpp"
+#include "rand.hpp"
 #include "game/state.hpp"
 
 namespace core {
@@ -150,6 +151,7 @@ void init()
         die("OpenGL 2.1 is missing");
 
     init_path();
+    rng::global.init();
 }
 
 void term()

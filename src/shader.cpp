@@ -160,4 +160,21 @@ const field sprite::ATTRIBUTES[] = {
 };
 #undef TYPE
 
+#define TYPE tv
+const field tv::UNIFORMS[] = {
+    FIELD(u_picture),
+    FIELD(u_pattern),
+    FIELD(u_banding),
+    FIELD(u_noise),
+    FIELD(u_noiseoffset),
+    FIELD(u_texscale),
+    { nullptr, 0 }
+};
+
+const field tv::ATTRIBUTES[] = {
+    FIELD(a_vert),
+    { nullptr, 0 }
+};
+#undef TYPE
+
 }

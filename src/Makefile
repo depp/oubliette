@@ -19,7 +19,7 @@ depflags	= -MF $(patsubst %.o,%.d,$@) -MMD -MP
 warning_flags	= -Wall -Wextra -Wpointer-arith -Wformat-nonliteral
 CXXFLAGS	= -O0 -g -std=c++11 $(warning_flags) $(depflags) $(glew_cflags)
 
-sources := file.cpp image.cpp main.cpp pack.cpp shader.cpp sprite_array.cpp sprite_orientation.cpp sprite_sheet.cpp surface.cpp game/allocator.cpp game/graphics.cpp game/levelmap.cpp game/physics.cpp game/state.cpp
+sources := file.cpp image.cpp main.cpp pack.cpp rand.cpp shader.cpp sprite_array.cpp sprite_orientation.cpp sprite_sheet.cpp surface.cpp game/allocator.cpp game/graphics.cpp game/levelmap.cpp game/physics.cpp game/state.cpp
 
 main.o sprite_sheet.o surface.o image.o: CXXFLAGS += $(sdl_cflags)
 

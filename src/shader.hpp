@@ -6,7 +6,6 @@
 #include "opengl.hpp"
 #include <cstddef>
 #include <string>
-
 namespace shader {
 
 /// A field in an object which stores program attributes and uniform indexes.
@@ -85,6 +84,21 @@ struct sprite {
     GLint u_texture;
 };
 
-}
+/// Uniforms and attributes for the "tv" shader.
+struct tv {
+    static const field UNIFORMS[];
+    static const field ATTRIBUTES[];
 
+    GLint a_vert;
+
+    GLint u_picture;
+    GLint u_pattern;
+    GLint u_banding;
+    GLint u_noise;
+    GLint u_texscale;
+
+    GLint u_noiseoffset;
+};
+
+}
 #endif

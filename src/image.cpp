@@ -22,7 +22,21 @@ static sdl::surface load_image(const std::string &path)
         core::die("Failed to load image");
     }
 
-    return image;
+    if (image->format->format == SDL_PIXELFORMAT_ARGB8888)
+        return image;
+
+    std::printf("converting %s\n", path.c_str());
+    sdl::surface converted;
+    converted.surfptr = SDL_ConvertSurfaceFormat(
+        image.surfptr, SDL_PIXELFORMAT_ARGB8888, 0);
+    if (!converted.surfptr) {
+        core::check_sdl_error(HERE);
+        std::fprintf(stderr, "Error: failed to load image: %s\n",
+                     path.c_str());
+        core::die("Failed to load image");
+    }
+
+    return converted;
 }
 
 static int round_up_pow2(int x)
@@ -138,6 +152,10 @@ texture texture::load(const std::string &path)
     tex.scale[0] = 1.0 / tex.twidth;
     tex.scale[1] = 1.0 / tex.theight;
 
+    std::printf(
+        "%s: %dx%d (%dx%d)\n",
+        path.c_str(), tex.iwidth, tex.iheight, tex.twidth, tex.theight);
+
     glGenTextures(1, &tex.tex);
     glBindTexture(GL_TEXTURE_2D, tex.tex);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -166,6 +184,49 @@ texture texture::load(const std::string &path)
 
     // 0x00ff0000u, 0x0000ff00u, 0x000000ff, 0xff000000u
 
+    core::check_gl_error(HERE);
+    return tex;
+}
+
+texture texture::load_1d(const std::string &path)
+{
+    sdl::surface image = load_image(path);
+    texture tex;
+
+    int r = SDL_LockSurface(image.surfptr);
+    if (r) core::die_sdl(HERE, "Failed to load image");
+
+    tex.iwidth = image->w;
+    tex.iheight = 1;
+    tex.twidth = round_up_pow2(tex.iwidth);
+    tex.theight = 1;
+    tex.scale[0] = 1.0 / tex.twidth;
+    tex.scale[1] = 1.0;
+
+    glGenTextures(1, &tex.tex);
+    glBindTexture(GL_TEXTURE_1D, tex.tex);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage1D(
+        GL_TEXTURE_1D,
+        0,
+        GL_RGBA8,
+        tex.twidth,
+        0,
+        GL_BGRA,
+        GL_UNSIGNED_INT_8_8_8_8_REV,
+        nullptr);
+    glTexSubImage1D(
+        GL_TEXTURE_1D,
+        0,
+        0,
+        tex.iwidth,
+        GL_BGRA,
+        GL_UNSIGNED_INT_8_8_8_8_REV,
+        image->pixels);
+    glBindTexture(GL_TEXTURE_1D, 0);
+
+    core::check_gl_error(HERE);
     return tex;
 }
 

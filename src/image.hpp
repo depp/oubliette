@@ -35,7 +35,13 @@ struct texture {
 
     texture();
 
+    /// Load an image as a 2-dimensional texture.
+    /// The image is padded so its dimensions are powers of two.
     static texture load(const std::string &path);
+
+    /// Load an image as a 1-dimensional texture.
+    /// The image is padded so its dimensions are powers of two.
+    static texture load_1d(const std::string &path);
 };
 
 }
