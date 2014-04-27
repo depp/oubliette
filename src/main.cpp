@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
+#include <memory>
 #include "defs.hpp"
 #include "opengl.hpp"
 #include "game/state.hpp"
@@ -173,7 +174,8 @@ int main(int argc, char *argv[])
     {
         bool do_quit = false;
         unsigned last_frame = SDL_GetTicks();
-        game::state state;
+        std::unique_ptr<game::state> statep(new game::state());
+        auto &state = *statep;
         state.init();
         while (!do_quit) {
             SDL_Event e;

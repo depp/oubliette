@@ -7,9 +7,20 @@
 #include <cstdio>
 namespace game {
 
+state::state()
+    : initted_(false)
+{ }
+
 void state::draw(unsigned time)
 {
-    unsigned delta = time - frametime_;
+    unsigned delta;
+    if (initted_) {
+        delta = time - frametime_;
+    } else {
+        delta = 0;
+        initted_ = true;
+        frametime_ = time;
+    }
     int nframes;
     if ((unsigned)delta > defs::MAXUPDATE) {
         std::puts("Lag!");
@@ -29,7 +40,7 @@ void state::draw(unsigned time)
 void state::init()
 {
     graphics.init();
-    graphics.set_level("main_wake");
+    set_level("main_wake");
 }
 
 void state::term()
@@ -48,6 +59,12 @@ void state::event_click(int x, int y, int button)
     p.lastpos = p.pos = vec2(x, y);
     p.vel = vec2::zero();
     p.accel = vec2(0, -10);
+}
+
+void state::set_level(const std::string &name)
+{
+    level.set_level(name);
+    graphics.set_level("main_wake");
 }
 
 }

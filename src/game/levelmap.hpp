@@ -3,17 +3,20 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #ifndef LD_GAME_LEVELMAP_HPP
 #define LD_GAME_LEVELMAP_HPP
+#include <string>
+#include "../image.hpp"
 namespace game {
 
 class levelmap {
 private:
-    unsigned char *data_;
-    int width_;
-    int height_;
-    bool stop_left_;
-    bool stop_right_;
-    bool stop_down;
-    bool stop_up_;
+    image::bitmap map;
+
+public:
+    /// Do a hit test against a rectangle.
+    /// Note that xmin == xmax means 1 pixel wide.
+    bool hit_test(int xmin, int ymin, int xmax, int ymax);
+
+    void set_level(const std::string &name);
 };
 
 }

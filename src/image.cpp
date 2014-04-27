@@ -7,6 +7,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <cstdio>
+#include <cstdlib>
 namespace image {
 
 static sdl::surface load_image(const std::string &path)
@@ -35,6 +36,10 @@ static int round_up_pow2(int x)
     return v + 1;
 }
 
+bitmap::bitmap()
+    : data(nullptr), width(0), height(0), rowbytes(0)
+{ }
+
 bitmap::bitmap(bitmap &&other)
     : data(other.data), width(other.width), height(other.height),
       rowbytes(other.rowbytes)
@@ -45,8 +50,17 @@ bitmap::bitmap(bitmap &&other)
     other.rowbytes = 0;
 }
 
+bitmap::~bitmap()
+{
+    std::free(data);
+}
+
 bitmap &bitmap::operator=(bitmap &&other)
 {
+    if (this == &other)
+        return *this;
+    if (data)
+        std::free(data);
     data = other.data;
     width = other.width;
     height = other.height;
@@ -70,10 +84,9 @@ void bitmap::alloc(int w, int h)
     if (w < 1 || w > 0x8000 || h < 1 || h > 0x8000)
         core::die("bitmap too large");
 
-    data = std::malloc(rb * h);
+    data = static_cast<unsigned char *>(std::malloc(rb * h));
     if (data == nullptr)
         core::die_alloc();
-
     width = w;
     height = h;
     rowbytes = rb;
@@ -88,6 +101,7 @@ bitmap bitmap::load(const std::string &path)
 
     int iw = image->w, ih = image->h;
     bitmap bmap;
+
     bmap.alloc(iw, ih);
     const unsigned char *ip = static_cast<unsigned char *>(image->pixels);
     unsigned char *op = static_cast<unsigned char *>(bmap.data);
@@ -100,9 +114,14 @@ bitmap bitmap::load(const std::string &path)
             orow[x] = irow[x] >> 24;
         }
     }
-
     return bmap;
 }
+
+texture::texture()
+    : tex(0),
+      iwidth(0.0f), iheight(0.0f),
+      twidth(0.0f), theight(0.0f)
+{ }
 
 texture texture::load(const std::string &path)
 {

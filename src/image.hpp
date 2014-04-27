@@ -3,22 +3,20 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #ifndef LD_IMAGE_HPP
 #define LD_IMAGE_HPP
-
 #include <string>
-#include <cstdlib>
 #include "opengl.hpp"
 namespace image {
 
 struct bitmap {
-    void *data;
+    unsigned char *data;
     int width;
     int height;
     int rowbytes;
 
-    bitmap() : data(nullptr), width(0), height(0), rowbytes(0) { }
+    bitmap();
     bitmap(const bitmap &) = delete;
     bitmap(bitmap &&other);
-    ~bitmap() { std::free(data); }
+    ~bitmap();
     bitmap &operator=(const bitmap &) = delete;
     bitmap &operator=(bitmap &&other);
 
@@ -35,15 +33,10 @@ struct texture {
     short theight;
     float scale[2];
 
-    texture()
-        : tex(0),
-          iwidth(0.0f), iheight(0.0f),
-          twidth(0.0f), theight(0.0f)
-    { }
+    texture();
 
     static texture load(const std::string &path);
 };
 
 }
-
 #endif
