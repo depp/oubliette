@@ -29,11 +29,19 @@ struct spawnpoint {
     spawntype type;
     std::string data;
 
+    // Flag for the editor.
+    bool flag;
+
     /// Draw the spawn point.  This is only used by the editor.
     void draw(::graphics::system &gr) const;
 
     /// Get the bounds for this object.
     irect bounds() const;
+
+    /// Get the sort order for this object.
+    int order() const;
+
+    bool operator<(const struct spawnpoint &other) const;
 };
 
 /// Level data utilities

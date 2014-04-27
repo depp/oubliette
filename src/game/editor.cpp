@@ -6,6 +6,7 @@
 #include "defs.hpp"
 #include "state.hpp"
 #include "../defs.hpp"
+#include <algorithm>
 namespace game {
 
 static const int SEL_NONE = -1;
@@ -54,6 +55,26 @@ void editor_system::mark_dirty()
     savetime_ = 0;
 }
 
+void editor_system::sort()
+{
+    auto b = entities_.begin(), e = entities_.end();
+    if (selection_ >= 0) {
+        for (auto i = b; i != e; i++)
+            i->flag = false;
+        entities_[selection_].flag = true;
+        std::stable_sort(b, e);
+        selection_ = SEL_NONE;
+        for (auto i = b; i != e; i++) {
+            if (i->flag) {
+                selection_ = i - b;
+                break;
+            }
+        }
+    } else {
+        std::stable_sort(b, e);
+    }
+}
+
 void editor_system::update()
 {
     if (dirty_ && !dragging_) {
@@ -82,7 +103,8 @@ void editor_system::load_data()
     selection_ = SEL_NONE;
     dragging_ = false;
     panning_ = false;
-    dirty_ = false;
+    dirty_ = true;
+    sort();
 }
 
 void editor_system::save_data()
@@ -129,6 +151,7 @@ void editor_system::mouse_click(int x, int y, int button)
         pt.y = y;
         pt.type = type_;
         entities_.push_back(std::move(pt));
+        sort();
         break;
     }
 }

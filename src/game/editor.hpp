@@ -34,6 +34,8 @@ private:
     void window_to_world(int &x, int &y);
     /// Mark the editor as dirty.
     void mark_dirty();
+    /// Sort entities.
+    void sort();
 
 public:
     editor_system(const state &st, const std::string &levelname);

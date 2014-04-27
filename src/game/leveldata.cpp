@@ -13,17 +13,18 @@ struct spawninfo {
     char name[8];
     int width;
     int height;
+    int order;
     sprite sp;
 };
 
 static const spawninfo SPAWN_TYPES[leveldata::NTYPE] = {
-    { "player", 16, 24, sprite::PLAYER },
-    { "door",   24, 32, sprite::DOOR2 },
-    { "chest",  24, 24, sprite::CHEST },
-    { "slime",  16, 16, sprite::SLIME1 },
-    { "prof",   16, 24, sprite::PROFESSOR },
-    { "woman",  16, 24, sprite::WOMAN },
-    { "priest", 16, 24, sprite::PRIEST }
+    { "player", 16, 24, 30, sprite::PLAYER },
+    { "door",   24, 32, 10, sprite::DOOR2 },
+    { "chest",  24, 24, 10, sprite::CHEST },
+    { "slime",  16, 16, 20, sprite::SLIME1 },
+    { "prof",   16, 24, 20, sprite::PROFESSOR },
+    { "woman",  16, 24, 20, sprite::WOMAN },
+    { "priest", 16, 24, 20, sprite::PRIEST }
 };
 
 static const spawninfo &get_spawninfo(spawntype type)
@@ -47,6 +48,16 @@ irect spawnpoint::bounds() const
 {
     auto &s = get_spawninfo(type);
     return irect::centered(s.width, s.height).offset(x, y);
+}
+
+int spawnpoint::order() const
+{
+    return get_spawninfo(type).order;
+}
+
+bool spawnpoint::operator<(const struct spawnpoint &other) const
+{
+    return order() < other.order();
 }
 
 const char *leveldata::type_to_string(spawntype type)
