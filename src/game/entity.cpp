@@ -19,7 +19,7 @@ static const walking_stats PLAYER_STATS = {
     // Walking
     600.0f, 120.0f, 80.0f, 150.0f, 3,
     // Jumping
-    25, 200.0f, 150.0f
+    25, 200.0f, 150.0f, true
 };
 
 // ======================================================================
@@ -46,13 +46,14 @@ void entity::damage(int amount)
 // ======================================================================
 
 physics_component::physics_component(irect bbox, vec2 pos, vec2 vel)
-    : bbox(bbox), pos(pos), vel(vel)
+    : bbox(bbox), pos(pos), vel(vel), on_floor(false)
 { }
 
 void physics_component::update(state &st, entity &e)
 {
     static const int MAXSTEP = 3;
 
+    on_floor = false;
     lastpos = pos;
     vec2 old_pos = pos;
     vec2 new_pos = old_pos + DT * vel + (DT * DT / 2) * accel;
@@ -101,10 +102,12 @@ void physics_component::update(state &st, entity &e)
             if (miny1 <= maxy1) {
                 if (dx < max_dx)
                     new_pos.x = x;
-                if (y1 < miny1)
+                if (y1 < miny1) {
                     new_pos.y = miny1;
-                else if (y1 > maxy1)
+                    on_floor = true;
+                } else if (y1 > maxy1) {
                     new_pos.y = maxy1;
+                }
                 // std::printf("new: %f, old: %f\n", new_pos.y, old_pos.y);
                 break;
             }
@@ -133,7 +136,8 @@ vec2 physics_component::get_pos(int reltime)
 // ======================================================================
 
 walking_component::walking_component()
-    : gravity(vec2::zero()), xmove(0.0f), ymove(0.0f), jumptime(0)
+    : gravity(vec2::zero()), xmove(0.0f), ymove(0.0f),
+      jumptime(0), jstate(jumpstate::READY)
 { }
 
 void walking_component::update(state &st, physics_component &physics,
@@ -142,10 +146,7 @@ void walking_component::update(state &st, physics_component &physics,
     (void)&st;
     vec2 accel = vec2(0, -stats.gravity);
 
-    bool on_floor = st.level().hit_test(
-        irect(physics.bbox.x0, physics.bbox.y0 - stats.floordepth,
-              physics.bbox.y1, physics.bbox.y0)
-        .offset(physics.pos));
+    bool on_floor = physics.on_floor;
     // std::printf("on floor: %s\n", on_floor ? "true" : "false");
 
     float max_xspeed = on_floor ? stats.xspeed_ground : stats.xspeed_air;
@@ -157,19 +158,38 @@ void walking_component::update(state &st, physics_component &physics,
         xaccel = -max_xaccel;
     accel.x += xaccel;
 
-    if (physics.vel.y <= 1e-3f) {
+    if (on_floor) {
         jumptime = 0;
-        if (on_floor) {
-            if (ymove > 0.5f) {
+        if (ymove > 0.5f) {
+            if (jstate == jumpstate::READY) {
+                // std::puts("JUMP");
                 jumptime = stats.jumptime;
+                jstate = jumpstate::JUMP1;
                 accel.y += stats.jumpspeed * INV_DT;
             }
+        } else {
+            jstate = jumpstate::READY;
+        }
+    } else if (jumptime > 0) {
+        jumptime--;
+        if (ymove >= 0.25f) {
+            accel.y += stats.jumpaccel * ymove;
+        } else {
+            jumptime = 0;
+            if (jstate == jumpstate::JUMP1)
+                jstate = jumpstate::READY;
         }
     } else {
-        if (jumptime > 0) {
-            jumptime--;
-            if (ymove > 0.0f)
-                accel.y += stats.jumpaccel * ymove;
+        if (ymove > 0.5f) {
+            if (jstate == jumpstate::READY && stats.can_doublejump) {
+                // std::puts("DOUBLE JUMP");
+                jumptime = stats.jumptime;
+                jstate = jumpstate::JUMP2;
+                accel.y += stats.jumpspeed * INV_DT;
+            }
+        } else {
+            if (jstate == jumpstate::JUMP1)
+                jstate = jumpstate::READY;
         }
     }
 

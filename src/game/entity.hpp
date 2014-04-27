@@ -74,6 +74,7 @@ public:
     vec2 pos;
     vec2 vel;
     vec2 accel;
+    bool on_floor;
 
     physics_component(irect bbox, vec2 pos, vec2 vel);
 
@@ -81,6 +82,10 @@ public:
     void update(state &st, entity &e);
     /// Get the position at the given time since the last update.
     vec2 get_pos(int reltime);
+};
+
+enum jumpstate {
+    READY, JUMP1, JUMP2
 };
 
 /// Walking statistics.
@@ -94,6 +99,7 @@ struct walking_stats {
     int jumptime;
     float jumpaccel;
     float jumpspeed;
+    bool can_doublejump;
 };
 
 /// Walking component for an entity.
@@ -103,6 +109,7 @@ public:
     float xmove;
     float ymove;
     int jumptime;
+    jumpstate jstate;
 
     walking_component();
 
