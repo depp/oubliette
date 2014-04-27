@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
 {
     const char *edit_level = nullptr;
     if (argc >= 2) {
-        if (!std::strcmp(argv[1], "--edit") || std::strcmp(argv[1], "-e")) {
+        if (!std::strcmp(argv[1], "--edit") || !std::strcmp(argv[1], "-e")) {
             if (argc >= 3) {
                 edit_level = argv[2];
             }
@@ -245,10 +245,18 @@ int main(int argc, char *argv[])
                     break;
 
                 case SDL_MOUSEBUTTONDOWN:
-                    gstate.event_click(
+                case SDL_MOUSEBUTTONUP:
+                    gstate.mouse_click(
                         e.button.x / core::SCALE,
                         (core::IHEIGHT - 1 - e.button.y) / core::SCALE,
-                        e.button.button);
+                        e.common.type == SDL_MOUSEBUTTONDOWN ?
+                        e.button.button : -1);
+                    break;
+
+                case SDL_MOUSEMOTION:
+                    gstate.mouse_move(
+                        e.motion.x / core::SCALE,
+                        (core::IHEIGHT - 1 - e.motion.y) / core::SCALE);
                     break;
 
                 case SDL_KEYDOWN:

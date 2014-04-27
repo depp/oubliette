@@ -39,17 +39,6 @@ enum class team {
     FOE_SHOT
 };
 
-/// Types of objects that can be spawned at level start.
-enum class spawntype {
-    PLAYER,
-    DOOR,
-    CHEST,
-    SLIME,
-    PROF,
-    WOMAN,
-    PRIEST
-};
-
 /// Generic game entity superclass.
 class entity {
 public:
@@ -59,6 +48,9 @@ public:
     virtual ~entity();
     entity &operator=(const entity &) = delete;
     entity &operator=(entity &&) = delete;
+
+    /// Spawn an entity.
+    static entity *spawn(state &st, const struct spawnpoint &data);
 
     /// Update the entity's state for the next frame.
     virtual void update();
@@ -147,16 +139,6 @@ public:
     virtual void update();
     virtual void damage(int amount);
     virtual void draw(::graphics::system &gr, int reltime);
-};
-
-/// Spawn point where an entity starts.
-struct spawnpoint {
-    spawntype type;
-    vec2 pos;
-    std::string data;
-
-    /// Draw the spawn point.  This is only used by the editor.
-    void draw(::graphics::system &gr);
 };
 
 }

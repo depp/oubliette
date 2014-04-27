@@ -16,7 +16,7 @@ class system;
 }
 namespace game {
 class entity;
-struct spawnpoint;
+class editor_system;
 
 /// State of the game world.
 class state {
@@ -29,8 +29,6 @@ private:
     unsigned frametime_;
     /// The current level name.
     std::string levelname_;
-    /// The level spawnpoints.
-    std::vector<spawnpoint> spawnpoints_;
     /// List of all entities in the game.
     std::vector<std::unique_ptr<entity>> entities_;
     /// List of pending new entities.
@@ -43,15 +41,11 @@ private:
     camera_system camera_;
     /// The graphics system.
     graphics::system graphics_;
+    /// The editor system.
+    std::unique_ptr<editor_system> editor_;
 
     /// Advance to the given frame.
     void advance(unsigned time);
-    /// Read level data.
-    void read_level();
-    /// Write level data.
-    void write_level() const;
-    /// Get the path to the level file.
-    std::string level_path() const;
 
 public:
     explicit state(bool edit_mode);
@@ -63,8 +57,10 @@ public:
 
     /// Draw the game state to the screen.
     void draw(unsigned time);
-    /// Handle a mouse click event.
-    void event_click(int x, int y, int button);
+    /// Handle a mouse click event, or button == -1 for release.
+    void mouse_click(int x, int y, int button);
+    /// Handle a mouse movement event.
+    void mouse_move(int x, int y);
     /// Handle a keyboard event.
     void event_key(key k, bool state);
     /// Set the current level.

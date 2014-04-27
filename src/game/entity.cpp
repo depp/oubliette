@@ -6,6 +6,7 @@
 #include "defs.hpp"
 #include "state.hpp"
 #include "graphics.hpp"
+#include "leveldata.hpp"
 #include <cstdio>
 namespace game {
 
@@ -45,6 +46,18 @@ entity::entity(state &st, team t)
 
 entity::~entity()
 { }
+
+entity *entity::spawn(state &st, const struct spawnpoint &data)
+{
+    vec2 pos(data.x, data.y);
+    switch (data.type) {
+    case spawntype::PLAYER:
+        return new player(st, pos);
+
+    default:
+        core::die("Unknown spawn type");
+    }
+}
 
 void entity::update()
 { }
