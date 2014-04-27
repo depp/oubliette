@@ -5,7 +5,7 @@
 #include <cstdlib>
 namespace game {
 
-bool levelmap::hit_test(int xmin, int ymin, int xmax, int ymax)
+bool levelmap::hit_test(int xmin, int ymin, int xmax, int ymax) const
 {
     if (xmin > xmax || ymin > ymax)
         return false;

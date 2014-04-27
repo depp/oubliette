@@ -4,7 +4,13 @@
 #include "../defs.hpp"
 #include "defs.hpp"
 #include "physics.hpp"
+#include "levelmap.hpp"
+#include <cmath>
 namespace game {
+
+physics_system::physics_system(const levelmap &level)
+    : level_(level)
+{ }
 
 void physics_system::update()
 {
@@ -15,6 +21,14 @@ void physics_system::update()
         vec2 accel = obj.accel;
         vec2 pos = obj.pos + dt * obj.vel + (dt * dt / 2) * accel;
         vec2 vel = obj.vel + dt * accel;
+
+        vec2 emin = pos + obj.extent_min, emax = pos + obj.extent_max;
+        int x0 = (int)std::floor(emin.x), x1 = (int)std::ceil(emax.x) - 1;
+        int y0 = (int)std::floor(emin.y), y1 = (int)std::ceil(emax.y) - 1;
+        if (level_.hit_test(x0, y0, x1, y1)) {
+            pos = obj.pos;
+            vel = vec2::zero();
+        }
 
         i->pos = pos;
         i->vel = vel;

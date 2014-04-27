@@ -3,10 +3,10 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #ifndef LD_GAME_PHYSICS_HPP
 #define LD_GAME_PHYSICS_HPP
-
 #include <vector>
 #include "vec.hpp"
 namespace game {
+class levelmap;
 
 struct physics_object {
     bool active;
@@ -18,7 +18,11 @@ struct physics_object {
 };
 
 class physics_system {
+    const levelmap &level_;
+
 public:
+    physics_system(const levelmap &level);
+
     std::vector<physics_object> objects;
 
     void update();
@@ -27,5 +31,4 @@ public:
 };
 
 }
-
 #endif

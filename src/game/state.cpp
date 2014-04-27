@@ -8,7 +8,8 @@
 namespace game {
 
 state::state()
-    : initted_(false)
+    : initted_(false),
+      physics(level)
 { }
 
 void state::draw(unsigned time)
@@ -54,11 +55,11 @@ void state::event_click(int x, int y, int button)
         return;
     auto obj = allocator.create();
     auto &p = physics.create(obj);
-    p.extent_min = vec2::zero();
-    p.extent_max = vec2::zero();
+    p.extent_min = vec2(-6, -10);
+    p.extent_max = vec2(6, 10);
     p.lastpos = p.pos = vec2(x, y);
     p.vel = vec2::zero();
-    p.accel = vec2(0, -10);
+    p.accel = vec2(0, -100);
 }
 
 void state::set_level(const std::string &name)

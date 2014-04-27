@@ -14,7 +14,7 @@ private:
 public:
     /// Do a hit test against a rectangle.
     /// Note that xmin == xmax means 1 pixel wide.
-    bool hit_test(int xmin, int ymin, int xmax, int ymax);
+    bool hit_test(int xmin, int ymin, int xmax, int ymax) const;
 
     void set_level(const std::string &name);
 };

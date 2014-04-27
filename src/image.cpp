@@ -128,7 +128,7 @@ bitmap bitmap::load(const std::string &path)
     for (int y = 0; y < ih; y++) {
         const unsigned *irow =
             reinterpret_cast<const unsigned *>(ip + irb * y);
-        unsigned char *orow = op + orb * y;
+        unsigned char *orow = op + orb * (ih - 1 - y);
         for (int x = 0; x < iw; x++) {
             orow[x] = irow[x] >> 24;
         }
