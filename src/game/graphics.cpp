@@ -306,7 +306,7 @@ void scale_system::end()
     glUniform1i(prog.tv->u_pattern, 1);
     glUniform1i(prog.tv->u_banding, 2);
     glUniform1i(prog.tv->u_noise, 3);
-    // glUniform4fv(prog.tv->u_noiseoffset, 1, offsets);
+    glUniform4fv(prog.tv->u_noiseoffset, 1, offsets);
     glUniform2fv(prog.tv->u_texscale, 1, scale);
     array.set_attrib(prog.tv->a_vert);
 

@@ -25,7 +25,8 @@ static sdl::surface load_image(const std::string &path)
     if (image->format->format == SDL_PIXELFORMAT_ARGB8888)
         return image;
 
-    std::printf("converting %s\n", path.c_str());
+    std::printf("converting %s from 0x%08x\n",
+                path.c_str(), image->format->format);
     sdl::surface converted;
     converted.surfptr = SDL_ConvertSurfaceFormat(
         image.surfptr, SDL_PIXELFORMAT_ARGB8888, 0);
