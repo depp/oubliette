@@ -71,14 +71,26 @@ sprite treasure_sprite(int which, int state)
     return ARR[which][state];
 }
 
-void blend(float out[4], const float a[4], const float b[4], float t)
+void blend(float out[4], const float a[4], float alpha)
+{
+    for (int i = 0; i < 4; i++)
+        out[i] = a[i] * alpha;
+}
+
+void blend(float out[4], const float a[4], float aalpha,
+           const float b[4], float balpha, float t)
 {
     if (t > 1.0f)
         t = 1.0f;
     else if (t < 0.0f)
         t = 0.0f;
     for (int i = 0; i < 4; i++)
-        out[i] = a[i] * (1.0f - t) + b[i] * t;
+        out[i] = a[i] * (1.0f - t) * aalpha + b[i] * t * balpha;
+}
+
+void blend(float out[4], const float a[4], const float b[4], float t)
+{
+    blend(out, a, 1.0f, b, 1.0f, t);
 }
 
 static const float *get_palette(int n)
@@ -88,9 +100,19 @@ static const float *get_palette(int n)
     core::die("Palette out of bounds");
 }
 
+void blend(float out[4], int a, float alpha)
+{
+    blend(out, get_palette(a), alpha);
+}
+
+void blend(float out[4], int a, float aalpha, int b, float balpha, float t)
+{
+    blend(out, get_palette(a), aalpha, get_palette(b), balpha, t);
+}
+
 void blend(float out[4], int a, int b, float t)
 {
-    blend(out, get_palette(a), get_palette(b), t);
+    blend(out, get_palette(a), 1.0f, get_palette(b), 1.0f, t);
 }
 
 // ======================================================================

@@ -117,15 +117,15 @@ void entity_system::update()
 void entity_system::draw(::graphics::system &gr, int reltime)
 {
     static const int BASE = 0, HURT = 6;
+    float color[4];
     if (state_.hittime > 0) {
-        float color[4];
         graphics::blend(
-            color, BASE, HURT,
+            color, BASE, 0.5f, HURT, 1.0f,
             state_.hittime * (1.0f / HIT_TIME));
-        gr.set_blend_color(color);
     } else {
-        gr.set_blend_color(graphics::PALETTE[BASE]);
+        graphics::blend(color, BASE, 0.5f);
     }
+    gr.set_blend_color(color);
 
     for (int i = 0; i < state_.maxhealth; i++) {
         gr.add_sprite(

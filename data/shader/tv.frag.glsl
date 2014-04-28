@@ -23,9 +23,9 @@ void main() {
 
     vec2 delta = v_texcoord - vec2(160.0, 90.0);
     float d = dot(delta, delta) * (2.967359050445104e-05);
+    d = d * d;
 
     gl_FragColor =
-        mix(picture, u_color, d * d * u_color.a) *
+        (picture * (1.0 - u_color.a * d) + u_color * d) *
         pattern * banding + noise;
-    // gl_FragColor = pic2 * pattern * banding + noise;
 }

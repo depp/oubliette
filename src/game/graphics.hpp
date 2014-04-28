@@ -18,7 +18,12 @@ class state;
 extern const float PALETTE[17][4];
 sprite treasure_sprite(int which, int state);
 
+void blend(float out[4], const float a[4], float alpha);
+void blend(float out[4], const float a[4], float aalpha,
+           const float b[4], float balpha, float t);
 void blend(float out[4], const float a[4], const float b[4], float t);
+void blend(float out[4], int a, float alpha);
+void blend(float out[4], int a, float aalpha, int b, float balpha, float t);
 void blend(float out[4], int a, int b, float t);
 
 /// The shader commons.
