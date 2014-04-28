@@ -18,17 +18,8 @@ static const scalar DT = 1e-3 * defs::FRAMETIME;
 static const scalar INV_DT = 1.0 / (1e-3 * defs::FRAMETIME);
 
 static const int CAMERA_X = 16;
-static const int CAMERA_YS0 = 64, CAMERA_YS1 = 96;
-static const rect CAMERA_WALK(
-    -CAMERA_X,
-    core::PHEIGHT / 2 - CAMERA_YS1,
-    +CAMERA_X,
-    core::PHEIGHT / 2 - CAMERA_YS0);
-static const rect CAMERA_JUMP(
-    -CAMERA_X,
-    -core::PHEIGHT / 2 + CAMERA_YS0,
-    +CAMERA_X,
-    core::PHEIGHT / 2 - CAMERA_YS0);
+static const int CAMERA_Y = 16;
+static const rect CAMERA(-CAMERA_X, -CAMERA_Y, +CAMERA_X, +CAMERA_Y);
 
 static const walking_stats PLAYER_STATS = {
     300.0f,
@@ -333,9 +324,7 @@ void player::update()
     walking.update(m_system, physics, PLAYER_STATS);
     physics.update(m_system, *this);
 
-    m_system.set_camera_target(
-        (physics.on_floor ? CAMERA_WALK : CAMERA_JUMP)
-        .offset(physics.pos));
+    m_system.set_camera_target(CAMERA.offset(physics.pos));
     m_system.set_hover(ivec(physics.pos));
 
     if (m_system.control().get_key_instant(key::DOWN)) {
