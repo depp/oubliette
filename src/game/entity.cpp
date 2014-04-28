@@ -47,35 +47,42 @@ struct entity_is_dead {
 // ======================================================================
 
 entity_system::entity_system(const control_system &control,
-                             const std::string &levelname)
+                             const std::string &levelname,
+                             const std::string &lastlevel)
     : control_(control), levelname_(levelname)
 {
     level_.set_level(levelname);
     auto data = leveldata::read_level(levelname);
-    for (auto i = data.begin(), e = data.end(); i != e; i++)
-        spawn(*i);
-    camera_ = camera_system(
-        rect(vec2::zero(), vec2(level_.width(), level_.height())));
-}
+    auto b = data.begin(), e = data.end();
+    spawnpoint *pspawn = nullptr, *dspawn = nullptr;
 
-void entity_system::spawn(const struct spawnpoint &data)
-{
-    vec2 pos(data.x, data.y);
-    std::auto_ptr<entity> result;
-    switch (data.type) {
-    case spawntype::PLAYER:
-        result.reset(new player(*this, pos));
-        break;
+    for (auto i = b; i != e; i++) {
+        vec2 pos(i->x, i->y);
+        switch (i->type) {
+        case spawntype::PLAYER:
+            pspawn = &*i;
+            break;
 
-    case spawntype::DOOR:
-        result.reset(new door(*this, pos, data.data));
-        break;
+        case spawntype::DOOR:
+            entities_.emplace_back(new door(*this, pos, i->data));
+            if (i->data == lastlevel)
+                dspawn = &*i;
+            break;
 
-    default:
-        core::die("Cannot spawn entity, unknown type");
+        default:
+            core::die("Cannot spawn entity, unknown type");
+        }
     }
 
-    new_entities_.push_back(std::move(result));
+    // Don't care if there is no player, maybe it would be useful.
+    if (!lastlevel.empty() && dspawn != nullptr)
+        pspawn = dspawn;
+    if (pspawn != nullptr)
+        entities_.emplace_back(
+            new player(*this, vec2(pspawn->x, pspawn->y)));
+
+    camera_ = camera_system(
+        rect(vec2::zero(), vec2(level_.width(), level_.height())));
 }
 
 void entity_system::update()

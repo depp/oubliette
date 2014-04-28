@@ -83,6 +83,7 @@ void state::event_key(key k, bool state)
 
 void state::set_level(const std::string &name)
 {
+    std::string lastlevel(std::move(levelname_));
     levelname_ = name;
     control_.clear();
 
@@ -90,7 +91,7 @@ void state::set_level(const std::string &name)
         editor_.reset(new editor_system(control_, name));
         editor_->load_data();
     } else {
-        entity_.reset(new entity_system(control_, name));
+        entity_.reset(new entity_system(control_, name, lastlevel));
     }
 
     graphics_.set_level(name);

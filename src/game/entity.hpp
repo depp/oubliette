@@ -34,12 +34,10 @@ private:
     /// List of points which trigger contextual hovering.
     std::vector<ivec> hover_triggers_;
 
-    /// Spawn an entity for the initial level state.
-    void spawn(const struct spawnpoint &data);
-
 public:
     entity_system(const control_system &control,
-                  const std::string &levelname);
+                  const std::string &levelname,
+                  const std::string &lastlevel);
 
     /// Update the entities.
     void update();
