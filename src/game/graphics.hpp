@@ -14,6 +14,7 @@ class state;
 // Define the "sprite" enumeration
 #include "sprite_enum.hpp"
 
+extern const float PALETTE[16][4];
 sprite treasure_sprite(int which, int state);
 
 /// The shader commons.
@@ -65,16 +66,22 @@ struct selection_data {
 
 /// Font rendering data.
 struct font_data {
+    struct block {
+        int vertcount;
+        float color[4];
+    };
+
     image::texture tex;
     array::array<short[4]> array;
-    float color[4];
     bool dirty;
+    std::vector<block> blocks;
 
     font_data();
     void clear();
     void upload();
     void draw(const common_data &com);
-    void add_text(const std::string &text, int x, int y);
+    int add_text(const std::string &text, int x, int y);
+    void set_color(int block, const float color[4]);
 };
 
 /// Pixel scaling data.
@@ -126,6 +133,12 @@ public:
     void set_selection(game::irect rect);
     /// Set the blend effect color.
     void set_blend_color(const float color[4]);
+    /// Clear the text buffer.
+    void clear_text();
+    /// Add text to the buffer, return the block index.
+    int add_text(const std::string &text, int x, int y);
+    /// Set text block color.
+    void set_text_color(int block, const float color[4]);
 };
 
 }

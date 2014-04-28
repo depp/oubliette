@@ -12,6 +12,11 @@ state::state(bool edit_mode)
 {
     persistent_.health = 2;
     persistent_.maxhealth = 5;
+
+    int x = graphics_.add_text("Hello, world", 8, 100);
+    int y = graphics_.add_text("More text\nSecond line", 8, 50);
+    graphics_.set_text_color(x, graphics::PALETTE[6]);
+    graphics_.set_text_color(y, graphics::PALETTE[8]);
 }
 
 state::~state()

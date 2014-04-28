@@ -25,6 +25,27 @@ static int round_up_pow2(int x)
     return v + 1;
 }
 
+#define c(r, g, b) { (r)/255.0f, (g)/255.0f, (b)/255.0f, 1.0f }
+const float PALETTE[16][4] = {
+    c(20, 12, 28),
+    c(68, 36, 52),
+    c(48, 52, 109),
+    c(78, 74, 78),
+    c(133, 76, 48),
+    c(52, 101, 36),
+    c(208, 70, 72),
+    c(117, 113, 97),
+    c(89, 125, 206),
+    c(210, 125, 44),
+    c(133, 149, 161),
+    c(109, 170, 44),
+    c(210, 170, 153),
+    c(109, 194, 202),
+    c(218, 212, 94),
+    c(222, 238, 214)
+};
+#undef c
+
 sprite treasure_sprite(int which, int state)
 {
     if (which < 0 || which >= 3 || state < 0 || state >= 5)
@@ -212,19 +233,17 @@ void selection_data::draw(const common_data &com)
 // ======================================================================
 
 font_data::font_data()
-    : color{ 222.0f/255.0f, 238.0f/255.0f, 214.0f/255.0f, 1.0f },
-      dirty(false)
+    : dirty(false)
 {
     tex = image::texture::load("font/terminus.png");
-    add_text("Hello, world!", 8, core::PHEIGHT - 8);
 }
 
 void font_data::clear()
 {
-    if (!array.empty()) {
-        array.clear();
+    if (!array.empty())
         dirty = true;
-    }
+    array.clear();
+    blocks.clear();
 }
 
 void font_data::upload()
@@ -253,8 +272,13 @@ void font_data::draw(const common_data &com)
 
     array.set_attrib(com.text->a_vert);
     glUniform4fv(com.text->u_vertxform, 1, com.xform_screen);
-    glUniform4fv(com.text->u_color, 1, color);
-    glDrawArrays(GL_TRIANGLES, 0, array.size());
+
+    int pos = 0;
+    for (auto i = blocks.begin(), e = blocks.end(); i != e; i++) {
+        glUniform4fv(com.text->u_color, 1, i->color);
+        glDrawArrays(GL_TRIANGLES, pos, i->vertcount);
+        pos += i->vertcount;
+    }
 
     glDisableVertexAttribArray(com.text->a_vert);
     glUseProgram(0);
@@ -262,10 +286,10 @@ void font_data::draw(const common_data &com)
     core::check_gl_error(HERE);
 }
 
-void font_data::add_text(const std::string &text, int x, int y)
+int font_data::add_text(const std::string &text, int x, int y)
 {
-    dirty = true;
     int xpos = x, ypos = y;
+    int vertcount = 0;
     for (auto i = text.begin(), e = text.end(); i != e; i++) {
         unsigned char c = *i;
         if (c == ' ') {
@@ -287,7 +311,31 @@ void font_data::add_text(const std::string &text, int x, int y)
         d[4][0] = x1; d[4][1] = y0; d[4][2] = u1; d[4][3] = v0;
         d[5][0] = x1; d[5][1] = y1; d[5][2] = u1; d[5][3] = v1;
         xpos += 8;
+        vertcount++;
     }
+
+    if (vertcount == 0)
+        return -1;
+
+    dirty = true;
+    block b;
+    b.vertcount = vertcount * 6;
+    b.color[0] = 1.0f;
+    b.color[1] = 0.0f;
+    b.color[2] = 1.0f;
+    b.color[3] = 1.0f;
+    blocks.push_back(b);
+
+    return blocks.size() - 1;
+}
+
+void font_data::set_color(int block, const float color[4])
+{
+    if (block < 0 || (std::size_t)block >= blocks.size())
+        return;
+    auto &b = blocks[block];
+    for (int i = 0; i < 4; i++)
+        b.color[i] = color[i];
 }
 
 // ======================================================================
@@ -486,6 +534,21 @@ void system::set_blend_color(const float color[4])
 {
     for (int i = 0; i < 4; i++)
         scale_.color[i] = color[i];
+}
+
+void system::clear_text()
+{
+    font_.clear();
+}
+
+int system::add_text(const std::string &text, int x, int y)
+{
+    return font_.add_text(text, x, y);
+}
+
+void system::set_text_color(int block, const float color[4])
+{
+    font_.set_color(block, color);
 }
 
 }
