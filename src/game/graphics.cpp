@@ -26,7 +26,7 @@ static int round_up_pow2(int x)
 }
 
 #define c(r, g, b) { (r)/255.0f, (g)/255.0f, (b)/255.0f, 1.0f }
-const float PALETTE[16][4] = {
+const float PALETTE[17][4] = {
     c(20, 12, 28),
     c(68, 36, 52),
     c(48, 52, 109),
@@ -42,7 +42,8 @@ const float PALETTE[16][4] = {
     c(210, 170, 153),
     c(109, 194, 202),
     c(218, 212, 94),
-    c(222, 238, 214)
+    c(222, 238, 214),
+    { 0, 0, 0, 0 }
 };
 #undef c
 
@@ -68,6 +69,28 @@ sprite treasure_sprite(int which, int state)
           sprite::DIAMOND5 }
     };
     return ARR[which][state];
+}
+
+void blend(float out[4], const float a[4], const float b[4], float t)
+{
+    if (t > 1.0f)
+        t = 1.0f;
+    else if (t < 0.0f)
+        t = 0.0f;
+    for (int i = 0; i < 4; i++)
+        out[i] = a[i] * (1.0f - t) + b[i] * t;
+}
+
+static const float *get_palette(int n)
+{
+    if (n >= 0 && n <= 16)
+        return PALETTE[n];
+    core::die("Palette out of bounds");
+}
+
+void blend(float out[4], int a, int b, float t)
+{
+    blend(out, get_palette(a), get_palette(b), t);
 }
 
 // ======================================================================

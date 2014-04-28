@@ -14,8 +14,12 @@ class state;
 // Define the "sprite" enumeration
 #include "sprite_enum.hpp"
 
-extern const float PALETTE[16][4];
+// DB's 16-color palette, plus transparent at #16
+extern const float PALETTE[17][4];
 sprite treasure_sprite(int which, int state);
+
+void blend(float out[4], const float a[4], const float b[4], float t);
+void blend(float out[4], int a, int b, float t);
 
 /// The shader commons.
 struct common_data {

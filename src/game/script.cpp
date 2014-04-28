@@ -5,8 +5,13 @@
 #include "control.hpp"
 #include "graphics.hpp"
 #include "../defs.hpp"
+#include "defs.hpp"
 #include <cstdio>
 namespace script {
+
+static const int LINETIME = 15;
+
+using game::defs;
 
 script::script()
 {
@@ -46,17 +51,17 @@ script::script()
             l.text += str.substr(3);
             continue;
         }
-        speaker spkr;
+        int color;
         switch (str[0]) {
-        case 'A': spkr = speaker::THERAPIST; break;
-        case 'B': spkr = speaker::PROTAGONIST; break;
-        case 'G': spkr = speaker::GAME; break;
+        case 'A': color = 8; break;
+        case 'B': color = 9; break;
+        case 'G': color = 15; break;
         default:
             core::die("Invalid script");
         }
         sec->lines.emplace_back();
         auto &l = sec->lines.back();
-        l.spkr = spkr;
+        l.color = color;
         l.lines = 1;
         l.text = str.substr(3);
     }
@@ -74,15 +79,30 @@ const section *script::get_section(const std::string &name) const
 }
 
 system::system(const section &sec, const ::game::control_system &control)
-    : m_section(sec), m_control(control), m_initted(false)
+    : m_section(sec), m_control(control), m_initted(false),
+      m_lineno(0), m_linetime(0)
 { }
 
 system::~system()
 { }
 
+void system::next()
+{
+    if (!m_done) {
+        m_lineno++;
+        m_linetime = 0;
+        if ((std::size_t)m_lineno >= m_section.lines.size())
+            m_done = true;
+    }
+}
+
 void system::update()
 {
-    
+    if (!m_done) {
+        m_linetime++;
+        if (m_linetime == LINETIME)
+            next();
+    }
 }
 
 void system::draw(::graphics::system &gr, int reltime)
@@ -103,8 +123,26 @@ void system::draw(::graphics::system &gr, int reltime)
         }
     }
 
-    for (int i = 0, e = m_blocks.size(); i != e; i++)
-        gr.set_text_color(m_blocks[i], graphics::PALETTE[i+1]);
+    for (int i = 0, e = m_blocks.size(); i != e; i++) {
+        auto &l = m_section.lines[i];
+        float color[4];
+        const float *colorp;
+        if (i < m_lineno) {
+            colorp = graphics::PALETTE[l.color];
+        } else if (i > m_lineno) {
+            colorp = graphics::PALETTE[16];
+        } else {
+            float frac = (float)m_linetime * (1.0f / LINETIME)
+                + (float)reltime * (1.0f / (LINETIME * defs::FRAMETIME));
+            graphics::blend(
+                color,
+                graphics::PALETTE[16],
+                graphics::PALETTE[l.color],
+                frac);
+            colorp = color;
+        }
+        gr.set_text_color(m_blocks[i], colorp);
+    }
 }
 
 }

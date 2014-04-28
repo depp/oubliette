@@ -114,35 +114,17 @@ void entity_system::update()
     camera_.update();
 }
 
-namespace blend_color {
-
-const float base[4] = { 20 / 255.0f, 12 / 255.0f, 28 / 255.0f, 0.5f };
-const float hurt[4] = { 208 / 255.0f, 70 / 255.0f, 72 / 255.0f, 1.0f };
-
-void blend(float out[4], const float a[4], const float b[4], float t)
-{
-    if (t > 1.0f)
-        t = 1.0f;
-    else if (t < 0.0f)
-        t = 0.0f;
-    for (int i = 0; i < 4; i++)
-        out[i] = a[i] * (1.0f - t) + b[i] * t;
-}
-
-}
-
 void entity_system::draw(::graphics::system &gr, int reltime)
 {
+    static const int BASE = 0, HURT = 6;
     if (state_.hittime > 0) {
         float color[4];
-        blend_color::blend(
-            color,
-            blend_color::base,
-            blend_color::hurt,
+        graphics::blend(
+            color, BASE, HURT,
             state_.hittime * (1.0f / HIT_TIME));
         gr.set_blend_color(color);
     } else {
-        gr.set_blend_color(blend_color::base);
+        gr.set_blend_color(graphics::PALETTE[BASE]);
     }
 
     for (int i = 0; i < state_.maxhealth; i++) {

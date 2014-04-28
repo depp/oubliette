@@ -14,10 +14,8 @@ struct system;
 }
 namespace script {
 
-enum class speaker { THERAPIST, PROTAGONIST, GAME };
-
 struct line {
-    speaker spkr;
+    int color;
     int lines;
     std::string text;
 };
@@ -48,6 +46,12 @@ private:
     const ::game::control_system &m_control;
     bool m_initted;
     std::vector<int> m_blocks;
+    int m_lineno;
+    int m_linetime;
+    bool m_done;
+
+    /// Go to the next line.
+    void next();
 
 public:
     system(const section &sec, const ::game::control_system &control);
