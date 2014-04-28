@@ -70,6 +70,10 @@ entity_system::entity_system(persistent_state &state,
             entities_.emplace_back(new woman(*this, pos));
             break;
 
+        case spawntype::PRIEST:
+            entities_.emplace_back(new priest(*this, pos));
+            break;
+
         default:
             core::die("Cannot spawn entity, unknown type");
         }
@@ -711,6 +715,30 @@ void woman::draw(::graphics::system &gr, int reltime)
 {
     gr.add_sprite(
         sprite::WOMAN,
+        physics.get_pos(reltime) + vec2(-8, -12),
+        orientation::NORMAL);
+}
+
+// ======================================================================
+
+priest::priest(entity_system &sys, vec2 pos)
+    : entity(sys, team::FOE),
+      physics(irect::centered(8, 20), pos, vec2::zero())
+{ }
+
+priest::~priest()
+{ }
+
+void priest::update()
+{
+    walking.update(physics, stats::player_walk);
+    physics.update(m_system, *this);
+}
+
+void priest::draw(::graphics::system &gr, int reltime)
+{
+    gr.add_sprite(
+        sprite::PRIEST,
         physics.get_pos(reltime) + vec2(-8, -12),
         orientation::NORMAL);
 }

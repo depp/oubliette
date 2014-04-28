@@ -307,6 +307,20 @@ public:
     virtual void draw(::graphics::system &gr, int reltime);
 };
 
+/// Enemy: priest.
+class priest : public entity {
+private:
+    physics_component physics;
+    walking_component walking;
+
+public:
+    priest(entity_system &sys, vec2 pos);
+    virtual ~priest();
+
+    virtual void update();
+    virtual void draw(::graphics::system &gr, int reltime);
+};
+
 /// Projectile poof.
 class poof : public entity {
 public:
