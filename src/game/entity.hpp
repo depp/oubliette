@@ -16,6 +16,7 @@ namespace game {
 class entity;
 struct control_system;
 struct walking_stats;
+struct jumping_stats;
 
 /// The entity system.
 class entity_system {
@@ -152,28 +153,17 @@ public:
                 const walking_stats &stats);
 };
 
-/// Jumping component with simple control (for enemies).
-class jumping_component_simple {
-public :
-    float ymove;
-
-    jumping_component_simple();
-
-    void update(physics_component &physics,
-                const walking_stats &stats);
-};
-
 /// Jumping component with full control (for the player).
-class jumping_component_full {
+class jumping_component {
 public :
     float ymove;
     int jumptime;
     jumpstate jstate;
 
-    jumping_component_full();
+    jumping_component();
 
     void update(physics_component &physics,
-                const walking_stats &stats);
+                const jumping_stats &stats);
 };
 
 // ======================================================================
@@ -185,7 +175,7 @@ class player : public entity {
 private:
     physics_component physics;
     walking_component walking;
-    jumping_component_full jumping;
+    jumping_component jumping;
 
 public:
     player(entity_system &sys, vec2 pos);
@@ -223,12 +213,25 @@ public:
     virtual void draw(::graphics::system &gr, int reltime);
 };
 
+/// Enemy: professor.
+class professor : public entity {
+private:
+    physics_component physics;
+    walking_component walking;
+
+public:
+    professor(entity_system &sys, vec2 pos);
+    virtual ~professor();
+
+    virtual void update();
+    virtual void draw(::graphics::system &gr, int reltime);
+};
+
 /// Enemy: woman.
 class woman : public entity {
 private:
     physics_component physics;
     walking_component walking;
-    jumping_component_simple jumping;
 
 public:
     woman(entity_system &sys, vec2 pos);

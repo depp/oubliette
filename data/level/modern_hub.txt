@@ -1,0 +1,12 @@
+# Level: level/modern_hub.txt
+ +448  +460 door
+ +400   +28 door
+ +448   +28 door
+ +985  +377 chest
+ +972  +186 prof
+  +39  +187 prof
+ +455  +362 prof
+ +578  +410 prof
+ +340   +26 prof
+ +518   +26 prof
+ +344  +250 player

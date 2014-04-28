@@ -58,6 +58,10 @@ entity_system::entity_system(const control_system &control,
             entities_.emplace_back(new chest(*this, pos, i->data));
             break;
 
+        case spawntype::PROF:
+            entities_.emplace_back(new professor(*this, pos));
+            break;
+
         case spawntype::WOMAN:
             entities_.emplace_back(new woman(*this, pos));
             break;
@@ -154,7 +158,8 @@ void entity::damage(int amount)
 // ======================================================================
 
 physics_component::physics_component(irect bbox, vec2 pos, vec2 vel)
-    : bbox(bbox), pos(pos), vel(vel), on_floor(false)
+    : bbox(bbox), pos(pos), vel(vel), accel(0, -stats::gravity),
+      on_floor(false)
 { }
 
 void physics_component::update(entity_system &sys, entity &e)
@@ -233,6 +238,7 @@ void physics_component::update(entity_system &sys, entity &e)
     vel = new_vel;
 
     e.m_bbox = new_bbox;
+    accel = vec2(0, -stats::gravity);
 }
 
 vec2 physics_component::get_pos(int reltime)
@@ -250,37 +256,31 @@ void walking_component::update(physics_component &physics,
                                const walking_stats &stats)
 {
     bool on_floor = physics.on_floor;
-    float max_xspeed = on_floor ? stats.xspeed_ground : stats.xspeed_air;
-    float max_xaccel = on_floor ? stats.xaccel_ground : stats.xaccel_air;
-    float xaccel = (max_xspeed * xmove - physics.vel.x) * INV_DT;
-    if (xaccel > max_xaccel)
-        xaccel = max_xaccel;
-    else if (xaccel < -max_xaccel)
-        xaccel = -max_xaccel;
-    physics.accel.x += xaccel;
+    float max_speed = on_floor ? stats.speed_ground : stats.speed_air;
+    float max_accel = on_floor ? stats.accel_ground : stats.accel_air;
+    float accel = (max_speed * xmove - physics.vel.x) * INV_DT;
+    if (accel > max_accel)
+        accel = max_accel;
+    else if (accel < -max_accel)
+        accel = -max_accel;
+    physics.accel.x += accel;
 }
 
 // ======================================================================
 
-jumping_component_simple::jumping_component_simple()
-    : ymove(0.0f)
-{ }
-
-void jumping_component_simple::update(physics_component &physics,
-                                      const walking_stats &stats)
+static void jump_simple(physics_component &physics, vec2 vel)
 {
-    if (physics.on_floor && ymove > 0.5f)
-        physics.accel.y += (stats.jumpspeed - physics.vel.y) * INV_DT;
+    physics.accel += (vel - physics.vel) * INV_DT;
 }
 
 // ======================================================================
 
-jumping_component_full::jumping_component_full()
+jumping_component::jumping_component()
     : ymove(0.0f), jumptime(0), jstate(jumpstate::READY)
 { }
 
-void jumping_component_full::update(physics_component &physics,
-                                    const walking_stats &stats)
+void jumping_component::update(physics_component &physics,
+                               const jumping_stats &stats)
 {
     bool do_jump = false;
     if (physics.on_floor) {
@@ -297,7 +297,7 @@ void jumping_component_full::update(physics_component &physics,
         if (ymove >= 0.50f) {
             if (jumptime > 0) {
                 jumptime--;
-                physics.accel.y += stats.jumpaccel * ymove;
+                physics.accel.y += stats.accel * ymove;
             } else if (jstate == jumpstate::READY && stats.can_doublejump) {
                 jstate = jumpstate::JUMP2;
                 do_jump = true;
@@ -311,9 +311,9 @@ void jumping_component_full::update(physics_component &physics,
 
     if (do_jump) {
         jumptime = stats.jumptime;
-        if (stats.jumpspeed > physics.vel.y)
+        if (stats.speed > physics.vel.y)
             physics.accel.y +=
-                (stats.jumpspeed - physics.vel.y) * INV_DT;
+                (stats.speed - physics.vel.y) * INV_DT;
     }
 
     ymove = 0.0f;
@@ -334,9 +334,8 @@ void player::update()
     walking.xmove = m_system.control().get_xaxis();
     jumping.ymove = m_system.control().get_yaxis();
 
-    physics.accel = vec2(0, -stats::player.gravity);
-    walking.update(physics, stats::player);
-    jumping.update(physics, stats::player);
+    walking.update(physics, stats::player_walk);
+    jumping.update(physics, stats::player_jump);
     physics.update(m_system, *this);
 
     m_system.set_camera_target(CAMERA.offset(physics.pos));
@@ -427,6 +426,32 @@ void chest::draw(::graphics::system &gr, int reltime)
 
 // ======================================================================
 
+professor::professor(entity_system &sys, vec2 pos)
+    : entity(sys, team::FOE),
+      physics(irect::centered(8, 20), pos, vec2::zero())
+{
+    std::printf("%g %g\n", pos.x, pos.y);
+}
+
+professor::~professor()
+{ }
+
+void professor::update()
+{
+    walking.update(physics, stats::player_walk);
+    physics.update(m_system, *this);
+}
+
+void professor::draw(::graphics::system &gr, int reltime)
+{
+    gr.add_sprite(
+        sprite::PROFESSOR,
+        physics.get_pos(reltime) + vec2(-8, -12),
+        orientation::NORMAL);
+}
+
+// ======================================================================
+
 woman::woman(entity_system &sys, vec2 pos)
     : entity(sys, team::FOE),
       physics(irect::centered(8, 20), pos, vec2::zero())
@@ -437,8 +462,7 @@ woman::~woman()
 
 void woman::update()
 {
-    walking.update(physics, stats::player);
-    jumping.update(physics, stats::player);
+    walking.update(physics, stats::player_walk);
     physics.update(m_system, *this);
 }
 

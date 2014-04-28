@@ -7,21 +7,25 @@ namespace game {
 
 /// Walking statistics.
 struct walking_stats {
-    float gravity;
-    float xaccel_ground;
-    float xspeed_ground;
-    float xaccel_air;
-    float xspeed_air;
-    int floordepth;
+    float accel_ground;
+    float speed_ground;
+    float accel_air;
+    float speed_air;
+};
+
+// Jumping statistics.
+struct jumping_stats {
     int jumptime;
-    float jumpaccel;
-    float jumpspeed;
+    float accel;
+    float speed;
     bool can_doublejump;
 };
 
 /// Global object statistics.
 struct stats {
-    static const struct walking_stats player;
+    static const float gravity;
+    static const struct walking_stats player_walk;
+    static const struct jumping_stats player_jump;
 };
 
 }

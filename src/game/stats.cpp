@@ -4,11 +4,13 @@
 #include "stats.hpp"
 namespace game {
 
-const walking_stats stats::player = {
-    600.0f,
-    // Walking
-    1200.0f, 120.0f, 300.0f, 150.0f, 3,
-    // Jumping
+const float stats::gravity = 600.0f;
+
+const walking_stats stats::player_walk = {
+    1200.0f, 120.0f, 300.0f, 150.0f
+};
+
+const jumping_stats stats::player_jump = {
     25, 400.0f, 180.0f, true
 };
 
