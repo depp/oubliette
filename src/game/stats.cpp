@@ -15,7 +15,7 @@ const jumping_stats stats::player_jump = {
 };
 
 const struct enemy_stats stats::prof = {
-    15, 15, 35, 140, 75
+    15, 15, 35, 140, 75, 300.0f
 };
 
 }

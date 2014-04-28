@@ -156,6 +156,8 @@ public:
 
     /// Update the physics component of this entity.
     void update(entity_system &sys, entity &e);
+    /// Handle a collision.
+    void hit(entity_system &sys, entity &e);
     /// Get the position at the given time since the last update.
     vec2 get_pos(int reltime);
 };
@@ -195,7 +197,7 @@ public:
     enum class state { IDLE, ALERT, ATTACK };
     state m_state;
     int m_time;
-    vec2 m_targetloc;
+    vec2 m_targetpos;
 
     enemy_component();
 

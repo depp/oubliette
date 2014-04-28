@@ -266,7 +266,8 @@ vec2 physics_component::get_pos(int reltime)
 
 projectile_component::projectile_component(
     irect bbox, vec2 pos, vec2 vel, int damage)
-    : bbox(bbox), pos(pos), vel(vel), is_hit(false), damage(damage)
+    : bbox(bbox), lastpos(pos), pos(pos), vel(vel),
+      is_hit(false), damage(damage)
 { }
 
 void projectile_component::update(entity_system &sys, entity &e)
@@ -281,7 +282,7 @@ void projectile_component::update(entity_system &sys, entity &e)
     e.m_bbox = bbox.offset(x1, y1);
 
     if (sys.level().hit_test(e.m_bbox))
-        is_hit = true;
+        hit(sys, e);
 
     team enemy;
     switch (e.m_team) {
@@ -298,7 +299,16 @@ void projectile_component::update(entity_system &sys, entity &e)
         if (!target.m_bbox.test_intersect(e.m_bbox))
             continue;
         target.damage(damage);
+        hit(sys, e);
     }
+}
+
+void projectile_component::hit(entity_system &sys, entity &e)
+{
+    if (is_hit)
+        return;
+    is_hit = true;
+    e.m_team = team::DEAD;
 }
 
 vec2 projectile_component::get_pos(int reltime)
@@ -395,7 +405,7 @@ void enemy_component::update(entity_system &sys, entity &e,
         if (target != nullptr) {
             m_state = state::ALERT;
             m_time = stats.reaction;
-            m_targetloc = target->center();
+            m_targetpos = target->center();
         }
         break;
 
@@ -406,7 +416,7 @@ void enemy_component::update(entity_system &sys, entity &e,
             if (target != nullptr) {
                 m_state = state::ATTACK;
                 m_time = 0;
-                m_targetloc = target->center();
+                m_targetpos = target->center();
             } else {
                 m_state = state::IDLE;
             }
@@ -548,8 +558,22 @@ professor::~professor()
 void professor::update()
 {
     enemy.update(m_system, *this, stats::prof);
-    if (enemy.start_attack())
-        std::puts("ATTACK");
+    if (enemy.start_attack()) {
+        vec2 origin = physics.pos;
+        vec2 target = enemy.m_targetpos;
+        origin += vec2(
+            std::copysign(10.0f, target.x - origin.x),
+            4.0f);
+        vec2 delta = target - origin;
+        float mag2 = delta.mag2();
+        vec2 shotvel;
+        if (mag2 < 16)
+            shotvel = vec2::zero();
+        else
+            shotvel = delta * (stats::prof.shotspeed / std::sqrt(mag2));
+        m_system.add_entity(new book(m_system, origin, shotvel, 8));
+    }
+
     walking.update(physics, stats::player_walk);
     physics.update(m_system, *this);
 }
@@ -575,16 +599,15 @@ book::~book()
 
 void book::update()
 {
-    if (time > 0)
-        time--;
-    else
+    time--;
+    if (time <= 0)
         projectile.update(m_system, *this);
 }
 
 void book::draw(::graphics::system &gr, int reltime)
 {
     gr.add_sprite(
-        time > 8 ? sprite::BOOK1 : sprite::BOOK2,
+        time > 0 ? sprite::BOOK1 : sprite::BOOK2,
         projectile.get_pos(reltime) + vec2(-8, -8),
         orientation::NORMAL);
 }

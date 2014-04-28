@@ -28,6 +28,7 @@ struct enemy_stats {
     int attacktime;
     int xsight;
     int ysight;
+    float shotspeed;
 };
 
 /// Global object statistics.
