@@ -88,6 +88,7 @@ void entity_system::update()
         std::make_move_iterator(new_entities_.begin()),
         std::make_move_iterator(new_entities_.end()));
     new_entities_.clear();
+    hover_triggers_.clear();
     for (auto i = entities_.begin(), e = entities_.end(); i != e; i++) {
         entity &ent = **i;
         ent.update();
@@ -113,6 +114,21 @@ void entity_system::add_entity(entity *ent)
 void entity_system::set_camera_target(const rect &target)
 {
     camera_.set_target(target);
+}
+
+void entity_system::set_hover(ivec pos)
+{
+    hover_triggers_.push_back(pos);
+}
+
+bool entity_system::test_hover(irect rect)
+{
+    for (auto i = hover_triggers_.begin(), e = hover_triggers_.end();
+         i != e; i++) {
+        if (rect.contains(*i))
+            return true;
+    }
+    return false;
 }
 
 // ======================================================================
@@ -313,6 +329,7 @@ void player::update()
     m_system.set_camera_target(
         (physics.on_floor ? CAMERA_WALK : CAMERA_JUMP)
         .offset(physics.pos));
+    m_system.set_hover(ivec(physics.pos));
 }
 
 void player::damage(int amount)
@@ -349,6 +366,12 @@ void door::draw(::graphics::system &gr, int reltime)
         sprite::DOOR2,
         m_pos + vec2(-12, -16),
         orientation::NORMAL);
+    if (m_system.test_hover(m_bbox)) {
+        gr.add_sprite(
+            sprite::ARROW,
+            m_pos + vec2(-8, +20),
+            orientation::NORMAL);
+    }
 }
 
 // ======================================================================

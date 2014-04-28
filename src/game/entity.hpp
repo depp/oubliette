@@ -31,6 +31,8 @@ private:
     camera_system camera_;
     /// The level collision map.
     levelmap level_;
+    /// List of points which trigger contextual hovering.
+    std::vector<ivec> hover_triggers_;
 
     /// Spawn an entity for the initial level state.
     void spawn(const struct spawnpoint &data);
@@ -47,6 +49,10 @@ public:
     void add_entity(entity *ent);
     /// Set the camera target.
     void set_camera_target(const rect &target);
+    /// Add a hover trigger.
+    void set_hover(ivec pos);
+    /// Test if there are hover triggers in the rect.
+    bool test_hover(irect rect);
 
     const control_system &control() const { return control_; }
     const levelmap &level() const { return level_; }

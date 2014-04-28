@@ -59,6 +59,17 @@ struct rect {
     vec2 nearest(vec2 v) const;
 };
 
+/// Integer vector.
+struct ivec {
+    int x, y;
+    ivec() { };
+    ivec(int x, int y) : x(x), y(y) { }
+    explicit ivec(vec2 v)
+        : x((int)std::floor(v.x)),
+          y((int)std::floor(v.y))
+    { }
+};
+
 /// Integer rectangle.
 struct irect {
     int x0, y0, x1, y1;
@@ -81,6 +92,22 @@ struct irect {
     irect expand(int amt)
     {
         return irect(x0 - amt, y0 - amt, x1 + amt, y1 + amt);
+    }
+
+    bool contains(vec2 pt) const
+    {
+        int x = (int)std::floor(pt.x), y = (int)std::floor(pt.y);
+        return x0 <= x && x < x1 && y0 <= x && y < y1;
+    }
+
+    bool contains(ivec v) const
+    {
+        return contains(v.x, v.y);
+    }
+
+    bool contains(int x, int y) const
+    {
+        return x0 <= x && x < x1 && y0 <= x && y < y1;
     }
 
     static irect centered(int w, int h)
