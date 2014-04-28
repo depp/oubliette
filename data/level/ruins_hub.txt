@@ -1,0 +1,10 @@
+# Level: level/ruins_hub.txt
+  +41   +50 door ruins_1
+ +683   +50 door ruins_2
+ +812  +373 door ruins_3
+ +794   +20 chest
+ +835  +371 woman
+ +785  +371 woman
+ +538   +48 woman
+ +162   +48 woman
+ +343  +470 player

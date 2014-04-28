@@ -1,0 +1,5 @@
+# Level: level/ruins_1.txt
+  +39  +210 door ruins_hub
+  +65   +29 chest
+ +251   +30 woman
+ +249  +208 woman
