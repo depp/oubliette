@@ -89,6 +89,7 @@ public:
     const levelmap &level() const { return level_; }
     const std::vector<std::unique_ptr<entity>> &entities() const
     { return entities_; }
+    persistent_state &state() { return state_; }
 
     /// A hack... set this, and that level will be loaded.
     std::string nextlevel;
@@ -231,6 +232,7 @@ public:
     virtual ~player();
 
     virtual void update();
+    virtual void damage(int amount);
     virtual void draw(::graphics::system &gr, int reltime);
 };
 

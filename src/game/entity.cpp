@@ -489,6 +489,12 @@ void player::update()
     }
 }
 
+void player::damage(int amt)
+{
+    auto &s = m_system.state();
+    s.health -= amt;
+}
+
 void player::draw(::graphics::system &gr, int reltime)
 {
     gr.add_sprite(
