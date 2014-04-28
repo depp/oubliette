@@ -199,6 +199,7 @@ static bool decode_key(int scancode, key *k)
 
     case SDL_SCANCODE_PAGEUP:
         *k = key::PREV;
+        return true;
 
     case SDL_SCANCODE_BACKSPACE:
     case SDL_SCANCODE_DELETE:

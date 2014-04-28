@@ -36,6 +36,10 @@ private:
     void mark_dirty();
     /// Sort entities.
     void sort();
+    /// Delete the selection.
+    void delete_object();
+    /// Cycle the selection's type.
+    void cycle_type(int dir);
 
 public:
     editor_system(const control_system &control,

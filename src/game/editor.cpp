@@ -77,8 +77,43 @@ void editor_system::sort()
     }
 }
 
+void editor_system::delete_object()
+{
+    entities_.erase(entities_.begin() + selection_);
+    selection_ = SEL_NONE;
+    mark_dirty();
+}
+
+void editor_system::cycle_type(int dir)
+{
+    auto &e = entities_.at(selection_);
+    int index = static_cast<int>(e.type);
+    if (dir > 0) {
+        index++;
+        if (index >= leveldata::NTYPE)
+            index = 0;
+    } else {
+        index--;
+        if (index < 0)
+            index = leveldata::NTYPE - 1;
+    }
+    e.type = static_cast<spawntype>(index);
+    sort();
+    mark_dirty();
+}
+
 void editor_system::update()
 {
+    if (selection_ >= 0) {
+        if (control_.get_key_instant(key::DELETE)) {
+            delete_object();
+        } else if (control_.get_key_instant(key::NEXT)) {
+            cycle_type(1);
+        } else if (control_.get_key_instant(key::PREV)) {
+            cycle_type(-1);
+        }
+    }
+
     if (dirty_ && !dragging_) {
         savetime_++;
         if (savetime_ >= SAVETIME)
