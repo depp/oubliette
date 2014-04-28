@@ -50,14 +50,21 @@ sheet::sheet(const std::string &dirname, const sprite *sprites)
                                  path.c_str());
                     core::die("Failed to load image");
                 }
-                if (0) {
-                    std::fprintf(
-                        stderr, "Loaded %s (%s)\n",
-                        path.c_str(),
-                        SDL_GetPixelFormatName(
-                            image.surfptr->format->format));
+                if (image->format->format == SDL_PIXELFORMAT_ARGB8888) {
+                    images.push_back(std::move(image));
+                } else {
+                    sdl::surface converted;
+                    converted.surfptr = SDL_ConvertSurfaceFormat(
+                        image.surfptr, SDL_PIXELFORMAT_ARGB8888, 0);
+                    if (!converted.surfptr) {
+                        core::check_sdl_error(HERE);
+                        std::fprintf(
+                            stderr, "Error: failed to load image: %s\n",
+                            path.c_str());
+                        core::die("Failed to load image");
+                    }
+                    images.push_back(std::move(converted));
                 }
-                images.push_back(std::move(image));
             }
             spriteimages.push_back(x.first->second);
         }
