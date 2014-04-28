@@ -17,6 +17,31 @@ class entity;
 struct control_system;
 struct walking_stats;
 struct jumping_stats;
+struct enemy_stats;
+
+/// Teams for entities.
+enum class team {
+    /// The entity is dead, and should be removed.
+    DEAD,
+
+    /// No special properties, such as decorative objects.
+    AMBIENT,
+
+    /// Player can interact with this object.  Causes contextual arrow.
+    INTERACTIVE,
+
+    /// The player, enemies will attack this.
+    FRIEND,
+
+    /// The player's shots, enemies will avoid this.
+    FRIEND_SHOT,
+
+    /// Enemies.
+    FOE,
+
+    /// The enemies' shots.
+    FOE_SHOT
+};
 
 /// The entity system.
 class entity_system {
@@ -53,6 +78,8 @@ public:
     void set_hover(ivec pos);
     /// Test if there are hover triggers in the rect.
     bool test_hover(irect rect);
+    /// Scan for a target in the given range, on the given team.
+    entity *scan_target(irect range, team t);
 
     const control_system &control() const { return control_; }
     const levelmap &level() const { return level_; }
@@ -66,30 +93,6 @@ public:
 // ======================================================================
 // Components and abstract entity parts
 // ======================================================================
-
-/// Teams for entities.
-enum class team {
-    /// The entity is dead, and should be removed.
-    DEAD,
-
-    /// No special properties, such as decorative objects.
-    AMBIENT,
-
-    /// Player can interact with this object.  Causes contextual arrow.
-    INTERACTIVE,
-
-    /// The player, enemies will attack this.
-    FRIEND,
-
-    /// The player's shots, enemies will avoid this.
-    FRIEND_SHOT,
-
-    /// Enemies.
-    FOE,
-
-    /// The enemies' shots.
-    FOE_SHOT
-};
 
 /// Generic game entity superclass.
 class entity {
@@ -109,6 +112,8 @@ public:
     virtual void damage(int amount);
     /// Draw the sprite to the graphics system.
     virtual void draw(::graphics::system &gr, int reltime) = 0;
+    /// Get the entity's center.
+    vec2 center() const;
 
     /// Link to the enclosing world state.
     entity_system &m_system;
@@ -137,6 +142,24 @@ public:
     vec2 get_pos(int reltime);
 };
 
+/// Physics for projectile entities.
+class projectile_component {
+public:
+    irect bbox;
+    vec2 lastpos;
+    vec2 pos;
+    vec2 vel;
+    bool is_hit;
+    int damage;
+
+    projectile_component(irect bbox, vec2 pos, vec2 vel, int damage);
+
+    /// Update the physics component of this entity.
+    void update(entity_system &sys, entity &e);
+    /// Get the position at the given time since the last update.
+    vec2 get_pos(int reltime);
+};
+
 enum jumpstate {
     READY, JUMP1, JUMP2
 };
@@ -155,7 +178,7 @@ public:
 
 /// Jumping component with full control (for the player).
 class jumping_component {
-public :
+public:
     float ymove;
     int jumptime;
     jumpstate jstate;
@@ -164,6 +187,26 @@ public :
 
     void update(physics_component &physics,
                 const jumping_stats &stats);
+};
+
+/// Enemy state component.
+class enemy_component {
+public:
+    enum class state { IDLE, ALERT, ATTACK };
+    state m_state;
+    int m_time;
+    vec2 m_targetloc;
+
+    enemy_component();
+
+    void update(entity_system &sys, entity &e,
+                const enemy_stats &stats);
+
+    entity *scan(entity_system &sys, entity &e,
+                 const enemy_stats &stats);
+
+    bool start_attack() const
+    { return m_state == state::ATTACK && m_time == 0; }
 };
 
 // ======================================================================
@@ -216,12 +259,27 @@ public:
 /// Enemy: professor.
 class professor : public entity {
 private:
+    enemy_component enemy;
     physics_component physics;
     walking_component walking;
 
 public:
     professor(entity_system &sys, vec2 pos);
     virtual ~professor();
+
+    virtual void update();
+    virtual void draw(::graphics::system &gr, int reltime);
+};
+
+/// Books that the professors throw.
+class book : public entity {
+private:
+    projectile_component projectile;
+    int time;
+
+public:
+    book(entity_system &sys, vec2 pos, vec2 vel, int time);
+    virtual ~book();
 
     virtual void update();
     virtual void draw(::graphics::system &gr, int reltime);

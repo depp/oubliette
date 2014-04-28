@@ -21,11 +21,21 @@ struct jumping_stats {
     bool can_doublejump;
 };
 
+/// Enemy statistics.
+struct enemy_stats {
+    int reaction;
+    int interval;
+    int attacktime;
+    int xsight;
+    int ysight;
+};
+
 /// Global object statistics.
 struct stats {
     static const float gravity;
     static const struct walking_stats player_walk;
     static const struct jumping_stats player_jump;
+    static const struct enemy_stats prof;
 };
 
 }

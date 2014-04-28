@@ -79,19 +79,24 @@ struct irect {
         : x0(x0), y0(y0), x1(x1), y1(y1)
     { }
 
-    irect offset(int x, int y)
+    irect offset(int x, int y) const
     {
         return irect(x0 + x, y0 + y, x1 + x, y1 + y);
     }
 
-    irect offset(vec2 v)
+    irect offset(vec2 v) const
     {
         return offset(std::floor(v.x), std::floor(v.y));
     }
 
-    irect expand(int amt)
+    irect expand(int amt) const
     {
         return irect(x0 - amt, y0 - amt, x1 + amt, y1 + amt);
+    }
+
+    irect expand(const irect &r) const
+    {
+        return irect(x0 + r.x0, y0 + r.y0, x1 + r.x1, y1 + r.y1);
     }
 
     bool contains(vec2 pt) const
@@ -108,6 +113,11 @@ struct irect {
     bool contains(int x, int y) const
     {
         return x0 <= x && x < x1 && y0 <= y && y < y1;
+    }
+
+    bool test_intersect(const irect &r) const
+    {
+        return x0 < r.x1 && x1 > r.x0 && y0 < r.y1 && y1 > r.y0;
     }
 
     static irect centered(int w, int h)

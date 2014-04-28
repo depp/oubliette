@@ -134,6 +134,16 @@ bool entity_system::test_hover(irect rect)
     return rect.contains(hover_trigger_);
 }
 
+entity *entity_system::scan_target(irect range, team t)
+{
+    for (auto i = entities_.begin(), e = entities_.end(); i != e; i++) {
+        entity &ent = **i;
+        if (ent.m_team == t && ent.m_bbox.test_intersect(range))
+            return &ent;
+    }
+    return nullptr;
+}
+
 // ======================================================================
 
 entity::entity(entity_system &sys, team t)
@@ -153,6 +163,12 @@ void entity::interact()
 void entity::damage(int amount)
 {
     (void)amount;
+}
+
+vec2 entity::center() const
+{
+    return vec2(0.5f * (float)(m_bbox.x0 + m_bbox.x1),
+                0.5f * (float)(m_bbox.y0 + m_bbox.y1));
 }
 
 // ======================================================================
@@ -248,6 +264,50 @@ vec2 physics_component::get_pos(int reltime)
 
 // ======================================================================
 
+projectile_component::projectile_component(
+    irect bbox, vec2 pos, vec2 vel, int damage)
+    : bbox(bbox), pos(pos), vel(vel), is_hit(false), damage(damage)
+{ }
+
+void projectile_component::update(entity_system &sys, entity &e)
+{
+    if (is_hit)
+        return;
+    lastpos = pos;
+    pos += vel * DT;
+
+    int x1 = (int)std::floor(pos.x);
+    int y1 = (int)std::floor(pos.y);
+    e.m_bbox = bbox.offset(x1, y1);
+
+    if (sys.level().hit_test(e.m_bbox))
+        is_hit = true;
+
+    team enemy;
+    switch (e.m_team) {
+    case team::FRIEND_SHOT: enemy = team::FOE; break;
+    case team::FOE_SHOT: enemy = team::FRIEND; break;
+    default: return;
+    }
+
+    auto be = sys.entities().begin(), ee = sys.entities().end();
+    for (auto i = be; i != ee; i++) {
+        entity &target = **i;
+        if (target.m_team != enemy)
+            continue;
+        if (!target.m_bbox.test_intersect(e.m_bbox))
+            continue;
+        target.damage(damage);
+    }
+}
+
+vec2 projectile_component::get_pos(int reltime)
+{
+    return defs::interp(lastpos, pos, reltime);
+}
+
+// ======================================================================
+
 walking_component::walking_component()
     : xmove(0.0f)
 { }
@@ -317,6 +377,57 @@ void jumping_component::update(physics_component &physics,
     }
 
     ymove = 0.0f;
+}
+
+// ======================================================================
+
+enemy_component::enemy_component()
+    : m_state(state::IDLE), m_time(0)
+{ }
+
+void enemy_component::update(entity_system &sys, entity &e,
+                             const enemy_stats &stats)
+{
+    entity *target;
+    switch (m_state) {
+    case state::IDLE:
+        target = scan(sys, e, stats);
+        if (target != nullptr) {
+            m_state = state::ALERT;
+            m_time = stats.reaction;
+            m_targetloc = target->center();
+        }
+        break;
+
+    case state::ALERT:
+        m_time--;
+        if (m_time == 0) {
+            target = scan(sys, e, stats);
+            if (target != nullptr) {
+                m_state = state::ATTACK;
+                m_time = 0;
+                m_targetloc = target->center();
+            } else {
+                m_state = state::IDLE;
+            }
+        }
+        break;
+
+    case state::ATTACK:
+        m_time++;
+        if (m_time >= stats.attacktime) {
+            m_state = state::ALERT;
+            m_time = stats.interval;
+        }
+        break;
+    }
+}
+
+entity *enemy_component::scan(entity_system &sys, entity &e,
+                              const enemy_stats &stats)
+{
+    irect vision = irect::centered(stats.xsight * 2, stats.ysight * 2);
+    return sys.scan_target(e.m_bbox.expand(vision), team::FRIEND);
 }
 
 // ======================================================================
@@ -429,15 +540,16 @@ void chest::draw(::graphics::system &gr, int reltime)
 professor::professor(entity_system &sys, vec2 pos)
     : entity(sys, team::FOE),
       physics(irect::centered(8, 20), pos, vec2::zero())
-{
-    std::printf("%g %g\n", pos.x, pos.y);
-}
+{ }
 
 professor::~professor()
 { }
 
 void professor::update()
 {
+    enemy.update(m_system, *this, stats::prof);
+    if (enemy.start_attack())
+        std::puts("ATTACK");
     walking.update(physics, stats::player_walk);
     physics.update(m_system, *this);
 }
@@ -447,6 +559,33 @@ void professor::draw(::graphics::system &gr, int reltime)
     gr.add_sprite(
         sprite::PROFESSOR,
         physics.get_pos(reltime) + vec2(-8, -12),
+        orientation::NORMAL);
+}
+
+// ======================================================================
+
+book::book(entity_system &sys, vec2 pos, vec2 vel, int time)
+    : entity(sys, team::FOE_SHOT),
+      projectile(irect::centered(10, 10), pos, vel, 1),
+      time(time)
+{ }
+
+book::~book()
+{ }
+
+void book::update()
+{
+    if (time > 0)
+        time--;
+    else
+        projectile.update(m_system, *this);
+}
+
+void book::draw(::graphics::system &gr, int reltime)
+{
+    gr.add_sprite(
+        time > 8 ? sprite::BOOK1 : sprite::BOOK2,
+        projectile.get_pos(reltime) + vec2(-8, -8),
         orientation::NORMAL);
 }
 
