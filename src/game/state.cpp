@@ -37,6 +37,11 @@ void state::advance(unsigned time)
         for (unsigned i = 0; i < nframes; i++) {
             entity_->update();
             control_.update();
+            if (!entity_->nextlevel.empty()) {
+                std::string level(std::move(entity_->nextlevel));
+                set_level(level);
+                break;
+            }
         }
     } else if (editor_) {
         if (nframes > 0) {

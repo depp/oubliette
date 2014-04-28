@@ -330,6 +330,20 @@ void player::update()
         (physics.on_floor ? CAMERA_WALK : CAMERA_JUMP)
         .offset(physics.pos));
     m_system.set_hover(ivec(physics.pos));
+
+    if (m_system.control().get_key_instant(key::DOWN)) {
+        ivec pos(physics.pos);
+        auto &ents = m_system.entities();
+        for (auto i = ents.begin(), e = ents.end(); i != e; i++) {
+            entity &ent(**i);
+            if (ent.m_team != team::INTERACTIVE)
+                continue;
+            if (!ent.m_bbox.contains(pos))
+                continue;
+            ent.interact();
+            break;
+        }
+    }
 }
 
 void player::damage(int amount)
@@ -357,7 +371,9 @@ door::~door()
 { }
 
 void door::interact()
-{ }
+{
+    m_system.nextlevel = m_target;
+}
 
 void door::draw(::graphics::system &gr, int reltime)
 {

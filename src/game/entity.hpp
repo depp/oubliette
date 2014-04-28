@@ -56,6 +56,11 @@ public:
 
     const control_system &control() const { return control_; }
     const levelmap &level() const { return level_; }
+    const std::vector<std::unique_ptr<entity>> &entities() const
+    { return entities_; }
+
+    /// A hack... set this, and that level will be loaded.
+    std::string nextlevel;
 };
 
 // ======================================================================
