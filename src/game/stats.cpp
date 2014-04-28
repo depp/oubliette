@@ -5,11 +5,11 @@
 namespace game {
 
 const walking_stats stats::player = {
-    300.0f,
+    600.0f,
     // Walking
-    600.0f, 120.0f, 80.0f, 150.0f, 3,
+    1200.0f, 120.0f, 300.0f, 150.0f, 3,
     // Jumping
-    25, 200.0f, 150.0f, true
+    25, 200.0f, 250.0f, true
 };
 
 }

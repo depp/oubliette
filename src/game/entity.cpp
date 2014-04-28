@@ -269,32 +269,27 @@ void walking_component::update(entity_system &sys, physics_component &physics,
         jumptime = 0;
         if (ymove > 0.5f) {
             if (jstate == jumpstate::READY) {
-                // std::puts("JUMP");
                 jumptime = stats.jumptime;
                 jstate = jumpstate::JUMP1;
-                accel.y += stats.jumpspeed * INV_DT;
+                if (stats.jumpspeed > physics.vel.y)
+                    accel.y += (stats.jumpspeed - physics.vel.y) * INV_DT;
             }
         } else {
             jstate = jumpstate::READY;
         }
-    } else if (jumptime > 0) {
-        jumptime--;
-        if (ymove >= 0.25f) {
-            accel.y += stats.jumpaccel * ymove;
-        } else {
-            jumptime = 0;
-            if (jstate == jumpstate::JUMP1)
-                jstate = jumpstate::READY;
-        }
     } else {
-        if (ymove > 0.5f) {
-            if (jstate == jumpstate::READY && stats.can_doublejump) {
-                // std::puts("DOUBLE JUMP");
+        if (ymove >= 0.50f) {
+            if (jumptime > 0) {
+                jumptime--;
+                accel.y += stats.jumpaccel * ymove;
+            } else if (jstate == jumpstate::READY && stats.can_doublejump) {
                 jumptime = stats.jumptime;
                 jstate = jumpstate::JUMP2;
-                accel.y += stats.jumpspeed * INV_DT;
+                if (stats.jumpspeed > physics.vel.y)
+                    accel.y += (stats.jumpspeed - physics.vel.y) * INV_DT;
             }
         } else {
+            jumptime = 0;
             if (jstate == jumpstate::JUMP1)
                 jstate = jumpstate::READY;
         }
