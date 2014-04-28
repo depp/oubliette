@@ -241,6 +241,7 @@ class door : public entity {
 private:
     const vec2 m_pos;
     const std::string m_target;
+    bool m_is_locked;
 
 public:
     door(entity_system &sys, vec2 pos, const std::string target);

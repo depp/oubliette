@@ -553,9 +553,18 @@ void player::draw(::graphics::system &gr, int reltime)
 // ======================================================================
 
 door::door(entity_system &sys, vec2 pos, const std::string target)
-    : entity(sys, team::INTERACTIVE), m_pos(pos), m_target(target)
+    : entity(sys, team::INTERACTIVE), m_pos(pos), m_target(target),
+      m_is_locked(false)
 {
     m_bbox = irect::centered(24, 32).offset(pos);
+    if (target == "end") {
+        for (int i = 0; i < 3; i++) {
+            if (sys.state().treasure[i] == 0) {
+                m_is_locked = true;
+                break;
+            }
+        }
+    }
 }
 
 door::~door()
@@ -563,17 +572,18 @@ door::~door()
 
 void door::interact()
 {
-    m_system.nextlevel = m_target;
+    if (!m_is_locked)
+        m_system.nextlevel = m_target;
 }
 
 void door::draw(::graphics::system &gr, int reltime)
 {
     (void)reltime;
     gr.add_sprite(
-        sprite::DOOR2,
+        m_is_locked ? sprite::DOOR3 : sprite::DOOR2,
         m_pos + vec2(-12, -16),
         orientation::NORMAL);
-    if (m_system.test_hover(m_bbox)) {
+    if (!m_is_locked && m_system.test_hover(m_bbox)) {
         gr.add_sprite(
             sprite::ARROW,
             m_pos + vec2(-8, +20),
