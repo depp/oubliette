@@ -4,12 +4,53 @@
 #ifndef LD_GAME_ENTITY_HPP
 #define LD_GAME_ENTITY_HPP
 #include "vec.hpp"
+#include "camera.hpp"
+#include "levelmap.hpp"
 #include <string>
+#include <vector>
+#include <memory>
 namespace graphics {
 class system;
 }
 namespace game {
-class state;
+class entity;
+struct control_system;
+
+/// The entity system.
+class entity_system {
+private:
+    /// The control system.
+    const control_system &control_;
+    /// The level name.
+    const std::string levelname_;
+    /// List of all entities in the game.
+    std::vector<std::unique_ptr<entity>> entities_;
+    /// List of pending new entities.
+    std::vector<std::unique_ptr<entity>> new_entities_;
+    /// The camera system.
+    camera_system camera_;
+    /// The level collision map.
+    levelmap level_;
+
+    /// Spawn an entity for the initial level state.
+    void spawn(const struct spawnpoint &data);
+
+public:
+    entity_system(const control_system &control,
+                  const std::string &levelname);
+
+    /// Update the entities.
+    void update();
+    /// Draw the game state to the screen.
+    void draw(::graphics::system &gr, int reltime);
+    /// Add an entity to the game.
+    void add_entity(entity *ent);
+    /// Set the camera target.
+    void set_camera_target(const rect &target);
+
+    const control_system &control() const { return control_; }
+    const levelmap &level() const { return level_; }
+};
 
 // ======================================================================
 // Components and abstract entity parts
@@ -42,15 +83,12 @@ enum class team {
 /// Generic game entity superclass.
 class entity {
 public:
-    entity(state &st, team t);
+    entity(entity_system &sys, team t);
     entity(const entity &) = delete;
     entity(entity &&) = delete;
     virtual ~entity();
     entity &operator=(const entity &) = delete;
     entity &operator=(entity &&) = delete;
-
-    /// Spawn an entity.
-    static entity *spawn(state &st, const struct spawnpoint &data);
 
     /// Update the entity's state for the next frame.
     virtual void update();
@@ -62,7 +100,7 @@ public:
     virtual void draw(::graphics::system &gr, int reltime) = 0;
 
     /// Link to the enclosing world state.
-    state &m_state;
+    entity_system &m_system;
     /// The bounding box, in world coordinates.
     irect m_bbox;
     /// The entity's team.
@@ -83,7 +121,7 @@ public:
     physics_component(irect bbox, vec2 pos, vec2 vel);
 
     /// Update the physics component of this entity.
-    void update(state &st, entity &e);
+    void update(entity_system &sys, entity &e);
     /// Get the position at the given time since the last update.
     vec2 get_pos(int reltime);
 };
@@ -118,7 +156,7 @@ public:
     walking_component();
 
     /// Update the walking component of this entity.
-    void update(state &st, physics_component &physics,
+    void update(entity_system &sys, physics_component &physics,
                 const walking_stats &stats);
 };
 
@@ -133,7 +171,7 @@ private:
     walking_component walking;
 
 public:
-    player(state &st, vec2 pos);
+    player(entity_system &sys, vec2 pos);
     virtual ~player();
 
     virtual void update();
@@ -147,7 +185,7 @@ public:
     const vec2 m_pos;
     const std::string m_target;
 
-    door(state &st, vec2 pos, const std::string target);
+    door(entity_system &sys, vec2 pos, const std::string target);
     virtual ~door();
 
     /// Handle the player interacting with the object.

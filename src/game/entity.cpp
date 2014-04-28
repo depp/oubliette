@@ -3,11 +3,12 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "entity.hpp"
 #include "../defs.hpp"
+#include "control.hpp"
 #include "defs.hpp"
-#include "state.hpp"
 #include "graphics.hpp"
 #include "leveldata.hpp"
 #include <cstdio>
+#include <algorithm>
 namespace game {
 
 using ::graphics::sprite;
@@ -37,30 +38,92 @@ static const walking_stats PLAYER_STATS = {
     25, 200.0f, 150.0f, true
 };
 
+struct entity_is_dead {
+    bool operator()(const std::unique_ptr<entity> &p) {
+        return p->m_team != team::DEAD;
+    }
+};
+
 // ======================================================================
 
-entity::entity(state &st, team t)
-    : m_state(st), m_bbox(0, 0, 0, 0),
+entity_system::entity_system(const control_system &control,
+                             const std::string &levelname)
+    : control_(control), levelname_(levelname)
+{
+    level_.set_level(levelname);
+    auto data = leveldata::read_level(levelname);
+    for (auto i = data.begin(), e = data.end(); i != e; i++)
+        spawn(*i);
+    camera_ = camera_system(
+        rect(vec2::zero(), vec2(level_.width(), level_.height())));
+}
+
+void entity_system::spawn(const struct spawnpoint &data)
+{
+    vec2 pos(data.x, data.y);
+    std::auto_ptr<entity> result;
+    switch (data.type) {
+    case spawntype::PLAYER:
+        result.reset(new player(*this, pos));
+        break;
+
+    case spawntype::DOOR:
+        result.reset(new door(*this, pos, data.data));
+        break;
+
+    default:
+        core::die("Cannot spawn entity, unknown type");
+    }
+
+    new_entities_.push_back(std::move(result));
+}
+
+void entity_system::update()
+{
+    auto part = std::stable_partition(
+        entities_.begin(), entities_.end(), entity_is_dead());
+    entities_.erase(part, entities_.end());
+    entities_.insert(
+        entities_.end(),
+        std::make_move_iterator(new_entities_.begin()),
+        std::make_move_iterator(new_entities_.end()));
+    new_entities_.clear();
+    for (auto i = entities_.begin(), e = entities_.end(); i != e; i++) {
+        entity &ent = **i;
+        ent.update();
+    }
+    camera_.update();
+}
+
+void entity_system::draw(::graphics::system &gr, int reltime)
+{
+    gr.set_camera_pos(camera_.get_pos(reltime));
+    for (auto i = entities_.begin(), e = entities_.end(); i != e; i++) {
+        entity &ent = **i;
+        ent.draw(gr, reltime);
+    }
+}
+
+void entity_system::add_entity(entity *ent)
+{
+    if (ent)
+        new_entities_.push_back(std::unique_ptr<entity>(ent));
+}
+
+void entity_system::set_camera_target(const rect &target)
+{
+    camera_.set_target(target);
+}
+
+// ======================================================================
+
+entity::entity(entity_system &sys, team t)
+    : m_system(sys), m_bbox(0, 0, 0, 0),
       m_team(t)
 { }
 
 entity::~entity()
 { }
-
-entity *entity::spawn(state &st, const struct spawnpoint &data)
-{
-    vec2 pos(data.x, data.y);
-    switch (data.type) {
-    case spawntype::PLAYER:
-        return new player(st, pos);
-
-    case spawntype::DOOR:
-        return new door(st, pos, data.data);
-
-    default:
-        core::die("Cannot spawn entity, unknown type");
-    }
-}
 
 void entity::update()
 { }
@@ -79,7 +142,7 @@ physics_component::physics_component(irect bbox, vec2 pos, vec2 vel)
     : bbox(bbox), pos(pos), vel(vel), on_floor(false)
 { }
 
-void physics_component::update(state &st, entity &e)
+void physics_component::update(entity_system &sys, entity &e)
 {
     static const int MAXSTEP = 3;
 
@@ -93,7 +156,7 @@ void physics_component::update(state &st, entity &e)
     int x1 = (int)std::floor(new_pos.x);
     int y1 = (int)std::floor(new_pos.y);
     irect new_bbox = bbox.offset(x1, y1);
-    const levelmap &level = st.level();
+    const levelmap &level = sys.level();
     // std::printf("%d %d %d %d\n",
     // new_bbox.x0, new_bbox.y0, new_bbox.x1, new_bbox.y1);
     if (level.hit_test(new_bbox)) {
@@ -169,10 +232,10 @@ walking_component::walking_component()
       jumptime(0), jstate(jumpstate::READY)
 { }
 
-void walking_component::update(state &st, physics_component &physics,
+void walking_component::update(entity_system &sys, physics_component &physics,
                                const walking_stats &stats)
 {
-    (void)&st;
+    (void)&sys;
     vec2 accel = vec2(0, -stats.gravity);
 
     bool on_floor = physics.on_floor;
@@ -229,8 +292,8 @@ void walking_component::update(state &st, physics_component &physics,
 
 // ======================================================================
 
-player::player(state &st, vec2 pos)
-    : entity(st, team::FRIEND),
+player::player(entity_system &sys, vec2 pos)
+    : entity(sys, team::FRIEND),
       physics(irect::centered(8, 20), pos, vec2::zero())
 {
     walking.gravity = vec2(0, -100);
@@ -242,12 +305,12 @@ player::~player()
 
 void player::update()
 {
-    walking.xmove = m_state.control().get_xaxis();
-    walking.ymove = m_state.control().get_yaxis();
-    walking.update(m_state, physics, PLAYER_STATS);
-    physics.update(m_state, *this);
+    walking.xmove = m_system.control().get_xaxis();
+    walking.ymove = m_system.control().get_yaxis();
+    walking.update(m_system, physics, PLAYER_STATS);
+    physics.update(m_system, *this);
 
-    m_state.set_camera_target(
+    m_system.set_camera_target(
         (physics.on_floor ? CAMERA_WALK : CAMERA_JUMP)
         .offset(physics.pos));
 }
@@ -267,8 +330,8 @@ void player::draw(::graphics::system &gr, int reltime)
 
 // ======================================================================
 
-door::door(state &st, vec2 pos, const std::string target)
-    : entity(st, team::INTERACTIVE), m_pos(pos), m_target(target)
+door::door(entity_system &sys, vec2 pos, const std::string target)
+    : entity(sys, team::INTERACTIVE), m_pos(pos), m_target(target)
 {
     m_bbox = irect::centered(24, 32).offset(pos);
 }

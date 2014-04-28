@@ -2,9 +2,10 @@
    This file is part of Oubliette.  Oubliette is licensed under the terms
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "editor.hpp"
+#include "control.hpp"
 #include "leveldata.hpp"
 #include "defs.hpp"
-#include "state.hpp"
+#include "graphics.hpp"
 #include "../defs.hpp"
 #include <algorithm>
 namespace game {
@@ -14,8 +15,9 @@ static const int SAVETIME = 15;
 
 static const float EDITOR_CAMSPEED = 150.0f;
 
-editor_system::editor_system(const state &st, const std::string &levelname)
-    : state_(st),
+editor_system::editor_system(const control_system &control,
+                             const std::string &levelname)
+    : control_(control),
       levelname_(levelname),
       selection_(SEL_NONE),
       camera_pos_(core::PWIDTH / 2, core::PHEIGHT / 2),
@@ -84,8 +86,7 @@ void editor_system::update()
     }
     camera_lastpos_ = camera_pos_;
     float speed = EDITOR_CAMSPEED * (1e-3 * defs::FRAMETIME);
-    auto &c = state_.control();
-    camera_pos_ += vec2(c.get_xaxis(), c.get_yaxis()) * speed;
+    camera_pos_ += vec2(control_.get_xaxis(), control_.get_yaxis()) * speed;
 }
 
 void editor_system::draw(::graphics::system &gr, int reltime)

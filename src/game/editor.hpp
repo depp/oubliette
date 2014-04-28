@@ -11,13 +11,13 @@ namespace graphics {
 class system;
 }
 namespace game {
-class state;
 struct spawnpoint;
+class control_system;
 
 /// The level editor.
 class editor_system {
 private:
-    const state &state_;
+    const control_system &control_;
     const std::string levelname_;
     std::vector<spawnpoint> entities_;
     int selection_;
@@ -38,7 +38,8 @@ private:
     void sort();
 
 public:
-    editor_system(const state &st, const std::string &levelname);
+    editor_system(const control_system &control, 
+                  const std::string &levelname);
     editor_system(const editor_system &) = delete;
     editor_system(editor_system &&) = delete;
     ~editor_system();
