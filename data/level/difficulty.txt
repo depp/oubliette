@@ -1,0 +1,5 @@
+# Level: level/difficulty.txt
+ +142   +42 door start_easy
+ +236   +42 door start_normal
+ +235  +160 door start_hard
+  +29   +40 player
