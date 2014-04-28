@@ -21,6 +21,7 @@ struct common_data {
     shader::program<shader::sprite> sprite;
     shader::program<shader::tv> tv;
     shader::program<shader::plain> plain;
+    shader::program<shader::text> text;
 
     // Vertex transformation uniform.
     float xform_world[4];
@@ -62,6 +63,20 @@ struct selection_data {
     void draw(const common_data &com);
 };
 
+/// Font rendering data.
+struct font_data {
+    image::texture tex;
+    array::array<short[4]> array;
+    float color[4];
+    bool dirty;
+
+    font_data();
+    void clear();
+    void upload();
+    void draw(const common_data &com);
+    void add_text(const std::string &text, int x, int y);
+};
+
 /// Pixel scaling data.
 struct scale_data {
     GLuint tex;
@@ -87,6 +102,7 @@ private:
     sprite_data sprite_;
     background_data background_;
     selection_data selection_;
+    font_data font_;
     scale_data scale_;
 
 public:

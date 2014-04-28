@@ -158,6 +158,21 @@ const field sprite::ATTRIBUTES[] = {
 };
 #undef TYPE
 
+#define TYPE text
+const field text::UNIFORMS[] = {
+    FIELD(u_vertxform),
+    FIELD(u_texscale),
+    FIELD(u_texture),
+    FIELD(u_color),
+    { nullptr, 0 }
+};
+
+const field text::ATTRIBUTES[] = {
+    FIELD(a_vert),
+    { nullptr, 0 }
+};
+#undef TYPE
+
 #define TYPE tv
 const field tv::UNIFORMS[] = {
     FIELD(u_picture),

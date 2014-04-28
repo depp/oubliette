@@ -54,7 +54,8 @@ sprite treasure_sprite(int which, int state)
 common_data::common_data()
     : sprite("sprite", "sprite"),
       tv("tv", "tv"),
-      plain("plain", "plain")
+      plain("plain", "plain"),
+      text("sprite", "text")
 { }
 
 // ======================================================================
@@ -210,6 +211,87 @@ void selection_data::draw(const common_data &com)
 
 // ======================================================================
 
+font_data::font_data()
+    : color{ 222.0f/255.0f, 238.0f/255.0f, 214.0f/255.0f, 1.0f },
+      dirty(false)
+{
+    tex = image::texture::load("font/terminus.png");
+    add_text("Hello, world!", 8, core::PHEIGHT - 8);
+}
+
+void font_data::clear()
+{
+    if (!array.empty()) {
+        array.clear();
+        dirty = true;
+    }
+}
+
+void font_data::upload()
+{
+    if (dirty) {
+        array.upload(GL_DYNAMIC_DRAW);
+        dirty = false;
+    }
+}
+
+void font_data::draw(const common_data &com)
+{
+    if (array.empty())
+        return;
+
+    glUseProgram(com.text.prog());
+    glEnableVertexAttribArray(com.text->a_vert);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex.tex);
+
+    glUniform2f(com.text->u_texscale, 1.0f/16.0f, 1.0f/16.0f);
+    glUniform1i(com.text->u_texture, 0);
+
+    array.set_attrib(com.text->a_vert);
+    glUniform4fv(com.text->u_vertxform, 1, com.xform_screen);
+    glUniform4fv(com.text->u_color, 1, color);
+    glDrawArrays(GL_TRIANGLES, 0, array.size());
+
+    glDisableVertexAttribArray(com.text->a_vert);
+    glUseProgram(0);
+
+    core::check_gl_error(HERE);
+}
+
+void font_data::add_text(const std::string &text, int x, int y)
+{
+    dirty = true;
+    int xpos = x, ypos = y;
+    for (auto i = text.begin(), e = text.end(); i != e; i++) {
+        unsigned char c = *i;
+        if (c == ' ') {
+            xpos += 8;
+            continue;
+        } else if (c == '\n') {
+            xpos = x;
+            ypos -= 16;
+            continue;
+        }
+
+        short x0 = xpos, x1 = xpos + 8, y0 = ypos - 16, y1 = ypos;
+        short u0 = (c & 15), u1 = u0 + 1, v1 = (c >> 4), v0 = v1 + 1;
+        auto d = array.insert(6);
+        d[0][0] = x0; d[0][1] = y0; d[0][2] = u0; d[0][3] = v0;
+        d[1][0] = x1; d[1][1] = y0; d[1][2] = u1; d[1][3] = v0;
+        d[2][0] = x0; d[2][1] = y1; d[2][2] = u0; d[2][3] = v1;
+        d[3][0] = x0; d[3][1] = y1; d[3][2] = u0; d[3][3] = v1;
+        d[4][0] = x1; d[4][1] = y0; d[4][2] = u1; d[4][3] = v0;
+        d[5][0] = x1; d[5][1] = y1; d[5][2] = u1; d[5][3] = v1;
+        xpos += 8;
+    }
+}
+
+// ======================================================================
+
 scale_data::scale_data()
 {
     width = round_up_pow2(core::PWIDTH);
@@ -344,6 +426,7 @@ void system::end()
     sprite_.upload();
     background_.upload();
     selection_.upload();
+    font_.upload();
 }
 
 void system::draw()
@@ -361,6 +444,7 @@ void system::draw()
     background_.draw(common_);
     selection_.draw(common_);
     sprite_.draw(common_);
+    font_.draw(common_);
     scale_.end(common_);
 }
 

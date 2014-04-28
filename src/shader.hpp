@@ -82,6 +82,18 @@ struct sprite {
     GLint u_texture;
 };
 
+/// Uniforms and attributes for the "text" shader.
+struct text {
+    static const field UNIFORMS[];
+    static const field ATTRIBUTES[];
+
+    GLint a_vert;
+    GLint u_vertxform;
+    GLint u_texscale;
+    GLint u_texture;
+    GLint u_color;
+};
+
 /// Uniforms and attributes for the "tv" shader.
 struct tv {
     static const field UNIFORMS[];
