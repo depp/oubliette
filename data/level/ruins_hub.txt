@@ -5,6 +5,6 @@
  +794   +20 chest
  +835  +371 woman
  +785  +371 woman
- +538   +48 woman
- +162   +48 woman
+ +606   +48 woman
+  +80   +48 woman
  +343  +470 player

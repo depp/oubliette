@@ -243,19 +243,13 @@ vec2 physics_component::get_pos(int reltime)
 // ======================================================================
 
 walking_component::walking_component()
-    : xmove(0.0f), ymove(0.0f),
-      jumptime(0), jstate(jumpstate::READY)
+    : xmove(0.0f)
 { }
 
-void walking_component::update(entity_system &sys, physics_component &physics,
+void walking_component::update(physics_component &physics,
                                const walking_stats &stats)
 {
-    (void)&sys;
-    vec2 accel = vec2(0, -stats.gravity);
-
     bool on_floor = physics.on_floor;
-    // std::printf("on floor: %s\n", on_floor ? "true" : "false");
-
     float max_xspeed = on_floor ? stats.xspeed_ground : stats.xspeed_air;
     float max_xaccel = on_floor ? stats.xaccel_ground : stats.xaccel_air;
     float xaccel = (max_xspeed * xmove - physics.vel.x) * INV_DT;
@@ -263,16 +257,38 @@ void walking_component::update(entity_system &sys, physics_component &physics,
         xaccel = max_xaccel;
     else if (xaccel < -max_xaccel)
         xaccel = -max_xaccel;
-    accel.x += xaccel;
+    physics.accel.x += xaccel;
+}
 
-    if (on_floor) {
+// ======================================================================
+
+jumping_component_simple::jumping_component_simple()
+    : ymove(0.0f)
+{ }
+
+void jumping_component_simple::update(physics_component &physics,
+                                      const walking_stats &stats)
+{
+    if (physics.on_floor && ymove > 0.5f)
+        physics.accel.y += (stats.jumpspeed - physics.vel.y) * INV_DT;
+}
+
+// ======================================================================
+
+jumping_component_full::jumping_component_full()
+    : ymove(0.0f), jumptime(0), jstate(jumpstate::READY)
+{ }
+
+void jumping_component_full::update(physics_component &physics,
+                                    const walking_stats &stats)
+{
+    bool do_jump = false;
+    if (physics.on_floor) {
         jumptime = 0;
         if (ymove > 0.5f) {
             if (jstate == jumpstate::READY) {
-                jumptime = stats.jumptime;
                 jstate = jumpstate::JUMP1;
-                if (stats.jumpspeed > physics.vel.y)
-                    accel.y += (stats.jumpspeed - physics.vel.y) * INV_DT;
+                do_jump = true;
             }
         } else {
             jstate = jumpstate::READY;
@@ -281,12 +297,10 @@ void walking_component::update(entity_system &sys, physics_component &physics,
         if (ymove >= 0.50f) {
             if (jumptime > 0) {
                 jumptime--;
-                accel.y += stats.jumpaccel * ymove;
+                physics.accel.y += stats.jumpaccel * ymove;
             } else if (jstate == jumpstate::READY && stats.can_doublejump) {
-                jumptime = stats.jumptime;
                 jstate = jumpstate::JUMP2;
-                if (stats.jumpspeed > physics.vel.y)
-                    accel.y += (stats.jumpspeed - physics.vel.y) * INV_DT;
+                do_jump = true;
             }
         } else {
             jumptime = 0;
@@ -295,8 +309,13 @@ void walking_component::update(entity_system &sys, physics_component &physics,
         }
     }
 
-    physics.accel = accel;
-    xmove = 0.0f;
+    if (do_jump) {
+        jumptime = stats.jumptime;
+        if (stats.jumpspeed > physics.vel.y)
+            physics.accel.y +=
+                (stats.jumpspeed - physics.vel.y) * INV_DT;
+    }
+
     ymove = 0.0f;
 }
 
@@ -313,8 +332,11 @@ player::~player()
 void player::update()
 {
     walking.xmove = m_system.control().get_xaxis();
-    walking.ymove = m_system.control().get_yaxis();
-    walking.update(m_system, physics, stats::player);
+    jumping.ymove = m_system.control().get_yaxis();
+
+    physics.accel = vec2(0, -stats::player.gravity);
+    walking.update(physics, stats::player);
+    jumping.update(physics, stats::player);
     physics.update(m_system, *this);
 
     m_system.set_camera_target(CAMERA.offset(physics.pos));
@@ -415,7 +437,8 @@ woman::~woman()
 
 void woman::update()
 {
-    walking.update(m_system, physics, stats::player);
+    walking.update(physics, stats::player);
+    jumping.update(physics, stats::player);
     physics.update(m_system, *this);
 }
 

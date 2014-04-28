@@ -144,14 +144,35 @@ enum jumpstate {
 class walking_component {
 public:
     float xmove;
-    float ymove;
-    int jumptime;
-    jumpstate jstate;
 
     walking_component();
 
     /// Update the walking component of this entity.
-    void update(entity_system &sys, physics_component &physics,
+    void update(physics_component &physics,
+                const walking_stats &stats);
+};
+
+/// Jumping component with simple control (for enemies).
+class jumping_component_simple {
+public :
+    float ymove;
+
+    jumping_component_simple();
+
+    void update(physics_component &physics,
+                const walking_stats &stats);
+};
+
+/// Jumping component with full control (for the player).
+class jumping_component_full {
+public :
+    float ymove;
+    int jumptime;
+    jumpstate jstate;
+
+    jumping_component_full();
+
+    void update(physics_component &physics,
                 const walking_stats &stats);
 };
 
@@ -164,6 +185,7 @@ class player : public entity {
 private:
     physics_component physics;
     walking_component walking;
+    jumping_component_full jumping;
 
 public:
     player(entity_system &sys, vec2 pos);
@@ -206,6 +228,7 @@ class woman : public entity {
 private:
     physics_component physics;
     walking_component walking;
+    jumping_component_simple jumping;
 
 public:
     woman(entity_system &sys, vec2 pos);
