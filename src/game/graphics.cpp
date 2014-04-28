@@ -49,7 +49,6 @@ sprite treasure_sprite(int which, int state)
     return ARR[which][state];
 }
 
-
 // ======================================================================
 
 common_data::common_data()
