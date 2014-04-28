@@ -254,10 +254,10 @@ public:
 class chest : public entity {
 private:
     const vec2 m_pos;
-    const std::string m_contents;
+    int m_which, m_state;
 
 public:
-    chest(entity_system &sys, vec2 pos, const std::string contents);
+    chest(entity_system &sys, vec2 pos, const std::string &contents);
     virtual ~chest();
 
     virtual void interact();

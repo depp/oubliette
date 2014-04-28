@@ -579,17 +579,33 @@ void door::draw(::graphics::system &gr, int reltime)
 
 // ======================================================================
 
-chest::chest(entity_system &sys, vec2 pos, const std::string contents)
-    : entity(sys, team::INTERACTIVE), m_pos(pos), m_contents(contents)
+chest::chest(entity_system &sys, vec2 pos, const std::string &contents)
+    : entity(sys, team::INTERACTIVE), m_pos(pos), m_which(-1), m_state(-1)
 {
     m_bbox = irect::centered(24, 24).offset(pos);
+    if (contents.empty()) {
+        std::printf("WARNING: No treasure contents at (%f, %f)\n",
+                    pos.x, pos.y);
+    } else {
+        if (contents.size() != 2)
+            core::die("Invalid treasure contents (invalid length)");
+        m_which = contents[0] - '1';
+        m_state = contents[1] - '1' + 1;
+        if (m_which < 0 || m_which >= 3 || m_state < 1 || m_state >= 5)
+            core::die("Invalid treasure contents");
+    }
 }
 
 chest::~chest()
 { }
 
 void chest::interact()
-{ }
+{
+    if (m_which < 0)
+        return;
+    auto &s = m_system.state();
+    s.treasure[m_which] = m_state;
+}
 
 void chest::draw(::graphics::system &gr, int reltime)
 {
