@@ -20,7 +20,7 @@ struct spawninfo {
 static const spawninfo SPAWN_TYPES[leveldata::NTYPE] = {
     { "player", 16, 24, 30, sprite::PLAYER },
     { "door",   24, 32, 10, sprite::DOOR2 },
-    { "chest",  24, 24, 10, sprite::CHEST },
+    { "chest",  24, 24, 15, sprite::CHEST },
     { "slime",  16, 16, 20, sprite::SLIME1 },
     { "prof",   12, 24, 20, sprite::PROFESSOR },
     { "woman",  12, 24, 20, sprite::WOMAN },

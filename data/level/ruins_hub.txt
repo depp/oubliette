@@ -2,9 +2,9 @@
   +41   +50 door ruins_1
  +683   +50 door ruins_2
  +812  +373 door ruins_3
- +794   +20 chest
+ +343  +470 door main_hub
+ +794   +20 chest 24
  +835  +371 woman
  +785  +371 woman
  +606   +48 woman
   +80   +48 woman
- +343  +470 player

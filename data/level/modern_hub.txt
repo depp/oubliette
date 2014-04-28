@@ -2,6 +2,7 @@
  +448  +460 door modern_2
  +400   +28 door modern_1
  +448   +28 door modern_3
+ +361  +252 door main_hub
  +985  +377 chest 14
  +972  +186 prof
   +39  +187 prof
@@ -9,4 +10,3 @@
  +578  +410 prof
  +340   +26 prof
  +518   +26 prof
- +344  +250 player

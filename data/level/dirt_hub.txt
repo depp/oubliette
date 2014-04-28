@@ -1,8 +1,9 @@
 # Level: level/dirt_hub.txt
-  +26  +299 chest 34
  +231   +55 door dirt_1
  +536   +32 door dirt_2
  +961   +41 door dirt_3
+ +594  +462 door main_hub
+  +26  +299 chest 34
  +837  +303 priest
  +953  +231 priest
  +790  +234 priest
@@ -16,4 +17,3 @@
  +573   +32 priest
  +914   +40 priest
  +467  +309 priest
- +552  +462 player

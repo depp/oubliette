@@ -1,5 +1,5 @@
 # Level: level/ruins_2.txt
  +187   +32 door ruins_hub
- +482  +153 chest
+ +482  +153 chest 22
  +366   +45 woman
  +156  +188 woman
