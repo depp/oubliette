@@ -287,6 +287,7 @@ void scale_data::end(const common_data &com)
     glUniform1i(com.tv->u_noise, 3);
     glUniform4fv(com.tv->u_noiseoffset, 1, offsets);
     glUniform2fv(com.tv->u_texscale, 1, scale);
+    glUniform4fv(com.tv->u_color, 1, color);
     array.set_attrib(com.tv->a_vert);
 
     glDrawArrays(GL_TRIANGLES, 0, array.size());
@@ -311,6 +312,8 @@ void system::begin()
     sprite_.clear();
     background_.clear();
     selection_.clear();
+    for (int i = 0; i < 4; i++)
+        scale_.color[i] = 0.0f;
 }
 
 void system::end()
@@ -370,6 +373,12 @@ void system::set_selection(game::irect rect)
     d[3][0] = rect.x0; d[3][1] = rect.y1;
     d[4][0] = rect.x1; d[4][1] = rect.y0;
     d[5][0] = rect.x1; d[5][1] = rect.y1;
+}
+
+void system::set_blend_color(const float color[4])
+{
+    for (int i = 0; i < 4; i++)
+        scale_.color[i] = color[i];
 }
 
 }

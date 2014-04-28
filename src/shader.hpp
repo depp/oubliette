@@ -94,6 +94,7 @@ struct tv {
     GLint u_banding;
     GLint u_noise;
     GLint u_texscale;
+    GLint u_color;
 
     GLint u_noiseoffset;
 };

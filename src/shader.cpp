@@ -166,6 +166,7 @@ const field tv::UNIFORMS[] = {
     FIELD(u_noise),
     FIELD(u_noiseoffset),
     FIELD(u_texscale),
+    FIELD(u_color),
     { nullptr, 0 }
 };
 

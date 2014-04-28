@@ -70,6 +70,7 @@ struct scale_data {
     image::texture texbanding;
     image::texture texnoise;
     float scale[2];
+    float color[4];
 
     scale_data();
     void begin();
@@ -105,6 +106,8 @@ public:
     void set_camera_pos(game::vec2 target);
     /// Set the editor's selection.
     void set_selection(game::irect rect);
+    /// Set the blend effect color.
+    void set_blend_color(const float color[4]);
 };
 
 }

@@ -8,6 +8,12 @@ namespace game {
 struct persistent_state {
     int health;
     int maxhealth;
+
+    int hittime;
+
+    persistent_state()
+        : health(0), maxhealth(0), hittime(0)
+    { }
 };
 
 }

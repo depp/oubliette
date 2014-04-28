@@ -6,6 +6,7 @@ uniform sampler1D u_banding;
 uniform sampler2D u_noise;
 uniform vec4 u_noiseoffset;
 uniform vec2 u_texscale;
+uniform vec4 u_color;
 varying vec2 v_texcoord;
 
 void main() {
@@ -19,6 +20,12 @@ void main() {
         u_noise, (v_texcoord + u_noiseoffset.xy) * 0.015625);
     noise *= 0.0625;
     banding = mix(banding, vec4(1.0, 1.0, 1.0, 1.0), 0.5);
-    vec4 pic2 = mix(picture, vec4(1.0, 1.0, 1.0, 1.0), noise);
-    gl_FragColor = pic2 * pattern * banding + noise;
+
+    vec2 delta = v_texcoord - vec2(160.0, 90.0);
+    float d = dot(delta, delta) * (2.967359050445104e-05);
+
+    gl_FragColor =
+        mix(picture, u_color, d * d * u_color.a) *
+        pattern * banding + noise;
+    // gl_FragColor = pic2 * pattern * banding + noise;
 }

@@ -16,6 +16,8 @@ namespace game {
 using ::graphics::sprite;
 using ::sprite::orientation;
 
+static const int HIT_TIME = 25;
+
 static const scalar DT = 1e-3 * defs::FRAMETIME;
 static const scalar INV_DT = 1.0 / (1e-3 * defs::FRAMETIME);
 
@@ -90,6 +92,8 @@ entity_system::entity_system(persistent_state &state,
 
 void entity_system::update()
 {
+    if (state_.hittime > 0)
+        state_.hittime--;
     auto part = std::stable_partition(
         entities_.begin(), entities_.end(), entity_is_dead());
     entities_.erase(part, entities_.end());
@@ -106,8 +110,37 @@ void entity_system::update()
     camera_.update();
 }
 
+namespace blend_color {
+
+const float base[4] = { 20 / 255.0f, 12 / 255.0f, 28 / 255.0f, 0.5f };
+const float hurt[4] = { 208 / 255.0f, 70 / 255.0f, 72 / 255.0f, 1.0f };
+
+void blend(float out[4], const float a[4], const float b[4], float t)
+{
+    if (t > 1.0f)
+        t = 1.0f;
+    else if (t < 0.0f)
+        t = 0.0f;
+    for (int i = 0; i < 4; i++)
+        out[i] = a[i] * (1.0f - t) + b[i] * t;
+}
+
+}
+
 void entity_system::draw(::graphics::system &gr, int reltime)
 {
+    if (state_.hittime > 0) {
+        float color[4];
+        blend_color::blend(
+            color,
+            blend_color::base,
+            blend_color::hurt,
+            state_.hittime * (1.0f / HIT_TIME));
+        gr.set_blend_color(color);
+    } else {
+        gr.set_blend_color(blend_color::base);
+    }
+
     for (int i = 0; i < state_.maxhealth; i++) {
         gr.add_sprite(
             i < state_.health ? sprite::HEART1 : sprite::HEART2,
@@ -493,6 +526,7 @@ void player::damage(int amt)
 {
     auto &s = m_system.state();
     s.health -= amt;
+    s.hittime += HIT_TIME * amt;
 }
 
 void player::draw(::graphics::system &gr, int reltime)
