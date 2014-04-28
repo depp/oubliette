@@ -7,6 +7,7 @@
 #include "defs.hpp"
 #include "graphics.hpp"
 #include "leveldata.hpp"
+#include "stats.hpp"
 #include <cstdio>
 #include <algorithm>
 namespace game {
@@ -20,14 +21,6 @@ static const scalar INV_DT = 1.0 / (1e-3 * defs::FRAMETIME);
 static const int CAMERA_X = 16;
 static const int CAMERA_Y = 16;
 static const rect CAMERA(-CAMERA_X, -CAMERA_Y, +CAMERA_X, +CAMERA_Y);
-
-static const walking_stats PLAYER_STATS = {
-    300.0f,
-    // Walking
-    600.0f, 120.0f, 80.0f, 150.0f, 3,
-    // Jumping
-    25, 200.0f, 150.0f, true
-};
 
 struct entity_is_dead {
     bool operator()(const std::unique_ptr<entity> &p) {
@@ -63,6 +56,10 @@ entity_system::entity_system(const control_system &control,
 
         case spawntype::CHEST:
             entities_.emplace_back(new chest(*this, pos, i->data));
+            break;
+
+        case spawntype::WOMAN:
+            entities_.emplace_back(new woman(*this, pos));
             break;
 
         default:
@@ -246,7 +243,7 @@ vec2 physics_component::get_pos(int reltime)
 // ======================================================================
 
 walking_component::walking_component()
-    : gravity(vec2::zero()), xmove(0.0f), ymove(0.0f),
+    : xmove(0.0f), ymove(0.0f),
       jumptime(0), jstate(jumpstate::READY)
 { }
 
@@ -313,10 +310,7 @@ void walking_component::update(entity_system &sys, physics_component &physics,
 player::player(entity_system &sys, vec2 pos)
     : entity(sys, team::FRIEND),
       physics(irect::centered(8, 20), pos, vec2::zero())
-{
-    walking.gravity = vec2(0, -100);
-    // walking.gravity = vec2::zero();
-}
+{ }
 
 player::~player()
 { }
@@ -325,7 +319,7 @@ void player::update()
 {
     walking.xmove = m_system.control().get_xaxis();
     walking.ymove = m_system.control().get_yaxis();
-    walking.update(m_system, physics, PLAYER_STATS);
+    walking.update(m_system, physics, stats::player);
     physics.update(m_system, *this);
 
     m_system.set_camera_target(CAMERA.offset(physics.pos));
@@ -344,11 +338,6 @@ void player::update()
             break;
         }
     }
-}
-
-void player::damage(int amount)
-{
-    (void)amount;
 }
 
 void player::draw(::graphics::system &gr, int reltime)
@@ -417,6 +406,30 @@ void chest::draw(::graphics::system &gr, int reltime)
             m_pos + vec2(-8, +16),
             orientation::NORMAL);
     }
+}
+
+// ======================================================================
+
+woman::woman(entity_system &sys, vec2 pos)
+    : entity(sys, team::FOE),
+      physics(irect::centered(8, 20), pos, vec2::zero())
+{ }
+
+woman::~woman()
+{ }
+
+void woman::update()
+{
+    walking.update(m_system, physics, stats::player);
+    physics.update(m_system, *this);
+}
+
+void woman::draw(::graphics::system &gr, int reltime)
+{
+    gr.add_sprite(
+        sprite::WOMAN,
+        physics.get_pos(reltime) + vec2(-8, -12),
+        orientation::NORMAL);
 }
 
 // ======================================================================

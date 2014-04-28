@@ -15,6 +15,7 @@ class system;
 namespace game {
 class entity;
 struct control_system;
+struct walking_stats;
 
 /// The entity system.
 class entity_system {
@@ -139,24 +140,9 @@ enum jumpstate {
     READY, JUMP1, JUMP2
 };
 
-/// Walking statistics.
-struct walking_stats {
-    float gravity;
-    float xaccel_ground;
-    float xspeed_ground;
-    float xaccel_air;
-    float xspeed_air;
-    int floordepth;
-    int jumptime;
-    float jumpaccel;
-    float jumpspeed;
-    bool can_doublejump;
-};
-
 /// Walking component for an entity.
 class walking_component {
 public:
-    vec2 gravity;
     float xmove;
     float ymove;
     int jumptime;
@@ -184,16 +170,16 @@ public:
     virtual ~player();
 
     virtual void update();
-    virtual void damage(int amount);
     virtual void draw(::graphics::system &gr, int reltime);
 };
 
 /// Doors between areas.
 class door : public entity {
-public:
+private:
     const vec2 m_pos;
     const std::string m_target;
 
+public:
     door(entity_system &sys, vec2 pos, const std::string target);
     virtual ~door();
 
@@ -203,14 +189,29 @@ public:
 
 /// Treasure chest.
 class chest : public entity {
-public:
+private:
     const vec2 m_pos;
     const std::string m_contents;
 
+public:
     chest(entity_system &sys, vec2 pos, const std::string contents);
     virtual ~chest();
 
     virtual void interact();
+    virtual void draw(::graphics::system &gr, int reltime);
+};
+
+/// Enemy: woman.
+class woman : public entity {
+private:
+    physics_component physics;
+    walking_component walking;
+
+public:
+    woman(entity_system &sys, vec2 pos);
+    virtual ~woman();
+
+    virtual void update();
     virtual void draw(::graphics::system &gr, int reltime);
 };
 
