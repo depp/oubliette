@@ -6,6 +6,7 @@
 #include "editor.hpp"
 #include "entity.hpp"
 #include "script.hpp"
+#include "../defs.hpp"
 namespace game {
 
 state::state(bool edit_mode)
@@ -39,7 +40,12 @@ void state::advance(unsigned time)
         nframes = 1;
     }
 
-    if (entity_) {
+    if (scriptsys_) {
+        if (nframes > 0) {
+            scriptsys_->update();
+            control_.update();
+        }
+    } else if (entity_) {
         for (unsigned i = 0; i < nframes; i++) {
             entity_->update();
             control_.update();
@@ -62,7 +68,9 @@ void state::draw(unsigned time)
     advance(time);
     int reltime = time - frametime_;
     graphics_.begin();
-    if (entity_)
+    if (scriptsys_)
+        scriptsys_->draw(graphics_, reltime);
+    else if (entity_)
         entity_->draw(graphics_, reltime);
     else if (editor_)
         editor_->draw(graphics_, reltime);
@@ -89,19 +97,47 @@ void state::event_key(key k, bool state)
 
 void state::set_level(const std::string &name)
 {
-    std::string lastlevel(std::move(levelname_));
-    levelname_ = name;
-    control_.clear();
-
-    if (edit_mode_) {
-        editor_.reset(new editor_system(control_, name));
-        editor_->load_data();
-    } else {
-        entity_.reset(
-            new entity_system(persistent_, control_, name, lastlevel));
+    if (name.empty()) {
+        std::puts("set_level: empty name");
+        return;
     }
 
-    graphics_.set_level(name);
+    editor_.reset();
+    entity_.reset();
+    scriptsys_.reset();
+    control_.clear();
+
+    std::string target_script, target_level;
+    auto pos = name.find(':');
+    if (pos == std::string::npos) {
+        target_level = name;
+    } else {
+        target_script = name.substr(0, pos);
+        target_level = name.substr(pos + 1);
+    }
+
+    std::string lastlevel(std::move(levelname_));
+    levelname_ = target_level;
+    if (edit_mode_) {
+        editor_.reset(new editor_system(control_, levelname_));
+        editor_->load_data();
+    } else {
+        if (!target_script.empty()) {
+            auto sec = script_->get_section(target_script);
+            if (sec == nullptr) {
+                std::printf("Invalid section: %s\n", target_script.c_str());
+                core::die("Could not load script");
+            }
+            scriptsys_.reset(new script::system(*sec, control_));
+        }
+        if (!target_level.empty()) {
+            entity_.reset(
+                new entity_system(persistent_, control_,
+                                  target_level, lastlevel));
+        }
+    }
+
+    graphics_.set_level(target_level);
 }
 
 }

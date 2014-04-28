@@ -6,6 +6,12 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+namespace game {
+struct control_system;
+}
+namespace graphics {
+struct system;
+}
 namespace script {
 
 enum class speaker { THERAPIST, PROTAGONIST, GAME };
@@ -17,6 +23,7 @@ struct line {
 };
 
 struct section {
+    std::string name;
     std::vector<line> lines;
 };
 
@@ -31,6 +38,29 @@ public:
     ~script();
     script &operator=(const script &) = delete;
     script &operator=(script &&) = delete;
+
+    const section *get_section(const std::string &name) const;
+};
+
+class system {
+private:
+    const section &m_section;
+    const ::game::control_system &m_control;
+    bool m_initted;
+    std::vector<int> m_blocks;
+
+public:
+    system(const section &sec, const ::game::control_system &control);
+    system(const script &) = delete;
+    system(system &&) = delete;
+    ~system();
+    system &operator=(const system &) = delete;
+    system &operator=(system &&) = delete;
+
+    /// Update the script.
+    void update();
+    /// Draw the script state to the screen.
+    void draw(::graphics::system &gr, int reltime);
 };
 
 }

@@ -52,7 +52,7 @@ struct background_data {
     void clear();
     void upload();
     void draw(const common_data &com);
-    void set_level(const std::string &path);
+    void set_level(const std::string &name);
 };
 
 /// Editor selection data.

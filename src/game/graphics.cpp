@@ -178,17 +178,19 @@ void background_data::draw(const common_data &com)
     core::check_gl_error(HERE);
 }
 
-void background_data::set_level(const std::string &path)
+void background_data::set_level(const std::string &name)
 {
-    std::string fullpath("level/");
-    fullpath += path;
-    fullpath += ".png";
-
     if (bgtex.tex) {
         glDeleteTextures(1, &bgtex.tex);
         bgtex.tex = 0;
     }
-    bgtex = image::texture::load(fullpath);
+
+    if (!name.empty()) {
+        std::string fullpath("level/");
+        fullpath += name;
+        fullpath += ".png";
+        bgtex = image::texture::load(fullpath);
+    }
 }
 
 // ======================================================================
@@ -395,11 +397,7 @@ void scale_data::begin()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, fbuf);
     glViewport(0, 0, width, height);
-    glClearColor(
-        20.0f / 255.0f,
-        12.0f / 255.0f,
-        28.0f / 255.0f,
-        0.0f);
+    glClearColor(PALETTE[0][0], PALETTE[0][1], PALETTE[0][2], PALETTE[0][3]);
     glClear(GL_COLOR_BUFFER_BIT);
     glViewport(0, 0, core::PWIDTH, core::PHEIGHT);
 

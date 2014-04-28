@@ -17,6 +17,7 @@ class system;
 }
 namespace script {
 class script;
+class system;
 }
 namespace game {
 class entity_system;
@@ -45,6 +46,8 @@ private:
     persistent_state persistent_;
     /// The game script.
     std::unique_ptr<script::script> script_;
+    /// The script system.
+    std::unique_ptr<script::system> scriptsys_;
 
     /// Advance to the given frame.
     void advance(unsigned time);

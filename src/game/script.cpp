@@ -2,6 +2,8 @@
    This file is part of Oubliette.  Oubliette is licensed under the terms
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "script.hpp"
+#include "control.hpp"
+#include "graphics.hpp"
 #include "../defs.hpp"
 #include <cstdio>
 namespace script {
@@ -30,6 +32,7 @@ script::script()
                 core::die("Invalid script");
             }
             sec = &r.first->second;
+            sec->name = name;
             continue;
         }
         if (sec == nullptr)
@@ -63,5 +66,45 @@ script::script()
 
 script::~script()
 { }
+
+const section *script::get_section(const std::string &name) const
+{
+    auto i = sections_.find(name);
+    return i == sections_.end() ? nullptr : &i->second;
+}
+
+system::system(const section &sec, const ::game::control_system &control)
+    : m_section(sec), m_control(control), m_initted(false)
+{ }
+
+system::~system()
+{ }
+
+void system::update()
+{
+    
+}
+
+void system::draw(::graphics::system &gr, int reltime)
+{
+    (void)reltime;
+
+    if (!m_initted) {
+        m_initted = true;
+        gr.clear_text();
+        int ypos = core::PHEIGHT - 8;
+        int xpos = 8;
+        auto &lines = m_section.lines;
+        m_blocks.clear();
+        m_blocks.reserve(lines.size());
+        for (auto i = lines.begin(), e = lines.end(); i != e; i++) {
+            m_blocks.push_back(gr.add_text(i->text, xpos, ypos));
+            ypos -= 16 * i->lines + 8;
+        }
+    }
+
+    for (int i = 0, e = m_blocks.size(); i != e; i++)
+        gr.set_text_color(m_blocks[i], graphics::PALETTE[i+1]);
+}
 
 }
