@@ -86,6 +86,8 @@ public:
     void set_attrib(GLint attrib);
     /// Get the number of vertexes.
     int size() const { return array_.size(); }
+    /// Determine whether the array is empty.
+    bool empty() const { return array_.empty(); }
 };
 
 }

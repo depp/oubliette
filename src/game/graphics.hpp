@@ -21,7 +21,8 @@ struct common_data {
     shader::program<shader::plain> plain;
 
     // Vertex transformation uniform.
-    float xform[4];
+    float xform_world[4];
+    float xform_screen[4];
 
     common_data();
 };
@@ -30,6 +31,7 @@ struct common_data {
 struct sprite_data {
     ::sprite::sheet sheet;
     ::sprite::array array;
+    ::sprite::array array2;
 
     sprite_data();
     void clear();
@@ -97,7 +99,8 @@ public:
     /// Set the current level.
     void set_level(const std::string &path);
     /// Add a sprite to the screen.
-    void add_sprite(sprite sp, game::vec2 pos, ::sprite::orientation orient);
+    void add_sprite(sprite sp, game::vec2 pos, ::sprite::orientation orient,
+                    bool screen_relative=false);
     /// Set the camera target.
     void set_camera_pos(game::vec2 target);
     /// Set the editor's selection.

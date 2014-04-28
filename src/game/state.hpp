@@ -11,6 +11,7 @@
 #include "key.hpp"
 #include "levelmap.hpp"
 #include "graphics.hpp"
+#include "persistent.hpp"
 namespace graphics {
 class system;
 }
@@ -37,6 +38,8 @@ private:
     std::unique_ptr<entity_system> entity_;
     /// The editor system.
     std::unique_ptr<editor_system> editor_;
+    /// Persistent state.
+    persistent_state persistent_;
 
     /// Advance to the given frame.
     void advance(unsigned time);

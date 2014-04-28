@@ -43,11 +43,13 @@ sprite_data::sprite_data()
 void sprite_data::clear()
 {
     array.clear();
+    array2.clear();
 }
 
 void sprite_data::upload()
 {
     array.upload(GL_DYNAMIC_DRAW);
+    array2.upload(GL_DYNAMIC_DRAW);
 }
 
 void sprite_data::draw(const common_data &com)
@@ -60,12 +62,20 @@ void sprite_data::draw(const common_data &com)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, sheet.texture());
 
-    glUniform4fv(com.sprite->u_vertxform, 1, com.xform);
     glUniform2fv(com.sprite->u_texscale, 1, sheet.texscale());
     glUniform1i(com.sprite->u_texture, 0);
-    array.set_attrib(com.sprite->a_vert);
 
-    glDrawArrays(GL_TRIANGLES, 0, array.size());
+    if (!array.empty()) {
+        array.set_attrib(com.sprite->a_vert);
+        glUniform4fv(com.sprite->u_vertxform, 1, com.xform_world);
+        glDrawArrays(GL_TRIANGLES, 0, array.size());
+    }
+
+    if (!array2.empty()) {
+        array2.set_attrib(com.sprite->a_vert);
+        glUniform4fv(com.sprite->u_vertxform, 1, com.xform_screen);
+        glDrawArrays(GL_TRIANGLES, 0, array2.size());
+    }
 
     glDisableVertexAttribArray(com.sprite->a_vert);
     glUseProgram(0);
@@ -110,7 +120,7 @@ void background_data::draw(const common_data &com)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, bgtex.tex);
 
-    glUniform4fv(com.sprite->u_vertxform, 1, com.xform);
+    glUniform4fv(com.sprite->u_vertxform, 1, com.xform_world);
     glUniform2fv(com.sprite->u_texscale, 1, bgtex.scale);
     glUniform1i(com.sprite->u_texture, 0);
     array.set_attrib(com.sprite->a_vert);
@@ -161,7 +171,7 @@ void selection_data::draw(const common_data &com)
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-    glUniform4fv(com.plain->u_vertxform, 1, com.xform);
+    glUniform4fv(com.plain->u_vertxform, 1, com.xform_world);
     glUniform4f(
         com.plain->u_color,
         0.4f, 0.0f, 0.4f, 0.0);
@@ -312,10 +322,14 @@ void system::end()
 
 void system::draw()
 {
-    common_.xform[0] = 2.0 / core::PWIDTH;
-    common_.xform[1] = 2.0 / core::PHEIGHT;
-    common_.xform[2] = camera_.x * (-2.0 / core::PWIDTH);
-    common_.xform[3] = camera_.y * (-2.0 / core::PHEIGHT);
+    common_.xform_world[0] = 2.0 / core::PWIDTH;
+    common_.xform_world[1] = 2.0 / core::PHEIGHT;
+    common_.xform_world[2] = camera_.x * (-2.0 / core::PWIDTH);
+    common_.xform_world[3] = camera_.y * (-2.0 / core::PHEIGHT);
+    common_.xform_screen[0] = 2.0 / core::PWIDTH;
+    common_.xform_screen[1] = 2.0 / core::PHEIGHT;
+    common_.xform_screen[2] = -1.0f;
+    common_.xform_screen[3] = -1.0f;
 
     scale_.begin();
     background_.draw(common_);
@@ -330,9 +344,11 @@ void system::set_level(const std::string &path)
 }
 
 void system::add_sprite(sprite sp, vec2 pos,
-                        ::sprite::orientation orient)
+                        ::sprite::orientation orient,
+                        bool screen_relative)
 {
-    sprite_.array.add(
+    auto &arr = screen_relative ? sprite_.array2 : sprite_.array;
+    arr.add(
         sprite_.sheet.get(static_cast<int>(sp)),
         (int)std::floor(pos.x),
         (int)std::floor(pos.y),

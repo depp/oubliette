@@ -8,6 +8,7 @@
 #include "graphics.hpp"
 #include "leveldata.hpp"
 #include "stats.hpp"
+#include "persistent.hpp"
 #include <cstdio>
 #include <algorithm>
 namespace game {
@@ -30,10 +31,11 @@ struct entity_is_dead {
 
 // ======================================================================
 
-entity_system::entity_system(const control_system &control,
+entity_system::entity_system(persistent_state &state,
+                             const control_system &control,
                              const std::string &levelname,
                              const std::string &lastlevel)
-    : control_(control), levelname_(levelname)
+    : state_(state), control_(control), levelname_(levelname)
 {
     level_.set_level(levelname);
     auto data = leveldata::read_level(levelname);
@@ -106,6 +108,13 @@ void entity_system::update()
 
 void entity_system::draw(::graphics::system &gr, int reltime)
 {
+    for (int i = 0; i < state_.maxhealth; i++) {
+        gr.add_sprite(
+            i < state_.health ? sprite::HEART1 : sprite::HEART2,
+            vec2(core::PWIDTH - 16 - 16*i, core::PHEIGHT - 16),
+            orientation::NORMAL,
+            true);
+    }
     gr.set_camera_pos(camera_.get_pos(reltime));
     for (auto i = entities_.begin(), e = entities_.end(); i != e; i++) {
         entity &ent = **i;
@@ -339,10 +348,12 @@ void walking_component::update(physics_component &physics,
 
 // ======================================================================
 
+#if 0
 static void jump_simple(physics_component &physics, vec2 vel)
 {
     physics.accel += (vel - physics.vel) * INV_DT;
 }
+#endif
 
 // ======================================================================
 
@@ -668,7 +679,7 @@ void poof::draw(::graphics::system &gr, int reltime)
     default: return;
     }
     gr.add_sprite(s, m_pos + vec2(-8, -8), orientation::NORMAL);
-        
+
 }
 
 // ======================================================================

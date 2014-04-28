@@ -18,6 +18,7 @@ struct control_system;
 struct walking_stats;
 struct jumping_stats;
 struct enemy_stats;
+struct persistent_state;
 
 /// Teams for entities.
 enum class team {
@@ -46,6 +47,8 @@ enum class team {
 /// The entity system.
 class entity_system {
 private:
+    /// Game persistent state.
+    persistent_state &state_;
     /// The control system.
     const control_system &control_;
     /// The level name.
@@ -62,7 +65,8 @@ private:
     ivec hover_trigger_;
 
 public:
-    entity_system(const control_system &control,
+    entity_system(persistent_state &state,
+                  const control_system &control,
                   const std::string &levelname,
                   const std::string &lastlevel);
 

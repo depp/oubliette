@@ -9,7 +9,10 @@ namespace game {
 
 state::state(bool edit_mode)
     : edit_mode_(edit_mode), initted_(false)
-{ }
+{
+    persistent_.health = 2;
+    persistent_.maxhealth = 5;
+}
 
 state::~state()
 { }
@@ -91,7 +94,8 @@ void state::set_level(const std::string &name)
         editor_.reset(new editor_system(control_, name));
         editor_->load_data();
     } else {
-        entity_.reset(new entity_system(control_, name, lastlevel));
+        entity_.reset(
+            new entity_system(persistent_, control_, name, lastlevel));
     }
 
     graphics_.set_level(name);
