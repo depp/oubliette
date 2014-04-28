@@ -14,6 +14,8 @@ class state;
 // Define the "sprite" enumeration
 #include "sprite_enum.hpp"
 
+sprite treasure_sprite(int which, int state);
+
 /// The shader commons.
 struct common_data {
     shader::program<shader::sprite> sprite;

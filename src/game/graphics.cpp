@@ -1,7 +1,6 @@
 /* Copyright 2014 Dietrich Epp.
    This file is part of Oubliette.  Oubliette is licensed under the terms
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
-#include <assert.h>
 #include "graphics.hpp"
 #include "state.hpp"
 #include "defs.hpp"
@@ -25,6 +24,31 @@ static int round_up_pow2(int x)
     v |= v >> 16;
     return v + 1;
 }
+
+sprite treasure_sprite(int which, int state)
+{
+    if (which < 0 || which >= 3 || state < 0 || state >= 5)
+        core::die("Invalid treasure");
+    static const sprite ARR[3][5] = {
+        { sprite::CIRCLE1,
+          sprite::CIRCLE2,
+          sprite::CIRCLE3,
+          sprite::CIRCLE4,
+          sprite::CIRCLE5 },
+        { sprite::STAR1,
+          sprite::STAR2,
+          sprite::STAR3,
+          sprite::STAR4,
+          sprite::STAR5 },
+        { sprite::DIAMOND1,
+          sprite::DIAMOND2,
+          sprite::DIAMOND3,
+          sprite::DIAMOND4,
+          sprite::DIAMOND5 }
+    };
+    return ARR[which][state];
+}
+
 
 // ======================================================================
 

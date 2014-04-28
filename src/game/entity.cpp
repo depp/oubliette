@@ -148,6 +148,15 @@ void entity_system::draw(::graphics::system &gr, int reltime)
             orientation::NORMAL,
             true);
     }
+
+    for (int i = 0; i < 3; i++) {
+        gr.add_sprite(
+            ::graphics::treasure_sprite(i, state_.treasure[i]),
+            vec2(2 + 18*i, core::PHEIGHT - 17),
+            orientation::NORMAL,
+            true);
+    }
+
     gr.set_camera_pos(camera_.get_pos(reltime));
     for (auto i = entities_.begin(), e = entities_.end(); i != e; i++) {
         entity &ent = **i;
