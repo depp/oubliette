@@ -18,17 +18,17 @@ static const scalar DT = 1e-3 * defs::FRAMETIME;
 static const scalar INV_DT = 1.0 / (1e-3 * defs::FRAMETIME);
 
 static const int CAMERA_X = 16;
-static const int CAMERA_YS0 = 48, CAMERA_YS1 = 64;
+static const int CAMERA_YS0 = 64, CAMERA_YS1 = 96;
 static const rect CAMERA_WALK(
     -CAMERA_X,
-    core::PWIDTH / 2 - CAMERA_YS1,
+    core::PHEIGHT / 2 - CAMERA_YS1,
     +CAMERA_X,
-    core::PWIDTH / 2 - CAMERA_YS0);
+    core::PHEIGHT / 2 - CAMERA_YS0);
 static const rect CAMERA_JUMP(
     -CAMERA_X,
-    -core::PWIDTH / 2 + CAMERA_YS0,
+    -core::PHEIGHT / 2 + CAMERA_YS0,
     +CAMERA_X,
-    core::PWIDTH / 2 - CAMERA_YS0);
+    core::PHEIGHT / 2 - CAMERA_YS0);
 
 static const walking_stats PLAYER_STATS = {
     300.0f,
