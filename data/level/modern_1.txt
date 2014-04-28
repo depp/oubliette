@@ -1,0 +1,9 @@
+# Level: level/modern_1.txt
+ +144   +28 door modern_hub
+ +370   +25 chest 11
+ +400   +26 prof
+ +403  +122 prof
+ +265  +122 prof
+ +241  +122 prof
+ +127  +122 prof
+ +107   +74 prof
