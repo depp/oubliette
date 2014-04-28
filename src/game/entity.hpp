@@ -301,5 +301,19 @@ public:
     virtual void draw(::graphics::system &gr, int reltime);
 };
 
+/// Projectile poof.
+class poof : public entity {
+public:
+    vec2 m_pos;
+    int m_time;
+    int m_frame;
+
+    poof(entity_system &sys, vec2 pos);
+    virtual ~poof();
+
+    virtual void update();
+    virtual void draw(::graphics::system &gr, int reltime);
+};
+
 }
 #endif

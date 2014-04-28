@@ -309,6 +309,7 @@ void projectile_component::hit(entity_system &sys, entity &e)
         return;
     is_hit = true;
     e.m_team = team::DEAD;
+    sys.add_entity(new poof(sys, pos));
 }
 
 vec2 projectile_component::get_pos(int reltime)
@@ -634,6 +635,38 @@ void woman::draw(::graphics::system &gr, int reltime)
         sprite::WOMAN,
         physics.get_pos(reltime) + vec2(-8, -12),
         orientation::NORMAL);
+}
+
+// ======================================================================
+
+static const int POOF_FRAMETIME = 3;
+
+poof::poof(entity_system &sys, vec2 pos)
+    : entity(sys, team::AMBIENT), m_pos(pos), m_time(0)
+{ }
+
+poof::~poof()
+{ }
+
+void poof::update()
+{
+    m_time++;
+    if (m_time > POOF_FRAMETIME * 3)
+        m_team = team::DEAD;
+}
+
+void poof::draw(::graphics::system &gr, int reltime)
+{
+    (void)reltime;
+    sprite s;
+    switch (m_time / POOF_FRAMETIME) {
+    case 0: s = sprite::POOF1; break;
+    case 1: s = sprite::POOF2; break;
+    case 2: s = sprite::POOF3; break;
+    default: return;
+    }
+    gr.add_sprite(s, m_pos + vec2(-8, -8), orientation::NORMAL);
+        
 }
 
 // ======================================================================
