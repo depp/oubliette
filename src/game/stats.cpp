@@ -9,7 +9,7 @@ const walking_stats stats::player = {
     // Walking
     1200.0f, 120.0f, 300.0f, 150.0f, 3,
     // Jumping
-    25, 200.0f, 250.0f, true
+    25, 400.0f, 180.0f, true
 };
 
 }
