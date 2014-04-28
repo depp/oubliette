@@ -1,0 +1,1 @@
+Double jump: doesn't work if you jump off a slope because you get air time before you press jump.  Should add some leeway when figuring out if you are jumping off the floor: scanning farther down is probably best.
