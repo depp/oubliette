@@ -129,6 +129,10 @@ void background_data::set_level(const std::string &path)
     fullpath += path;
     fullpath += ".png";
 
+    if (bgtex.tex) {
+        glDeleteTextures(1, &bgtex.tex);
+        bgtex.tex = 0;
+    }
     bgtex = image::texture::load(fullpath);
 }
 
