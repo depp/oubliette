@@ -7,6 +7,7 @@
 #include "entity.hpp"
 #include "script.hpp"
 #include "../defs.hpp"
+#include <algorithm>
 namespace game {
 
 state::state(bool edit_mode)
@@ -44,6 +45,8 @@ void state::advance(unsigned time)
         if (nframes > 0) {
             scriptsys_->update();
             control_.update();
+            if (scriptsys_->done())
+                next_level();
         }
     } else if (entity_) {
         for (unsigned i = 0; i < nframes; i++) {
@@ -61,6 +64,45 @@ void state::advance(unsigned time)
             control_.update();
         }
     }
+}
+
+void state::next_level()
+{
+    editor_.reset();
+    entity_.reset();
+    scriptsys_.reset();
+    control_.clear();
+
+    if (levelqueue_.empty())
+        core::die("No level");
+    std::string next = levelqueue_.back();
+    levelqueue_.pop_back();
+    if (next.empty())
+        core::die("Empty level name");
+    if (edit_mode_) {
+        editor_.reset(new editor_system(control_, next));
+        editor_->load_data();
+        graphics_.set_level(next);
+    } else {
+        graphics_.clear_text();
+        if (next[0] == '@') {
+            next = next.substr(1);
+            auto sec = script_->get_section(next);
+            if (sec == nullptr) {
+                std::printf("Invalid section: %s\n", next.c_str());
+                core::die("Could not load script");
+            }
+            scriptsys_.reset(new script::system(*sec, control_));
+            graphics_.set_level(std::string());
+        } else {
+            std::string lastlevel(std::move(levelname_));
+            levelname_ = next;
+            entity_.reset(
+                new entity_system(persistent_, control_, next, lastlevel));
+            graphics_.set_level(next);
+        }
+    }
+
 }
 
 void state::draw(unsigned time)
@@ -102,42 +144,25 @@ void state::set_level(const std::string &name)
         return;
     }
 
-    editor_.reset();
-    entity_.reset();
-    scriptsys_.reset();
-    control_.clear();
-
-    std::string target_script, target_level;
-    auto pos = name.find(':');
-    if (pos == std::string::npos) {
-        target_level = name;
-    } else {
-        target_script = name.substr(0, pos);
-        target_level = name.substr(pos + 1);
-    }
-
-    std::string lastlevel(std::move(levelname_));
-    levelname_ = target_level;
-    if (edit_mode_) {
-        editor_.reset(new editor_system(control_, levelname_));
-        editor_->load_data();
-    } else {
-        if (!target_script.empty()) {
-            auto sec = script_->get_section(target_script);
-            if (sec == nullptr) {
-                std::printf("Invalid section: %s\n", target_script.c_str());
-                core::die("Could not load script");
-            }
-            scriptsys_.reset(new script::system(*sec, control_));
-        }
-        if (!target_level.empty()) {
-            entity_.reset(
-                new entity_system(persistent_, control_,
-                                  target_level, lastlevel));
+    levelqueue_.clear();
+    std::size_t pos = 0;
+    while (true) {
+        std::size_t delim = name.find(':', pos);
+        if (delim == std::string::npos) {
+            std::string next = name.substr(pos);
+            if (!next.empty())
+                levelqueue_.push_back(std::move(next));
+            break;
+        } else {
+            std::string next = name.substr(pos, delim - pos);
+            if (!next.empty())
+                levelqueue_.push_back(std::move(next));
+            pos = delim + 1;
         }
     }
 
-    graphics_.set_level(target_level);
+    std::reverse(levelqueue_.begin(), levelqueue_.end());
+    next_level();
 }
 
 }

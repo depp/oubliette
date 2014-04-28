@@ -48,9 +48,13 @@ private:
     std::unique_ptr<script::script> script_;
     /// The script system.
     std::unique_ptr<script::system> scriptsys_;
+    /// Queue for level changes.
+    std::vector<std::string> levelqueue_;
 
     /// Advance to the given frame.
     void advance(unsigned time);
+    /// Go to the next level.
+    void next_level();
 
 public:
     explicit state(bool edit_mode);

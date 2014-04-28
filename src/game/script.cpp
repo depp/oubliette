@@ -80,7 +80,8 @@ const section *script::get_section(const std::string &name) const
 
 system::system(const section &sec, const ::game::control_system &control)
     : m_section(sec), m_control(control), m_initted(false),
-      m_lineno(0), m_linetime(0)
+      m_lineno(0), m_linetime(0),
+      m_revealed(false), m_done(false)
 { }
 
 system::~system()
