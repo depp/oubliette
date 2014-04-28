@@ -218,7 +218,7 @@ static bool decode_key(int scancode, key *k)
 
 int main(int argc, char *argv[])
 {
-    const char *start_level = "main_wake";
+    const char *start_level = "difficulty";
     bool edit_mode = false;
     if (argc >= 3) {
         if (!std::strcmp(argv[1], "--edit") ||

@@ -15,8 +15,8 @@ state::state(bool edit_mode)
 {
     if (!edit_mode)
         script_.reset(new script::script());
-    persistent_.health = 2;
-    persistent_.maxhealth = 5;
+    persistent_.health = -1;
+    persistent_.maxhealth = -1;
 }
 
 state::~state()
@@ -72,19 +72,16 @@ void state::next_level()
     entity_.reset();
     scriptsys_.reset();
     control_.clear();
+    graphics_.clear_text();
 
-    if (levelqueue_.empty())
-        core::die("No level");
-    std::string next = levelqueue_.back();
-    levelqueue_.pop_back();
-    if (next.empty())
-        core::die("Empty level name");
-    if (edit_mode_) {
-        editor_.reset(new editor_system(control_, next));
-        editor_->load_data();
-        graphics_.set_level(next);
-    } else {
-        graphics_.clear_text();
+    while (true) {
+        if (levelqueue_.empty())
+            core::die("No level");
+        std::string next = levelqueue_.back();
+        levelqueue_.pop_back();
+        if (next.empty())
+            core::die("Empty level name");
+
         if (next[0] == '@') {
             next = next.substr(1);
             auto sec = script_->get_section(next);
@@ -94,15 +91,60 @@ void state::next_level()
             }
             scriptsys_.reset(new script::system(*sec, control_));
             graphics_.set_level(std::string());
+            return;
+        } else if (next[0] == '!') {
+            auto &st = persistent_;
+            if (next == "!dead") {
+                st.health = st.maxhealth;
+                levelqueue_.push_back("main_wake");
+                levelqueue_.push_back("@lose");
+            } else if (next == "!health") {
+                st.health = st.maxhealth;
+            } else if (next == "!easy") {
+                st.health = -1;
+                st.maxhealth = -1;
+            } else if (next == "!normal") {
+                st.health = 8;
+                st.maxhealth = 8;
+            } else if (next == "!hard") {
+                st.health = 3;
+                st.maxhealth = 3;
+            } else if (next == "!end") {
+                int treasure = st.treasure[0];
+                for (int i = 1; i < 3; i++) {
+                    if (st.treasure[i] != treasure)
+                        treasure = 0;
+                }
+                if (treasure < 0 || treasure >= 5)
+                    core::die("Invalid treasure");
+                levelqueue_.push_back("difficulty");
+                levelqueue_.push_back(
+                    std::string("@epilogue_") + "01234"[treasure]);
+                levelqueue_.push_back("@epilogue");
+                st = persistent_state();
+                levelname_.clear();
+            } else if (next[1] == '!') {
+                std::puts("TREASUER");
+                if (next.size() != 5)
+                    core::die("Invalid cheat");
+                for (int i = 0; i < 3; i++) {
+                    int t = next[2+i] - '0';
+                    if (t < 0 || t >= 5)
+                        core::die("Invalid cheat treasure");
+                    st.treasure[i] = t;
+                }
+            } else {
+                core::die("Invalid command");
+            }
         } else {
             std::string lastlevel(std::move(levelname_));
             levelname_ = next;
             entity_.reset(
                 new entity_system(persistent_, control_, next, lastlevel));
             graphics_.set_level(next);
+            return;
         }
     }
-
 }
 
 void state::draw(unsigned time)
@@ -139,6 +181,13 @@ void state::event_key(key k, bool state)
 
 void state::set_level(const std::string &name)
 {
+    if (edit_mode_) {
+        editor_.reset(new editor_system(control_, name));
+        editor_->load_data();
+        graphics_.set_level(name);
+        return;
+    }
+
     if (name.empty()) {
         std::puts("set_level: empty name");
         return;

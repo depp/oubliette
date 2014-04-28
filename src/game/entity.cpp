@@ -33,6 +33,14 @@ struct entity_is_dead {
 
 // ======================================================================
 
+std::string door_name(const std::string &data)
+{
+    auto pos = data.rfind(':');
+    if (pos == std::string::npos)
+        return data;
+    return data.substr(pos + 1);
+}
+
 entity_system::entity_system(persistent_state &state,
                              const control_system &control,
                              const std::string &levelname,
@@ -43,6 +51,7 @@ entity_system::entity_system(persistent_state &state,
     auto data = leveldata::read_level(levelname);
     auto b = data.begin(), e = data.end();
     spawnpoint *pspawn = nullptr, *dspawn = nullptr, *dspawn2 = nullptr;
+    std::string dname;
 
     for (auto i = b; i != e; i++) {
         vec2 pos(i->x, i->y);
@@ -53,7 +62,7 @@ entity_system::entity_system(persistent_state &state,
 
         case spawntype::DOOR:
             entities_.emplace_back(new door(*this, pos, i->data));
-            if (i->data == lastlevel)
+            if (door_name(i->data) == lastlevel)
                 dspawn = &*i;
             dspawn2 = &*i;
             break;
@@ -539,7 +548,7 @@ door::door(entity_system &sys, vec2 pos, const std::string target)
       m_is_locked(false)
 {
     m_bbox = irect::centered(24, 32).offset(pos);
-    if (target == "end") {
+    if (door_name(target) == "!end") {
         for (int i = 0; i < 3; i++) {
             if (sys.state().treasure[i] == 0) {
                 m_is_locked = true;

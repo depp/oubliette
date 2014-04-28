@@ -14,7 +14,7 @@ struct persistent_state {
     int hittime;
 
     persistent_state()
-        : health(0), maxhealth(0), treasure{0, 0, 0}, hittime(0)
+        : health(-1), maxhealth(-1), treasure{0, 0, 0}, hittime(0)
     { }
 };
 
