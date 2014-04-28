@@ -38,7 +38,7 @@ private:
     void sort();
 
 public:
-    editor_system(const control_system &control, 
+    editor_system(const control_system &control,
                   const std::string &levelname);
     editor_system(const editor_system &) = delete;
     editor_system(editor_system &&) = delete;

@@ -167,7 +167,7 @@ void selection_data::draw(const common_data &com)
 
     glDisableVertexAttribArray(com.plain->a_vert);
     glUseProgram(0);
-    
+
     core::check_gl_error(HERE);
 }
 
