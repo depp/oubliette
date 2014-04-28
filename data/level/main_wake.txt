@@ -1,4 +1,4 @@
 # Level: level/main_wake.txt
  +325   +40 door main_hub
-  +50  +104 door end
+  +50  +104 door !end
   +99  +102 player
