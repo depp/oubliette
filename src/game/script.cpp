@@ -9,7 +9,7 @@
 #include <cstdio>
 namespace script {
 
-static const int LINETIME = 15;
+static const int LINETIME = 30;
 
 using game::defs;
 
@@ -86,19 +86,11 @@ system::system(const section &sec, const ::game::control_system &control)
 system::~system()
 { }
 
-void system::next()
-{
-    if (!m_done) {
-        m_lineno++;
-        m_linetime = 0;
-        if ((std::size_t)m_lineno >= m_section.lines.size())
-            m_done = true;
-    }
-}
-
 void system::update()
 {
-    if (!m_done) {
+    if (m_control.any_key_instant()) {
+        next();
+    } else if (!m_revealed) {
         m_linetime++;
         if (m_linetime == LINETIME)
             next();
@@ -142,6 +134,18 @@ void system::draw(::graphics::system &gr, int reltime)
             colorp = color;
         }
         gr.set_text_color(m_blocks[i], colorp);
+    }
+}
+
+void system::next()
+{
+    if (!m_revealed) {
+        m_lineno++;
+        m_linetime = 0;
+        if ((std::size_t)m_lineno >= m_section.lines.size())
+            m_revealed = true;
+    } else {
+        m_done = true;
     }
 }
 

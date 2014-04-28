@@ -47,6 +47,14 @@ bool control_system::get_key_instant(key k) const
     return keys[index] == 1;
 }
 
+bool control_system::any_key_instant() const
+{
+    for (int i = 0; i < NKEYS; i++)
+        if (keys[i] == 1)
+            return true;
+    return false;
+}
+
 void control_system::set_key(key k, bool state)
 {
     int index = static_cast<int>(k);

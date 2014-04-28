@@ -27,6 +27,8 @@ public:
     bool get_key(key k) const;
     /// Get whether the key was pressed this frame.
     bool get_key_instant(key k) const;
+    /// Get whether any key was pressed this frame.
+    bool any_key_instant() const;
     /// Set the state for a key.
     void set_key(key k, bool state);
     /// Get the x-axis state, in the range [-1,1].

@@ -48,10 +48,8 @@ private:
     std::vector<int> m_blocks;
     int m_lineno;
     int m_linetime;
+    bool m_revealed;
     bool m_done;
-
-    /// Go to the next line.
-    void next();
 
 public:
     system(const section &sec, const ::game::control_system &control);
@@ -65,6 +63,10 @@ public:
     void update();
     /// Draw the script state to the screen.
     void draw(::graphics::system &gr, int reltime);
+    /// Go to the next line.
+    void next();
+    /// Whether the script is done.
+    bool done() const { return m_done; }
 };
 
 }
