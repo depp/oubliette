@@ -1,0 +1,8 @@
+# Level: level/dirt_3.txt
+  +83   +52 door
+ +206  +467 chest
+ +195  +133 priest
+ +291  +168 priest
+ +185  +210 priest
+ +162  +325 priest
+ +105  +405 priest
