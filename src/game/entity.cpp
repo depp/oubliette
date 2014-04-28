@@ -603,6 +603,8 @@ void book::update()
     time--;
     if (time <= 0)
         projectile.update(m_system, *this);
+    if (time < -1000)
+        m_team = team::DEAD;
 }
 
 void book::draw(::graphics::system &gr, int reltime)
