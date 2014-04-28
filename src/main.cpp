@@ -218,12 +218,16 @@ static bool decode_key(int scancode, key *k)
 
 int main(int argc, char *argv[])
 {
-    const char *edit_level = nullptr;
-    if (argc >= 2) {
-        if (!std::strcmp(argv[1], "--edit") || !std::strcmp(argv[1], "-e")) {
-            if (argc >= 3) {
-                edit_level = argv[2];
-            }
+    const char *start_level = "main_wake";
+    bool edit_mode = false;
+    if (argc >= 3) {
+        if (!std::strcmp(argv[1], "--edit") ||
+            !std::strcmp(argv[1], "-e")) {
+            start_level = argv[2];
+            edit_mode = true;
+        } else if (!std::strcmp(argv[1], "--start-at") ||
+                   !std::strcmp(argv[1], "-s")) {
+            start_level = argv[2];
         }
     }
 
@@ -235,8 +239,8 @@ int main(int argc, char *argv[])
     {
         bool do_quit = false;
         unsigned last_frame = SDL_GetTicks();
-        game::state gstate(edit_level != nullptr);
-        gstate.set_level(edit_level != nullptr ? edit_level : "main_wake");
+        game::state gstate(edit_mode);
+        gstate.set_level(start_level);
         while (!do_quit) {
             SDL_Event e;
             while (SDL_PollEvent(&e)) {
