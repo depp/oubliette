@@ -31,8 +31,8 @@ private:
     camera_system camera_;
     /// The level collision map.
     levelmap level_;
-    /// List of points which trigger contextual hovering.
-    std::vector<ivec> hover_triggers_;
+    /// Point which triggers hovering.
+    ivec hover_trigger_;
 
 public:
     entity_system(const control_system &control,
@@ -197,9 +197,20 @@ public:
     door(entity_system &sys, vec2 pos, const std::string target);
     virtual ~door();
 
-    /// Handle the player interacting with the object.
     virtual void interact();
-    /// Draw the sprite to the graphics system.
+    virtual void draw(::graphics::system &gr, int reltime);
+};
+
+/// Treasure chest.
+class chest : public entity {
+public:
+    const vec2 m_pos;
+    const std::string m_contents;
+
+    chest(entity_system &sys, vec2 pos, const std::string contents);
+    virtual ~chest();
+
+    virtual void interact();
     virtual void draw(::graphics::system &gr, int reltime);
 };
 

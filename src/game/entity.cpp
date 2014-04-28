@@ -45,7 +45,7 @@ entity_system::entity_system(const control_system &control,
     level_.set_level(levelname);
     auto data = leveldata::read_level(levelname);
     auto b = data.begin(), e = data.end();
-    spawnpoint *pspawn = nullptr, *dspawn = nullptr;
+    spawnpoint *pspawn = nullptr, *dspawn = nullptr, *dspawn2 = nullptr;
 
     for (auto i = b; i != e; i++) {
         vec2 pos(i->x, i->y);
@@ -58,6 +58,11 @@ entity_system::entity_system(const control_system &control,
             entities_.emplace_back(new door(*this, pos, i->data));
             if (i->data == lastlevel)
                 dspawn = &*i;
+            dspawn2 = &*i;
+            break;
+
+        case spawntype::CHEST:
+            entities_.emplace_back(new chest(*this, pos, i->data));
             break;
 
         default:
@@ -68,6 +73,10 @@ entity_system::entity_system(const control_system &control,
     // Don't care if there is no player, maybe it would be useful.
     if (!lastlevel.empty() && dspawn != nullptr)
         pspawn = dspawn;
+    if (pspawn == nullptr && dspawn2 != nullptr) {
+        std::puts("Fallback, no suitable door found");
+        pspawn = dspawn2;
+    }
     if (pspawn != nullptr)
         entities_.emplace_back(
             new player(*this, vec2(pspawn->x, pspawn->y)));
@@ -86,7 +95,7 @@ void entity_system::update()
         std::make_move_iterator(new_entities_.begin()),
         std::make_move_iterator(new_entities_.end()));
     new_entities_.clear();
-    hover_triggers_.clear();
+    hover_trigger_ = ivec(-1000, -1000);
     for (auto i = entities_.begin(), e = entities_.end(); i != e; i++) {
         entity &ent = **i;
         ent.update();
@@ -116,17 +125,12 @@ void entity_system::set_camera_target(const rect &target)
 
 void entity_system::set_hover(ivec pos)
 {
-    hover_triggers_.push_back(pos);
+    hover_trigger_ = pos;
 }
 
 bool entity_system::test_hover(irect rect)
 {
-    for (auto i = hover_triggers_.begin(), e = hover_triggers_.end();
-         i != e; i++) {
-        if (rect.contains(*i))
-            return true;
-    }
-    return false;
+    return rect.contains(hover_trigger_);
 }
 
 // ======================================================================
@@ -382,6 +386,35 @@ void door::draw(::graphics::system &gr, int reltime)
         gr.add_sprite(
             sprite::ARROW,
             m_pos + vec2(-8, +20),
+            orientation::NORMAL);
+    }
+}
+
+// ======================================================================
+
+chest::chest(entity_system &sys, vec2 pos, const std::string contents)
+    : entity(sys, team::INTERACTIVE), m_pos(pos), m_contents(contents)
+{
+    m_bbox = irect::centered(24, 24).offset(pos);
+}
+
+chest::~chest()
+{ }
+
+void chest::interact()
+{ }
+
+void chest::draw(::graphics::system &gr, int reltime)
+{
+    (void)reltime;
+    gr.add_sprite(
+        sprite::CHEST,
+        m_pos + vec2(-12, -12),
+        orientation::NORMAL);
+    if (m_system.test_hover(m_bbox)) {
+        gr.add_sprite(
+            sprite::ARROW,
+            m_pos + vec2(-8, +16),
             orientation::NORMAL);
     }
 }

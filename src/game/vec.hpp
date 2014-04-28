@@ -97,7 +97,7 @@ struct irect {
     bool contains(vec2 pt) const
     {
         int x = (int)std::floor(pt.x), y = (int)std::floor(pt.y);
-        return x0 <= x && x < x1 && y0 <= x && y < y1;
+        return x0 <= x && x < x1 && y0 <= y && y < y1;
     }
 
     bool contains(ivec v) const
@@ -107,7 +107,7 @@ struct irect {
 
     bool contains(int x, int y) const
     {
-        return x0 <= x && x < x1 && y0 <= x && y < y1;
+        return x0 <= x && x < x1 && y0 <= y && y < y1;
     }
 
     static irect centered(int w, int h)
