@@ -2,127 +2,128 @@
 ####################################
 
 @ prologue
-P: Tell me, what are you afraid of?
-I: I'm afraid of spiders.
-P: Really?
-I: Sort of.
-P: Go deeper.  Beneath the surface,
+G: [The Oubliette Within]
+A: Tell me, what are you afraid of?
+B: I'm afraid of spiders.
+A: Really?
+B: Sort of.
+A: Go deeper.  Beneath the surface,
    you can find your true fears.
 
 @ lose
-P: Perhaps we should try a different
+A: Perhaps we should try a different
    approach.
 
 ####################################
 
 @ childhood_intro
-P: Tell me about your childhood.
-I: Oh, college.
+A: Tell me about your childhood.
+B: Oh, college.
 
 @ childhood_1
-P: So you found it hard to connect.
-I: Yeah, I was two thousand miles
+A: So you found it hard to connect.
+B: Yeah, I was two thousand miles
    from home, and making friends is
    impossible.
 
 @ childhood_2
-P: So you didn't really see the
+A: So you didn't really see the
    point.
-I: I was a history major, and I knew
+B: I was a history major, and I knew
    I'd end up working in fast food.
 
 @ childhood_3
-P: So you felt like you didn't
+A: So you felt like you didn't
    belong.
-I: Heh.  I can't believe I faked it
+B: Heh.  I can't believe I faked it
    for so many years.
 
 @ childhood_4
-P: Hm, I think we should move on.
-I: Yeah, ancient history.
+A: Hm, I think we should move on.
+B: Yeah, ancient history.
 
 ####################################
 
 @ love_intro
-P: What about your love life?
-I: Of course.  Her.
+A: What about your love life?
+B: Of course.  Her.
 
 @ love_1
-P: So you might be rushing in?
-I: I don't know if I love her, but
+A: So you might be rushing in?
+B: I don't know if I love her, but
    this could be my last chance.
 
 @ love_2
-P: So you don't think it will last?
-I: I've had some rough breakups
+A: So you don't think it will last?
+B: I've had some rough breakups
    before.  This is no fairy tale.
 
 @ love_3
-P: So you don't think she
+A: So you don't think she
    understands you?
-I: Heh.  It's a good thing.  If she
+B: Heh.  It's a good thing.  If she
    knew the real me, she would have
    left long ago.
 
 @ love_4
-P: Hm, it seems to be working out
+A: Hm, it seems to be working out
    for you.
-I: Yeah, well, we're making it work.
+B: Yeah, well, we're making it work.
 
 ####################################
 
 @ death_intro
-P: I heard that one of your friends
+A: I heard that one of your friends
    passed away.
-I: Best friend.
+B: Best friend.
 
 @ death_1
-P: So, it made you think about
+A: So, it made you think about
    death?
-I: I can see the future, and there
+B: I can see the future, and there
    will be nobody at my funeral.
 
 @ death_2
-P: So there aren't others like him?
-I: He was the only person who ever
+A: So there aren't others like him?
+B: He was the only person who ever
    got me.
 
 @ death_3
-P: So you don't like the way you
+A: So you don't like the way you
    grieved?
-I: Ungh.  Why didn't I cry?
+B: Ungh.  Why didn't I cry?
 
 @ death_4
-P: Hm, a difficult time.
-I: Yeah, well, ups and downs.
+A: Hm, a difficult time.
+B: Yeah, well, ups and downs.
 
 ####################################
 
 @ epilogue
-P: Have you learned anything about
+A: Have you learned anything about
    your fears?
 
 @ epilogue_0
-I: No!  I mean, I don't know.  I'm
+B: No!  I mean, I don't know.  I'm
    not sure.
-P: Perhaps we should talk some more.
-T: [Try again.]
+A: Perhaps we should talk some more.
+G: [Try again.]
 
 @ epilogue_1
-I: Here I am, alone, in a city of
+B: Here I am, alone, in a city of
    millions.
-T: [Your fear: being alone.]
+G: [Your fear: being alone.]
 
 @ epilogue_2
-I: Is it worth it?  To keep trying?
-T: [Your fear: disappointment.]
+B: Is it worth it?  To keep trying?
+G: [Your fear: disappointment.]
 
 @ epilogue_3
-I: If they knew what I was really
+B: If they knew what I was really
    like...
-T: [Your fear: being an impostor.]
+G: [Your fear: being an impostor.]
 
 @ epilogue_4
-I: I think I've learned more about
+B: I think I've learned more about
    courage.
-T: [You have accepted your fears.]
+G: [You have accepted your fears.]

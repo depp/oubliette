@@ -15,6 +15,9 @@
 namespace graphics {
 class system;
 }
+namespace script {
+class script;
+}
 namespace game {
 class entity_system;
 class editor_system;
@@ -40,6 +43,8 @@ private:
     std::unique_ptr<editor_system> editor_;
     /// Persistent state.
     persistent_state persistent_;
+    /// The game script.
+    std::unique_ptr<script::script> script_;
 
     /// Advance to the given frame.
     void advance(unsigned time);
