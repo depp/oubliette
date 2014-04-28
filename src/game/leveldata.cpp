@@ -22,9 +22,9 @@ static const spawninfo SPAWN_TYPES[leveldata::NTYPE] = {
     { "door",   24, 32, 10, sprite::DOOR2 },
     { "chest",  24, 24, 10, sprite::CHEST },
     { "slime",  16, 16, 20, sprite::SLIME1 },
-    { "prof",   16, 24, 20, sprite::PROFESSOR },
-    { "woman",  16, 24, 20, sprite::WOMAN },
-    { "priest", 16, 24, 20, sprite::PRIEST }
+    { "prof",   12, 24, 20, sprite::PROFESSOR },
+    { "woman",  12, 24, 20, sprite::WOMAN },
+    { "priest", 12, 24, 20, sprite::PRIEST }
 };
 
 static const spawninfo &get_spawninfo(spawntype type)
