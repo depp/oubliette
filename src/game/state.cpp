@@ -166,6 +166,8 @@ void state::mouse_click(int x, int y, int button)
 {
     if (editor_)
         editor_->mouse_click(x, y, button);
+    if (entity_)
+        entity_->mouse_click(x, y, button);
 }
 
 void state::mouse_move(int x, int y)

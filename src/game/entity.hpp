@@ -64,6 +64,12 @@ private:
     levelmap level_;
     /// Point which triggers hovering.
     ivec hover_trigger_;
+    /// The last camera position.
+    ivec lastcamera_;
+    /// The last mouse click pos.
+    ivec clickpos_;
+    /// Whether we clicked the mouse.
+    bool is_click_;
 
 public:
     entity_system(persistent_state &state,
@@ -87,12 +93,19 @@ public:
     entity *scan_target(irect range, team t);
     /// Record player death.
     void die();
+    /// Handle a mouse click.
+    void mouse_click(int x, int y, int button);
+    /// Spawn a projectile.
+    void spawn_shot(team t, vec2 origin, vec2 target, float speed,
+                    ::graphics::sprite sp1, ::graphics::sprite sp2);
 
     const control_system &control() const { return control_; }
     const levelmap &level() const { return level_; }
     const std::vector<std::unique_ptr<entity>> &entities() const
     { return entities_; }
     persistent_state &state() { return state_; }
+    ivec clickpos() const { return clickpos_; }
+    bool is_click() const { return is_click_; }
 
     /// A hack... set this, and that level will be loaded.
     std::string nextlevel;

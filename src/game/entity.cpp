@@ -45,7 +45,8 @@ entity_system::entity_system(persistent_state &state,
                              const control_system &control,
                              const std::string &levelname,
                              const std::string &lastlevel)
-    : state_(state), control_(control), levelname_(levelname)
+    : state_(state), control_(control), levelname_(levelname),
+      is_click_(false)
 {
     level_.set_level(levelname);
     auto data = leveldata::read_level(levelname);
@@ -127,6 +128,7 @@ void entity_system::update()
         ent.update();
     }
     camera_.update();
+    is_click_ = false;
 }
 
 void entity_system::draw(::graphics::system &gr, int reltime)
@@ -158,7 +160,9 @@ void entity_system::draw(::graphics::system &gr, int reltime)
             true);
     }
 
-    gr.set_camera_pos(camera_.get_pos(reltime));
+    vec2 camera = camera_.get_pos(reltime);
+    lastcamera_ = ivec(camera);
+    gr.set_camera_pos(camera);
     for (auto i = entities_.begin(), e = entities_.end(); i != e; i++) {
         entity &ent = **i;
         ent.draw(gr, reltime);
@@ -202,6 +206,32 @@ void entity_system::die()
     nextlevel = "!dead";
 }
 
+void entity_system::mouse_click(int x, int y, int button)
+{
+    if (button != 1 || button != 3)
+        return;
+    is_click_ = true;
+    clickpos_ = ivec(x + lastcamera_.x - core::PWIDTH/2,
+                     y + lastcamera_.y - core::PHEIGHT/2);
+}
+
+void entity_system::spawn_shot(
+    team t, vec2 origin, vec2 target, float speed,
+    ::graphics::sprite sp1, ::graphics::sprite sp2)
+{
+    origin += vec2(
+        std::copysign(10.0f, target.x - origin.x),
+        4.0f);
+    vec2 delta = target - origin;
+    float mag2 = delta.mag2();
+    vec2 shotvel;
+    if (mag2 < 16)
+        shotvel = vec2::zero();
+    else
+        shotvel = delta * (speed / std::sqrt(mag2));
+    add_entity(
+        new shot(*this, t, origin, shotvel, 8, sp1, sp2));
+}
 
 // ======================================================================
 
@@ -666,21 +696,9 @@ void enemy::update()
 {
     m_enemy.update(m_system, *this, stats::prof);
     if (m_enemy.start_attack()) {
-        vec2 origin = physics.pos;
-        vec2 target = m_enemy.m_targetpos;
-        origin += vec2(
-            std::copysign(10.0f, target.x - origin.x),
-            4.0f);
-        vec2 delta = target - origin;
-        float mag2 = delta.mag2();
-        vec2 shotvel;
-        if (mag2 < 16)
-            shotvel = vec2::zero();
-        else
-            shotvel = delta * (stats::prof.shotspeed / std::sqrt(mag2));
-        m_system.add_entity(
-            new shot(m_system, team::FOE_SHOT,
-                     origin, shotvel, 8, m_shot1, m_shot2));
+        m_system.spawn_shot(
+            team::FOE_SHOT, physics.pos, m_enemy.m_targetpos,
+            stats::prof.shotspeed, m_shot1, m_shot2);
     }
 
     walking.update(physics, stats::player_walk);
