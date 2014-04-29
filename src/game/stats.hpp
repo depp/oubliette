@@ -37,6 +37,7 @@ struct stats {
     static const struct walking_stats player_walk;
     static const struct jumping_stats player_jump;
     static const struct enemy_stats prof;
+    static const float player_shotspeed;
 };
 
 }

@@ -17,6 +17,7 @@ using ::graphics::sprite;
 using ::sprite::orientation;
 
 static const int HIT_TIME = 25;
+static const int SHOT_DELAY = 8;
 
 static const scalar DT = 1e-3 * defs::FRAMETIME;
 static const scalar INV_DT = 1.0 / (1e-3 * defs::FRAMETIME);
@@ -208,16 +209,17 @@ void entity_system::die()
 
 void entity_system::mouse_click(int x, int y, int button)
 {
-    if (button != 1 || button != 3)
+    if (button != 1 && button != 3)
         return;
     is_click_ = true;
-    clickpos_ = ivec(x + lastcamera_.x - core::PWIDTH/2,
-                     y + lastcamera_.y - core::PHEIGHT/2);
+    click_pos_ = ivec(x + lastcamera_.x - core::PWIDTH/2,
+                      y + lastcamera_.y - core::PHEIGHT/2);
 }
 
 void entity_system::spawn_shot(
     team t, vec2 origin, vec2 target, float speed,
-    ::graphics::sprite sp1, ::graphics::sprite sp2)
+    ::graphics::sprite sp1, ::graphics::sprite sp2,
+    int delay)
 {
     origin += vec2(
         std::copysign(10.0f, target.x - origin.x),
@@ -230,7 +232,7 @@ void entity_system::spawn_shot(
     else
         shotvel = delta * (speed / std::sqrt(mag2));
     add_entity(
-        new shot(*this, t, origin, shotvel, 8, sp1, sp2));
+        new shot(*this, t, origin, shotvel, delay, sp1, sp2));
 }
 
 // ======================================================================
@@ -554,6 +556,18 @@ void player::update()
     m_system.set_camera_target(CAMERA.offset(physics.pos));
     m_system.set_hover(ivec(physics.pos));
 
+    if (m_system.is_click()) {
+        auto target = m_system.click_pos();
+        m_system.spawn_shot(
+            team::FRIEND_SHOT,
+            physics.pos,
+            vec2(target.x, target.y),
+            stats::player_shotspeed,
+            sprite::SHOT,
+            sprite::SHOT,
+            0);
+    }
+
     if (m_system.control().get_key_instant(key::DOWN)) {
         ivec pos(physics.pos);
         auto &ents = m_system.entities();
@@ -698,7 +712,7 @@ void enemy::update()
     if (m_enemy.start_attack()) {
         m_system.spawn_shot(
             team::FOE_SHOT, physics.pos, m_enemy.m_targetpos,
-            stats::prof.shotspeed, m_shot1, m_shot2);
+            stats::prof.shotspeed, m_shot1, m_shot2, SHOT_DELAY);
     }
 
     walking.update(physics, stats::player_walk);

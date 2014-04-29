@@ -67,7 +67,7 @@ private:
     /// The last camera position.
     ivec lastcamera_;
     /// The last mouse click pos.
-    ivec clickpos_;
+    ivec click_pos_;
     /// Whether we clicked the mouse.
     bool is_click_;
 
@@ -97,14 +97,15 @@ public:
     void mouse_click(int x, int y, int button);
     /// Spawn a projectile.
     void spawn_shot(team t, vec2 origin, vec2 target, float speed,
-                    ::graphics::sprite sp1, ::graphics::sprite sp2);
+                    ::graphics::sprite sp1, ::graphics::sprite sp2,
+                    int delay);
 
     const control_system &control() const { return control_; }
     const levelmap &level() const { return level_; }
     const std::vector<std::unique_ptr<entity>> &entities() const
     { return entities_; }
     persistent_state &state() { return state_; }
-    ivec clickpos() const { return clickpos_; }
+    ivec click_pos() const { return click_pos_; }
     bool is_click() const { return is_click_; }
 
     /// A hack... set this, and that level will be loaded.

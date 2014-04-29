@@ -18,4 +18,6 @@ const struct enemy_stats stats::prof = {
     15, 15, 35, 140, 75, 300.0f
 };
 
+const float stats::player_shotspeed = 300.0f;
+
 }
