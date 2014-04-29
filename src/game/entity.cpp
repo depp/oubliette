@@ -674,6 +674,7 @@ void chest::interact()
         return;
     auto &s = m_system.state();
     s.treasure[m_which] = m_state;
+    m_system.nextlevel = "main_wake";
 }
 
 void chest::draw(::graphics::system &gr, int reltime)
