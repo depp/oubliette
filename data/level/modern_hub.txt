@@ -1,7 +1,7 @@
 # Level: level/modern_hub.txt
- +400   +28 door @school_1:modern_1
- +448  +460 door @school_2:modern_2
- +448   +28 door @school_3:modern_3
+ +400   +28 door @childhood_1:modern_1
+ +448  +460 door @childhood_2:modern_2
+ +448   +28 door @childhood_3:modern_3
  +361  +252 door main_hub
  +985  +377 chest 14
  +972  +186 prof

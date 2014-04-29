@@ -1,5 +1,5 @@
 # Level: level/main_hub.txt
  +879  +367 door main_wake
  +119  +215 door @love_intro:ruins_hub
- +251  +460 door @school_intro:modern_hub
+ +251  +460 door @childhood_intro:modern_hub
  +990  +113 door @death_intro:dirt_hub
