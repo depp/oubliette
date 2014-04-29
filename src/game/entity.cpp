@@ -72,15 +72,21 @@ entity_system::entity_system(persistent_state &state,
             break;
 
         case spawntype::PROF:
-            entities_.emplace_back(new professor(*this, pos));
+            entities_.emplace_back(
+                new enemy(*this, pos,
+                          sprite::PROFESSOR, sprite::BOOK1, sprite::BOOK2));
             break;
 
         case spawntype::WOMAN:
-            entities_.emplace_back(new woman(*this, pos));
+            entities_.emplace_back(
+                new enemy(*this, pos,
+                          sprite::WOMAN, sprite::MOUTH1, sprite::MOUTH2));
             break;
 
         case spawntype::PRIEST:
-            entities_.emplace_back(new priest(*this, pos));
+            entities_.emplace_back(
+                new enemy(*this, pos,
+                          sprite::PRIEST, sprite::SKULL, sprite::SKULL));
             break;
 
         default:
@@ -629,20 +635,25 @@ void chest::draw(::graphics::system &gr, int reltime)
 
 // ======================================================================
 
-professor::professor(entity_system &sys, vec2 pos)
+enemy::enemy(entity_system &sys, vec2 pos,
+             ::graphics::sprite actor,
+             ::graphics::sprite shot1, ::graphics::sprite shot2)
     : entity(sys, team::FOE),
-      physics(irect::centered(8, 20), pos, vec2::zero())
+      physics(irect::centered(8, 20), pos, vec2::zero()),
+      m_actor(actor),
+      m_shot1(shot1),
+      m_shot2(shot2)
 { }
 
-professor::~professor()
+enemy::~enemy()
 { }
 
-void professor::update()
+void enemy::update()
 {
-    enemy.update(m_system, *this, stats::prof);
-    if (enemy.start_attack()) {
+    m_enemy.update(m_system, *this, stats::prof);
+    if (m_enemy.start_attack()) {
         vec2 origin = physics.pos;
-        vec2 target = enemy.m_targetpos;
+        vec2 target = m_enemy.m_targetpos;
         origin += vec2(
             std::copysign(10.0f, target.x - origin.x),
             4.0f);
@@ -653,33 +664,37 @@ void professor::update()
             shotvel = vec2::zero();
         else
             shotvel = delta * (stats::prof.shotspeed / std::sqrt(mag2));
-        m_system.add_entity(new book(m_system, origin, shotvel, 8));
+        m_system.add_entity(
+            new shot(m_system, team::FOE_SHOT,
+                     origin, shotvel, 8, m_shot1, m_shot2));
     }
 
     walking.update(physics, stats::player_walk);
     physics.update(m_system, *this);
 }
 
-void professor::draw(::graphics::system &gr, int reltime)
+void enemy::draw(::graphics::system &gr, int reltime)
 {
     gr.add_sprite(
-        sprite::PROFESSOR,
+        m_actor,
         physics.get_pos(reltime) + vec2(-8, -12),
         orientation::NORMAL);
 }
 
 // ======================================================================
 
-book::book(entity_system &sys, vec2 pos, vec2 vel, int time)
-    : entity(sys, team::FOE_SHOT),
+shot::shot(entity_system &sys, team t, vec2 pos, vec2 vel, int time,
+         ::graphics::sprite sp1, ::graphics::sprite sp2)
+    : entity(sys, t),
       projectile(irect::centered(10, 10), pos, vel, 1),
-      time(time)
+      time(time),
+      m_sp1(sp1), m_sp2(sp2)
 { }
 
-book::~book()
+shot::~shot()
 { }
 
-void book::update()
+void shot::update()
 {
     time--;
     if (time <= 0)
@@ -688,59 +703,11 @@ void book::update()
         m_team = team::DEAD;
 }
 
-void book::draw(::graphics::system &gr, int reltime)
+void shot::draw(::graphics::system &gr, int reltime)
 {
     gr.add_sprite(
-        time > 0 ? sprite::BOOK1 : sprite::BOOK2,
+        time > 0 ? m_sp1 : m_sp2,
         projectile.get_pos(reltime) + vec2(-8, -8),
-        orientation::NORMAL);
-}
-
-// ======================================================================
-
-woman::woman(entity_system &sys, vec2 pos)
-    : entity(sys, team::FOE),
-      physics(irect::centered(8, 20), pos, vec2::zero())
-{ }
-
-woman::~woman()
-{ }
-
-void woman::update()
-{
-    walking.update(physics, stats::player_walk);
-    physics.update(m_system, *this);
-}
-
-void woman::draw(::graphics::system &gr, int reltime)
-{
-    gr.add_sprite(
-        sprite::WOMAN,
-        physics.get_pos(reltime) + vec2(-8, -12),
-        orientation::NORMAL);
-}
-
-// ======================================================================
-
-priest::priest(entity_system &sys, vec2 pos)
-    : entity(sys, team::FOE),
-      physics(irect::centered(8, 20), pos, vec2::zero())
-{ }
-
-priest::~priest()
-{ }
-
-void priest::update()
-{
-    walking.update(physics, stats::player_walk);
-    physics.update(m_system, *this);
-}
-
-void priest::draw(::graphics::system &gr, int reltime)
-{
-    gr.add_sprite(
-        sprite::PRIEST,
-        physics.get_pos(reltime) + vec2(-8, -12),
         orientation::NORMAL);
 }
 

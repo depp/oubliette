@@ -11,6 +11,7 @@
 #include <memory>
 namespace graphics {
 class system;
+enum class sprite;
 }
 namespace game {
 class entity;
@@ -265,58 +266,38 @@ public:
     virtual void draw(::graphics::system &gr, int reltime);
 };
 
-/// Enemy: professor.
-class professor : public entity {
+/// Enemy.
+class enemy : public entity {
 private:
-    enemy_component enemy;
+    enemy_component m_enemy;
     physics_component physics;
     walking_component walking;
+    ::graphics::sprite m_actor;
+    ::graphics::sprite m_shot1;
+    ::graphics::sprite m_shot2;
 
 public:
-    professor(entity_system &sys, vec2 pos);
-    virtual ~professor();
+    enemy(entity_system &sys, vec2 pos,
+          ::graphics::sprite actor,
+          ::graphics::sprite shot1, ::graphics::sprite shot2);
+    virtual ~enemy();
 
     virtual void update();
     virtual void draw(::graphics::system &gr, int reltime);
 };
 
-/// Books that the professors throw.
-class book : public entity {
+/// Projectiles.
+class shot : public entity {
 private:
     projectile_component projectile;
     int time;
+    ::graphics::sprite m_sp1;
+    ::graphics::sprite m_sp2;
 
 public:
-    book(entity_system &sys, vec2 pos, vec2 vel, int time);
-    virtual ~book();
-
-    virtual void update();
-    virtual void draw(::graphics::system &gr, int reltime);
-};
-
-/// Enemy: woman.
-class woman : public entity {
-private:
-    physics_component physics;
-    walking_component walking;
-
-public:
-    woman(entity_system &sys, vec2 pos);
-    virtual ~woman();
-
-    virtual void update();
-    virtual void draw(::graphics::system &gr, int reltime);
-};
-
-/// Enemy: priest.
-class priest : public entity {
-private:
-    physics_component physics;
-    walking_component walking;
-
-public:
-    priest(entity_system &sys, vec2 pos);
-    virtual ~priest();
+    shot(entity_system &sys, team t, vec2 pos, vec2 vel, int time,
+         ::graphics::sprite sp1, ::graphics::sprite sp2);
+    virtual ~shot();
 
     virtual void update();
     virtual void draw(::graphics::system &gr, int reltime);
