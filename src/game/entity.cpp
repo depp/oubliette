@@ -701,7 +701,7 @@ enemy::enemy(entity_system &sys, vec2 pos,
       m_actor(actor),
       m_shot1(shot1),
       m_shot2(shot2),
-      m_health(2)
+      m_health(sys.state().enemy_health)
 { }
 
 enemy::~enemy()

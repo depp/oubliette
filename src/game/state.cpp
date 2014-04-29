@@ -103,12 +103,15 @@ void state::next_level()
             } else if (next == "!easy") {
                 st.health = -1;
                 st.maxhealth = -1;
+                st.enemy_health = 1;
             } else if (next == "!normal") {
                 st.health = 8;
                 st.maxhealth = 8;
+                st.enemy_health = 1;
             } else if (next == "!hard") {
                 st.health = 3;
                 st.maxhealth = 3;
+                st.enemy_health = 2;
             } else if (next == "!end") {
                 int treasure = st.treasure[0];
                 for (int i = 1; i < 3; i++) {

@@ -12,9 +12,11 @@ struct persistent_state {
     int treasure[3];
 
     int hittime;
+    int enemy_health;
 
     persistent_state()
-        : health(-1), maxhealth(-1), treasure{0, 0, 0}, hittime(0)
+        : health(-1), maxhealth(-1), treasure{0, 0, 0}, hittime(0),
+          enemy_health(1)
     { }
 };
 
