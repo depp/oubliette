@@ -700,7 +700,8 @@ enemy::enemy(entity_system &sys, vec2 pos,
       physics(irect::centered(8, 20), pos, vec2::zero()),
       m_actor(actor),
       m_shot1(shot1),
-      m_shot2(shot2)
+      m_shot2(shot2),
+      m_health(2)
 { }
 
 enemy::~enemy()
@@ -717,6 +718,15 @@ void enemy::update()
 
     walking.update(physics, stats::player_walk);
     physics.update(m_system, *this);
+}
+
+void enemy::damage(int amount)
+{
+    m_health -= amount;
+    if (m_health <= 0) {
+        m_team = team::DEAD;
+        m_system.add_entity(new poof(m_system, physics.pos));
+    }
 }
 
 void enemy::draw(::graphics::system &gr, int reltime)

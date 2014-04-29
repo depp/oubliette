@@ -291,6 +291,7 @@ private:
     ::graphics::sprite m_actor;
     ::graphics::sprite m_shot1;
     ::graphics::sprite m_shot2;
+    int m_health;
 
 public:
     enemy(entity_system &sys, vec2 pos,
@@ -299,6 +300,7 @@ public:
     virtual ~enemy();
 
     virtual void update();
+    virtual void damage(int amount);
     virtual void draw(::graphics::system &gr, int reltime);
 };
 
