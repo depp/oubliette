@@ -85,6 +85,8 @@ public:
     bool test_hover(irect rect);
     /// Scan for a target in the given range, on the given team.
     entity *scan_target(irect range, team t);
+    /// Record player death.
+    void die();
 
     const control_system &control() const { return control_; }
     const levelmap &level() const { return level_; }

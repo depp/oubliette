@@ -196,6 +196,13 @@ entity *entity_system::scan_target(irect range, team t)
     return nullptr;
 }
 
+void entity_system::die()
+{
+    state().hittime = HIT_TIME * 8;
+    nextlevel = "!dead";
+}
+
+
 // ======================================================================
 
 entity::entity(entity_system &sys, team t)
@@ -530,13 +537,20 @@ void player::update()
             break;
         }
     }
+
+    if (physics.pos.y < -50.0f)
+        m_system.die();
 }
 
 void player::damage(int amt)
 {
     auto &s = m_system.state();
-    s.health -= amt;
     s.hittime += HIT_TIME * amt;
+    if (s.maxhealth > 0) {
+        s.health -= amt;
+        if (s.health <= 0)
+            m_system.die();
+    }
 }
 
 void player::draw(::graphics::system &gr, int reltime)
