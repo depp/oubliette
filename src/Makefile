@@ -17,7 +17,8 @@ glew_cflags	:= $(shell pkg-config --cflags glew)
 
 depflags	= -MF $(patsubst %.o,%.d,$@) -MMD -MP
 warning_flags	= -Wall -Wextra -Wpointer-arith -Wformat-nonliteral
-CXXFLAGS	= -O0 -g -std=c++11 $(warning_flags) $(depflags) $(glew_cflags)
+CXXFLAGS	= -O0 -g
+override CXXFLAGS += -std=c++11 $(warning_flags) $(depflags) $(glew_cflags)
 
 sources := file.cpp image.cpp main.cpp pack.cpp rand.cpp shader.cpp sprite_array.cpp sprite_orientation.cpp sprite_sheet.cpp surface.cpp game/camera.cpp game/control.cpp game/editor.cpp game/entity.cpp game/graphics.cpp game/leveldata.cpp game/levelmap.cpp game/script.cpp game/state.cpp game/stats.cpp game/vec.cpp
 
