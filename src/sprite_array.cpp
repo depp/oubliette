@@ -110,6 +110,10 @@ void array::add(rect tex, int x, int y, orientation orient)
         vy[1] = vy[3] = y + tex.w;
         vy[0] = vy[2] = y;
         break;
+
+    default:
+        __builtin_unreachable();
+        break;
     }
 
     data[0][0] = vx[0]; data[0][1] = vy[0];
