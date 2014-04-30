@@ -100,9 +100,9 @@ void swap_window()
     SDL_GL_SwapWindow(window);
 }
 
-static void init_path()
+static void init_path(const char *data_dir)
 {
-    int r = chdir("../data");
+    int r = chdir(data_dir);
     if (r)
         die("Could not find data directory.");
 }
@@ -150,7 +150,6 @@ void init()
     if (!GLEW_VERSION_2_1)
         die("OpenGL 2.1 is missing");
 
-    init_path();
     rng::global.init();
 }
 
@@ -219,21 +218,37 @@ static bool decode_key(int scancode, key *k)
 int main(int argc, char *argv[])
 {
     const char *start_level = "difficulty";
+    const char *data_dir = "Data";
     bool edit_mode = false;
-    if (argc >= 3) {
-        if (!std::strcmp(argv[1], "--edit") ||
-            !std::strcmp(argv[1], "-e")) {
-            start_level = argv[2];
+    int i = 1;
+    while (i < argc) {
+        const char *a = argv[i];
+        if (a[0] != '-') {
+            start_level = a;
+            i++;
+        } else if (!std::strcmp(a, "-d") || !std::strcmp(a, "--dir")) {
+            i++;
+            if (i >= argc) {
+                std::fprintf(stderr, "Warning: --dir/-d needs an argument\n");
+                continue;
+            }
+            data_dir = argv[i];
+            i++;
+        } else if (!std::strcmp(a, "--edit") || !std::strcmp(a, "-e")) {
             edit_mode = true;
-        } else if (!std::strcmp(argv[1], "--start-at") ||
-                   !std::strcmp(argv[1], "-s")) {
-            start_level = argv[2];
+            i++;
+        } else if (std::strlen(a) >= 4 && !std::memcmp(a, "-psn", 4)) {
+            i++;
+        } else {
+            std::fprintf(stderr, "Warning: unknown argument: %s\n", a);
+            i++;
         }
     }
 
     const unsigned MIN_TICKS1 = 1000 / core::MAXFPS;
     const unsigned MIN_TICKS = MIN_TICKS1 > 0 ? MIN_TICKS1 : 1;
 
+    core::init_path(data_dir);
     core::init();
 
     {
