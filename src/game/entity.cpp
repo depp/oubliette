@@ -227,8 +227,8 @@ void entity_system::spawn_shot(
     vec2 delta = target - origin;
     float mag2 = delta.mag2();
     vec2 shotvel;
-    if (mag2 < 16)
-        shotvel = vec2::zero();
+    if (mag2 < 1)
+        shotvel = vec2(speed, 0.0f);
     else
         shotvel = delta * (speed / std::sqrt(mag2));
     add_entity(
