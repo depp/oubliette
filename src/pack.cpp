@@ -23,7 +23,7 @@ bool rect::operator<(const rect &other) const
         return true;
     if (rectsize.width < other.rectsize.width)
         return false;
-    return rectsize.height > other.rectsize.width;
+    return rectsize.height > other.rectsize.height;
 }
 
 // Metrics for how good a packing is.
