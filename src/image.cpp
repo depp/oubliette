@@ -138,8 +138,8 @@ bitmap bitmap::load(const std::string &path)
 
 texture::texture()
     : tex(0),
-      iwidth(0.0f), iheight(0.0f),
-      twidth(0.0f), theight(0.0f)
+      iwidth(0), iheight(0),
+      twidth(0), theight(0)
 { }
 
 texture texture::load(const std::string &path)

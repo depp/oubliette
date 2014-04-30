@@ -15,7 +15,7 @@ enum class sprite;
 }
 namespace game {
 class entity;
-struct control_system;
+class control_system;
 struct walking_stats;
 struct jumping_stats;
 struct enemy_stats;

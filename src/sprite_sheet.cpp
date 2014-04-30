@@ -15,15 +15,15 @@
 namespace sprite {
 
 sheet::sheet()
-    : sprites_(), texture_(0), width_(0), height_(0),
-      texscale_{0.0f, 0.0f}
+    : sprites_(), texture_(0), width_(0), height_(0)
 {
+    texscale_[0] = texscale_[1] = 0.0f;
 }
 
 sheet::sheet(const std::string &dirname, const sprite *sprites)
-    : sprites_(), texture_(0), width_(0), height_(0),
-      texscale_{0.0f, 0.0f}
+    : sprites_(), texture_(0), width_(0), height_(0)
 {
+    texscale_[0] = texscale_[1] = 0.0f;
     std::vector<sdl::surface> images;
     std::vector<std::size_t> spriteimages;
     std::size_t count = 0;

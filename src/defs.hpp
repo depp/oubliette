@@ -15,16 +15,24 @@ static const int IWIDTH = PWIDTH * SCALE;
 static const int IHEIGHT = PHEIGHT * SCALE;
 static const int MAXFPS = 100;
 
+#if defined __GCC__
+#define NORETURN __attribute__((noreturn))
+#elif defined _WIN32
+#define NORETURN __declspec(noreturn)
+#else
+#define NORETURN
+#endif
+
 /// Cause the application to exit with the given human-readable reason.
-__attribute__((noreturn))
+NORETURN
 void die(const char *reason);
 
 /// Cause the application to exit because an allocation failed.
-__attribute__((noreturn))
+NORETURN
 void die_alloc();
 
 /// Cause the application to exit because of SDL errors.
-__attribute__((noreturn))
+NORETURN
 void die_sdl(const char *file, int line, const char *msg);
 
 /// Check for SDL errors and log them.

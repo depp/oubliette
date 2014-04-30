@@ -7,10 +7,10 @@
 #include <unordered_map>
 #include <vector>
 namespace game {
-struct control_system;
+class control_system;
 }
 namespace graphics {
-struct system;
+class system;
 }
 namespace script {
 

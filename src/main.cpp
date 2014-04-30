@@ -6,18 +6,25 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <unistd.h>
 #include <memory>
 #include "defs.hpp"
 #include "opengl.hpp"
 #include "rand.hpp"
 #include "game/state.hpp"
+
+#if defined _WIN32
+#include <Windows.h>
+#undef DELETE
+#else
+#include <unistd.h>
+#endif
+
 namespace core {
 
 SDL_Window *window;
 SDL_GLContext context;
 
-__attribute__((noreturn))
+NORETURN
 void die(const char *reason)
 {
     std::fprintf(stderr, "Error: %s\n", reason);
@@ -25,7 +32,7 @@ void die(const char *reason)
     std::exit(1);
 }
 
-__attribute__((noreturn))
+NORETURN
 void die_alloc()
 {
     die("Out of memory");
@@ -40,7 +47,7 @@ void check_sdl_error(const char *file, int line)
     }
 }
 
-__attribute__((noreturn))
+NORETURN
 void die_sdl(const char *file, int line, const char *msg)
 {
     const char *error = SDL_GetError();
@@ -102,9 +109,15 @@ void swap_window()
 
 static void init_path(const char *data_dir)
 {
+#if defined _WIN32
+    BOOL r = SetCurrentDirectoryA(data_dir);
+    if (!r)
+        die("Could not find data directory.");
+#else
     int r = chdir(data_dir);
     if (r)
         die("Could not find data directory.");
+#endif
 }
 
 void init()

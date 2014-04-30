@@ -12,8 +12,8 @@ control_system::control_system()
 
 float control_system::button_to_axis(key negative, key positive) const
 {
-    bool nstate = keys[static_cast<int>(negative)];
-    bool pstate = keys[static_cast<int>(positive)];
+    bool nstate = keys[static_cast<int>(negative)] != 0;
+    bool pstate = keys[static_cast<int>(positive)] != 0;
     return 0.0f + (nstate ? -1.0f : 0.0f) + (pstate ? +1.0f : 0.0f);
 }
 

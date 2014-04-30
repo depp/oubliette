@@ -112,7 +112,9 @@ void array::add(rect tex, int x, int y, orientation orient)
         break;
 
     default:
+#ifdef __GCC__
         __builtin_unreachable();
+#endif
         break;
     }
 

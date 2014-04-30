@@ -15,9 +15,11 @@ struct persistent_state {
     int enemy_health;
 
     persistent_state()
-        : health(-1), maxhealth(-1), treasure{0, 0, 0}, hittime(0),
+        : health(-1), maxhealth(-1), hittime(0),
           enemy_health(1)
-    { }
+    {
+        treasure[0] = treasure[1] = treasure[2] = 0;
+    }
 };
 
 }
