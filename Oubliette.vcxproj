@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\array.hpp" />
+    <ClInclude Include="src\defs.hpp" />
+    <ClInclude Include="src\file.hpp" />
+    <ClInclude Include="src\game\camera.hpp" />
+    <ClInclude Include="src\game\control.hpp" />
+    <ClInclude Include="src\game\defs.hpp" />
+    <ClInclude Include="src\game\editor.hpp" />
+    <ClInclude Include="src\game\entity.hpp" />
+    <ClInclude Include="src\game\graphics.hpp" />
+    <ClInclude Include="src\game\key.hpp" />
+    <ClInclude Include="src\game\leveldata.hpp" />
+    <ClInclude Include="src\game\levelmap.hpp" />
+    <ClInclude Include="src\game\persistent.hpp" />
+    <ClInclude Include="src\game\script.hpp" />
+    <ClInclude Include="src\game\sprite_array.hpp" />
+    <ClInclude Include="src\game\sprite_enum.hpp" />
+    <ClInclude Include="src\game\state.hpp" />
+    <ClInclude Include="src\game\stats.hpp" />
+    <ClInclude Include="src\game\vec.hpp" />
+    <ClInclude Include="src\image.hpp" />
+    <ClInclude Include="src\opengl.hpp" />
+    <ClInclude Include="src\pack.hpp" />
+    <ClInclude Include="src\rand.hpp" />
+    <ClInclude Include="src\shader.hpp" />
+    <ClInclude Include="src\sprite.hpp" />
+    <ClInclude Include="src\surface.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\file.cpp" />
+    <ClCompile Include="src\game\camera.cpp" />
+    <ClCompile Include="src\game\control.cpp" />
+    <ClCompile Include="src\game\editor.cpp" />
+    <ClCompile Include="src\game\entity.cpp" />
+    <ClCompile Include="src\game\graphics.cpp" />
+    <ClCompile Include="src\game\leveldata.cpp" />
+    <ClCompile Include="src\game\levelmap.cpp" />
+    <ClCompile Include="src\game\script.cpp" />
+    <ClCompile Include="src\game\state.cpp" />
+    <ClCompile Include="src\game\stats.cpp" />
+    <ClCompile Include="src\game\vec.cpp" />
+    <ClCompile Include="src\image.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\pack.cpp" />
+    <ClCompile Include="src\rand.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\sprite_array.cpp" />
+    <ClCompile Include="src\sprite_orientation.cpp" />
+    <ClCompile Include="src\sprite_sheet.cpp" />
+    <ClCompile Include="src\surface.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5FFEC618-55C5-4361-A90F-05E99F8259C1}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Oubliette</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>C:\SDL2-2.0.3\lib\x86;C:\SDL2_image-2.0.0\lib\x86;C:\glew-1.10.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\SDL2-2.0.3\include;C:\SDL2_image-2.0.0\include;C:\glew-1.10.0\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>C:\SDL2-2.0.3\lib\x86;C:\SDL2_image-2.0.0\lib\x86;C:\glew-1.10.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\SDL2-2.0.3\include;C:\SDL2_image-2.0.0\include;C:\glew-1.10.0\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <DisableSpecificWarnings>4018;4305;4244</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;opengl32.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <DisableSpecificWarnings>4018;4305;4244</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;opengl32.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

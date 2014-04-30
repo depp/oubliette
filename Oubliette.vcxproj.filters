@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="src\array.hpp" />
+    <ClInclude Include="src\defs.hpp" />
+    <ClInclude Include="src\file.hpp" />
+    <ClInclude Include="src\image.hpp" />
+    <ClInclude Include="src\opengl.hpp" />
+    <ClInclude Include="src\pack.hpp" />
+    <ClInclude Include="src\rand.hpp" />
+    <ClInclude Include="src\shader.hpp" />
+    <ClInclude Include="src\sprite.hpp" />
+    <ClInclude Include="src\surface.hpp" />
+    <ClInclude Include="src\game\camera.hpp" />
+    <ClInclude Include="src\game\control.hpp" />
+    <ClInclude Include="src\game\defs.hpp" />
+    <ClInclude Include="src\game\editor.hpp" />
+    <ClInclude Include="src\game\entity.hpp" />
+    <ClInclude Include="src\game\graphics.hpp" />
+    <ClInclude Include="src\game\key.hpp" />
+    <ClInclude Include="src\game\leveldata.hpp" />
+    <ClInclude Include="src\game\levelmap.hpp" />
+    <ClInclude Include="src\game\persistent.hpp" />
+    <ClInclude Include="src\game\script.hpp" />
+    <ClInclude Include="src\game\sprite_array.hpp" />
+    <ClInclude Include="src\game\sprite_enum.hpp" />
+    <ClInclude Include="src\game\state.hpp" />
+    <ClInclude Include="src\game\stats.hpp" />
+    <ClInclude Include="src\game\vec.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\file.cpp" />
+    <ClCompile Include="src\image.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\pack.cpp" />
+    <ClCompile Include="src\rand.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\sprite_array.cpp" />
+    <ClCompile Include="src\sprite_orientation.cpp" />
+    <ClCompile Include="src\sprite_sheet.cpp" />
+    <ClCompile Include="src\surface.cpp" />
+    <ClCompile Include="src\game\camera.cpp" />
+    <ClCompile Include="src\game\control.cpp" />
+    <ClCompile Include="src\game\editor.cpp" />
+    <ClCompile Include="src\game\entity.cpp" />
+    <ClCompile Include="src\game\graphics.cpp" />
+    <ClCompile Include="src\game\leveldata.cpp" />
+    <ClCompile Include="src\game\levelmap.cpp" />
+    <ClCompile Include="src\game\script.cpp" />
+    <ClCompile Include="src\game\state.cpp" />
+    <ClCompile Include="src\game\stats.cpp" />
+    <ClCompile Include="src\game\vec.cpp" />
+  </ItemGroup>
+</Project>
