@@ -6,3 +6,5 @@
 /Release
 /Oubliette
 /Oubliette.zip
+*.xcworkspace
+xcuserdata

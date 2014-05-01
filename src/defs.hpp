@@ -15,7 +15,7 @@ static const int IWIDTH = PWIDTH * SCALE;
 static const int IHEIGHT = PHEIGHT * SCALE;
 static const int MAXFPS = 100;
 
-#if defined __GCC__
+#if defined __GNUC__
 #define NORETURN __attribute__((noreturn))
 #elif defined _WIN32
 #define NORETURN __declspec(noreturn)

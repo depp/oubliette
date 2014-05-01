@@ -18,6 +18,9 @@
 #else
 #include <unistd.h>
 #endif
+#if defined __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+#endif
 
 namespace core {
 
@@ -107,16 +110,49 @@ void swap_window()
     SDL_GL_SwapWindow(window);
 }
 
+static const char ERR_DIR[] = "Could not find data directory.";
+static const char DEFAULT_DIR[] = "Data";
+
 static void init_path(const char *data_dir)
 {
 #if defined _WIN32
+    if (!data_dir)
+        data_dir = DEFAULT_DIR;
     BOOL r = SetCurrentDirectoryA(data_dir);
     if (!r)
-        die("Could not find data directory.");
+        die(ERR_DIR);
 #else
-    int r = chdir(data_dir);
+    int r;
+#if defined __APPLE__
+    if (!data_dir)
+    {
+        CFBundleRef bundle = CFBundleGetMainBundle();
+        if (!bundle)
+            die(ERR_DIR);
+        CFURLRef url = CFBundleCopyBundleURL(bundle);
+        if (!url)
+            die(ERR_DIR);
+        char buf[256];
+        r = CFURLGetFileSystemRepresentation(
+            url, TRUE, (UInt8 *)buf, sizeof(buf) - sizeof(DEFAULT_DIR));
+        if (!r)
+            die(ERR_DIR);
+        char *p = std::strrchr(buf, '/');
+        if (p == nullptr)
+            die(ERR_DIR);
+        std::strcpy(p + 1, DEFAULT_DIR);
+        r = chdir(buf);
+        if (r)
+            die(ERR_DIR);
+        return;
+    }
+#else
+    if (!data_dir)
+        dat_dir = DEFAULT_DIR;
+#endif
+    r = chdir(data_dir);
     if (r)
-        die("Could not find data directory.");
+        die(ERR_DIR);
 #endif
 }
 
@@ -153,6 +189,7 @@ void init()
     if (!context)
         die("Unable to create OpenGL context");
 
+#if defined USE_GLEW
     GLenum glewstatus = glewInit();
     if (glewstatus != GLEW_OK) {
         std::fprintf(stderr, "GLEW error: %s\n",
@@ -162,6 +199,7 @@ void init()
 
     if (!GLEW_VERSION_2_1)
         die("OpenGL 2.1 is missing");
+#endif
 
     rng::global.init();
 }
@@ -231,7 +269,7 @@ static bool decode_key(int scancode, key *k)
 int main(int argc, char *argv[])
 {
     const char *start_level = "difficulty";
-    const char *data_dir = "Data";
+    const char *data_dir = nullptr;
     bool edit_mode = false;
     int i = 1;
     while (i < argc) {
@@ -261,8 +299,8 @@ int main(int argc, char *argv[])
     const unsigned MIN_TICKS1 = 1000 / core::MAXFPS;
     const unsigned MIN_TICKS = MIN_TICKS1 > 0 ? MIN_TICKS1 : 1;
 
-    core::init_path(data_dir);
     core::init();
+    core::init_path(data_dir);
 
     {
         bool do_quit = false;

@@ -3,7 +3,6 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #ifndef LD_SURFACE_HPP
 #define LD_SURFACE_HPP
-
 #include <SDL.h>
 
 namespace sdl {
@@ -23,5 +22,4 @@ struct surface {
 };
 
 }
-
 #endif

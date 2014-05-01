@@ -4,6 +4,11 @@
 #ifndef LD_OPENGL_HPP
 #define LD_OPENGL_HPP
 
+#if defined __APPLE__
+#include <OpenGL/gl.h>
+#else
+#define USE_GLEW
 #include <GL/glew.h>
+#endif
 
 #endif
