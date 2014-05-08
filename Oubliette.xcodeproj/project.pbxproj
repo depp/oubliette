@@ -40,7 +40,6 @@
 		FB8829D91911CAB700ED4282 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		FB8829DA1911CAB700ED4282 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		FB8829DB1911CAB700ED4282 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		FB8829F51911CAB700ED4282 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		FBDF4C411911CC960051E010 /* array.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = array.hpp; sourceTree = "<group>"; };
 		FBDF4C421911CC960051E010 /* defs.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = defs.hpp; sourceTree = "<group>"; };
 		FBDF4C431911CC960051E010 /* file.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file.cpp; sourceTree = "<group>"; };
@@ -90,7 +89,6 @@
 		FBDF4C731911CC960051E010 /* surface.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = surface.hpp; sourceTree = "<group>"; };
 		FBDF4C8E1911CE7D0051E010 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = ../../../../Library/Frameworks/SDL2_image.framework; sourceTree = "<group>"; };
 		FBDF4C8F1911CE7D0051E010 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
-		FBDF4C921911CE9E0051E010 /* libGLEW.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGLEW.a; path = ../../../../usr/lib/libGLEW.a; sourceTree = "<group>"; };
 		FBDF4C961911D0510051E010 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -131,11 +129,9 @@
 			isa = PBXGroup;
 			children = (
 				FBDF4C961911D0510051E010 /* OpenGL.framework */,
-				FBDF4C921911CE9E0051E010 /* libGLEW.a */,
 				FBDF4C8E1911CE7D0051E010 /* SDL2_image.framework */,
 				FBDF4C8F1911CE7D0051E010 /* SDL2.framework */,
 				FB8829D61911CAB700ED4282 /* Cocoa.framework */,
-				FB8829F51911CAB700ED4282 /* XCTest.framework */,
 				FB8829D81911CAB700ED4282 /* Other Frameworks */,
 			);
 			name = Frameworks;
