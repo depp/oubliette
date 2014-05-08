@@ -274,6 +274,7 @@ int main(int argc, char *argv[])
     int i = 1;
     while (i < argc) {
         const char *a = argv[i];
+        std::size_t len = std::strlen(a);
         if (a[0] != '-') {
             start_level = a;
             i++;
@@ -288,8 +289,10 @@ int main(int argc, char *argv[])
         } else if (!std::strcmp(a, "--edit") || !std::strcmp(a, "-e")) {
             edit_mode = true;
             i++;
-        } else if (std::strlen(a) >= 4 && !std::memcmp(a, "-psn", 4)) {
+        } else if (len >= 4 && !std::memcmp(a, "-psn", 4)) {
             i++;
+        } else if (len >= 3 && !std::memcmp(a, "-NS", 3)) {
+            i += 2;
         } else {
             std::fprintf(stderr, "Warning: unknown argument: %s\n", a);
             i++;
