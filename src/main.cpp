@@ -148,7 +148,7 @@ static void init_path(const char *data_dir)
     }
 #else
     if (!data_dir)
-        dat_dir = DEFAULT_DIR;
+        data_dir = DEFAULT_DIR;
 #endif
     r = chdir(data_dir);
     if (r)
