@@ -3,6 +3,7 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "entity.hpp"
 #include "../defs.hpp"
+#include "color.hpp"
 #include "control.hpp"
 #include "defs.hpp"
 #include "graphics.hpp"
@@ -14,6 +15,8 @@
 namespace game {
 
 using ::graphics::sprite;
+using ::graphics::ui;
+using ::graphics::anysprite;
 using ::sprite::orientation;
 
 static const int HIT_TIME = 25;
@@ -147,7 +150,7 @@ void entity_system::draw(::graphics::system &gr, int reltime)
 
     for (int i = 0; i < state_.maxhealth; i++) {
         gr.add_sprite(
-            i < state_.health ? sprite::HEART1 : sprite::HEART2,
+            i < state_.health ? ui::HEART1 : ui::HEART2,
             vec2(core::PWIDTH - 16 - 16*i, core::PHEIGHT - 16),
             orientation::NORMAL,
             true);
@@ -218,7 +221,7 @@ void entity_system::mouse_click(int x, int y, int button)
 
 void entity_system::spawn_shot(
     team t, vec2 origin, vec2 target, float speed,
-    ::graphics::sprite sp1, ::graphics::sprite sp2,
+    ::graphics::anysprite sp1, ::graphics::anysprite sp2,
     int delay)
 {
     origin += vec2(
@@ -640,7 +643,7 @@ void door::draw(::graphics::system &gr, int reltime)
         orientation::NORMAL);
     if (!m_is_locked && m_system.test_hover(m_bbox)) {
         gr.add_sprite(
-            sprite::ARROW,
+            ui::ARROW,
             m_pos + vec2(-8, +20),
             orientation::NORMAL);
     }
@@ -686,7 +689,7 @@ void chest::draw(::graphics::system &gr, int reltime)
         orientation::NORMAL);
     if (m_system.test_hover(m_bbox)) {
         gr.add_sprite(
-            sprite::ARROW,
+            ui::ARROW,
             m_pos + vec2(-8, +16),
             orientation::NORMAL);
     }
@@ -695,8 +698,8 @@ void chest::draw(::graphics::system &gr, int reltime)
 // ======================================================================
 
 enemy::enemy(entity_system &sys, vec2 pos,
-             ::graphics::sprite actor,
-             ::graphics::sprite shot1, ::graphics::sprite shot2)
+             ::graphics::anysprite actor,
+             ::graphics::anysprite shot1, ::graphics::anysprite shot2)
     : entity(sys, team::FOE),
       physics(irect::centered(8, 20), pos, vec2::zero()),
       m_actor(actor),
@@ -741,7 +744,7 @@ void enemy::draw(::graphics::system &gr, int reltime)
 // ======================================================================
 
 shot::shot(entity_system &sys, team t, vec2 pos, vec2 vel, int time,
-         ::graphics::sprite sp1, ::graphics::sprite sp2)
+         ::graphics::anysprite sp1, ::graphics::anysprite sp2)
     : entity(sys, t),
       projectile(irect::centered(10, 10), pos, vel, 1),
       time(time),
@@ -789,7 +792,7 @@ void poof::update()
 void poof::draw(::graphics::system &gr, int reltime)
 {
     (void)reltime;
-    sprite s;
+    anysprite s;
     switch (m_time / POOF_FRAMETIME) {
     case 0: s = sprite::POOF1; break;
     case 1: s = sprite::POOF2; break;

@@ -2,17 +2,13 @@
    This file is part of Oubliette.  Oubliette is licensed under the terms
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "graphics.hpp"
+#include "color.hpp"
 #include "state.hpp"
 #include "defs.hpp"
 #include "../defs.hpp"
 #include "../rand.hpp"
 namespace graphics {
 using game::vec2;
-
-static struct ::sprite::sprite SPRITES[] = {
-#include "sprite_array.hpp"
-    { nullptr, 0, 0, 0, 0 }
-};
 
 static int round_up_pow2(int x)
 {
@@ -23,96 +19,6 @@ static int round_up_pow2(int x)
     v |= v >> 8;
     v |= v >> 16;
     return v + 1;
-}
-
-#define c(r, g, b) { (r)/255.0f, (g)/255.0f, (b)/255.0f, 1.0f }
-const float PALETTE[17][4] = {
-    c(20, 12, 28),
-    c(68, 36, 52),
-    c(48, 52, 109),
-    c(78, 74, 78),
-    c(133, 76, 48),
-    c(52, 101, 36),
-    c(208, 70, 72),
-    c(117, 113, 97),
-    c(89, 125, 206),
-    c(210, 125, 44),
-    c(133, 149, 161),
-    c(109, 170, 44),
-    c(210, 170, 153),
-    c(109, 194, 202),
-    c(218, 212, 94),
-    c(222, 238, 214),
-    { 0, 0, 0, 0 }
-};
-#undef c
-
-sprite treasure_sprite(int which, int state)
-{
-    if (which < 0 || which >= 3 || state < 0 || state >= 5)
-        core::die("Invalid treasure");
-    static const sprite ARR[3][5] = {
-        { sprite::CIRCLE1,
-          sprite::CIRCLE2,
-          sprite::CIRCLE3,
-          sprite::CIRCLE4,
-          sprite::CIRCLE5 },
-        { sprite::STAR1,
-          sprite::STAR2,
-          sprite::STAR3,
-          sprite::STAR4,
-          sprite::STAR5 },
-        { sprite::DIAMOND1,
-          sprite::DIAMOND2,
-          sprite::DIAMOND3,
-          sprite::DIAMOND4,
-          sprite::DIAMOND5 }
-    };
-    return ARR[which][state];
-}
-
-void blend(float out[4], const float a[4], float alpha)
-{
-    for (int i = 0; i < 4; i++)
-        out[i] = a[i] * alpha;
-}
-
-void blend(float out[4], const float a[4], float aalpha,
-           const float b[4], float balpha, float t)
-{
-    if (t > 1.0f)
-        t = 1.0f;
-    else if (t < 0.0f)
-        t = 0.0f;
-    for (int i = 0; i < 4; i++)
-        out[i] = a[i] * (1.0f - t) * aalpha + b[i] * t * balpha;
-}
-
-void blend(float out[4], const float a[4], const float b[4], float t)
-{
-    blend(out, a, 1.0f, b, 1.0f, t);
-}
-
-static const float *get_palette(int n)
-{
-    if (n >= 0 && n <= 16)
-        return PALETTE[n];
-    core::die("Palette out of bounds");
-}
-
-void blend(float out[4], int a, float alpha)
-{
-    blend(out, get_palette(a), alpha);
-}
-
-void blend(float out[4], int a, float aalpha, int b, float balpha, float t)
-{
-    blend(out, get_palette(a), aalpha, get_palette(b), balpha, t);
-}
-
-void blend(float out[4], int a, int b, float t)
-{
-    blend(out, get_palette(a), 1.0f, get_palette(b), 1.0f, t);
 }
 
 // ======================================================================
@@ -127,7 +33,7 @@ common_data::common_data()
 // ======================================================================
 
 sprite_data::sprite_data()
-    : sheet("sprite", SPRITES)
+    : sheet("", SPRITES)
 { }
 
 void sprite_data::clear()
@@ -544,7 +450,7 @@ void system::set_level(const std::string &path)
     background_.set_level(path);
 }
 
-void system::add_sprite(sprite sp, vec2 pos,
+void system::add_sprite(anysprite sp, vec2 pos,
                         ::sprite::orientation orient,
                         bool screen_relative)
 {

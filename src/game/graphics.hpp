@@ -7,24 +7,10 @@
 #include "../sprite.hpp"
 #include "../shader.hpp"
 #include "../image.hpp"
+#include "sprite.hpp"
 #include "vec.hpp"
 namespace graphics {
 class state;
-
-// Define the "sprite" enumeration
-#include "sprite_enum.hpp"
-
-// DB's 16-color palette, plus transparent at #16
-extern const float PALETTE[17][4];
-sprite treasure_sprite(int which, int state);
-
-void blend(float out[4], const float a[4], float alpha);
-void blend(float out[4], const float a[4], float aalpha,
-           const float b[4], float balpha, float t);
-void blend(float out[4], const float a[4], const float b[4], float t);
-void blend(float out[4], int a, float alpha);
-void blend(float out[4], int a, float aalpha, int b, float balpha, float t);
-void blend(float out[4], int a, int b, float t);
 
 /// The shader commons.
 struct common_data {
@@ -134,7 +120,8 @@ public:
     /// Set the current level.
     void set_level(const std::string &path);
     /// Add a sprite to the screen.
-    void add_sprite(sprite sp, game::vec2 pos, ::sprite::orientation orient,
+    void add_sprite(anysprite sp, game::vec2 pos,
+                    ::sprite::orientation orient,
                     bool screen_relative=false);
     /// Set the camera target.
     void set_camera_pos(game::vec2 target);

@@ -30,7 +30,8 @@ sheet::sheet(const std::string &dirname, const sprite *sprites)
 
     {
         std::string dirpath(dirname);
-        dirpath += '/';
+        if (!dirpath.empty())
+            dirpath += '/';
         std::unordered_map<std::string, std::size_t> imagenames;
         for (int i = 0; sprites[i].name; i++) {
             count++;

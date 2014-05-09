@@ -6,12 +6,12 @@
 #include "vec.hpp"
 #include "camera.hpp"
 #include "levelmap.hpp"
+#include "sprite.hpp"
 #include <string>
 #include <vector>
 #include <memory>
 namespace graphics {
 class system;
-enum class sprite;
 }
 namespace game {
 class entity;
@@ -97,7 +97,7 @@ public:
     void mouse_click(int x, int y, int button);
     /// Spawn a projectile.
     void spawn_shot(team t, vec2 origin, vec2 target, float speed,
-                    ::graphics::sprite sp1, ::graphics::sprite sp2,
+                    ::graphics::anysprite sp1, ::graphics::anysprite sp2,
                     int delay);
 
     const control_system &control() const { return control_; }
@@ -288,15 +288,15 @@ private:
     enemy_component m_enemy;
     physics_component physics;
     walking_component walking;
-    ::graphics::sprite m_actor;
-    ::graphics::sprite m_shot1;
-    ::graphics::sprite m_shot2;
+    ::graphics::anysprite m_actor;
+    ::graphics::anysprite m_shot1;
+    ::graphics::anysprite m_shot2;
     int m_health;
 
 public:
     enemy(entity_system &sys, vec2 pos,
-          ::graphics::sprite actor,
-          ::graphics::sprite shot1, ::graphics::sprite shot2);
+          ::graphics::anysprite actor,
+          ::graphics::anysprite shot1, ::graphics::anysprite shot2);
     virtual ~enemy();
 
     virtual void update();
@@ -309,12 +309,12 @@ class shot : public entity {
 private:
     projectile_component projectile;
     int time;
-    ::graphics::sprite m_sp1;
-    ::graphics::sprite m_sp2;
+    ::graphics::anysprite m_sp1;
+    ::graphics::anysprite m_sp2;
 
 public:
     shot(entity_system &sys, team t, vec2 pos, vec2 vel, int time,
-         ::graphics::sprite sp1, ::graphics::sprite sp2);
+         ::graphics::anysprite sp1, ::graphics::anysprite sp2);
     virtual ~shot();
 
     virtual void update();
