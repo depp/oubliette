@@ -1,9 +1,9 @@
 # Level: level/ruins_hub.txt
-  +41   +50 door @love_1:ruins_1
- +683   +50 door @love_2:ruins_2
- +812  +373 door @love_3:ruins_3
- +343  +470 door main_hub
- +794   +20 chest 24
+  +41   +51 door @love_1:ruins_1
+ +683   +51 door @love_2:ruins_2
+ +811  +374 door @love_3:ruins_3
+ +343  +471 door main_hub
+ +877   +48 chest 24
  +835  +371 woman
  +785  +371 woman
  +606   +48 woman
