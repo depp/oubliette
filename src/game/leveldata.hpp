@@ -20,7 +20,8 @@ enum class spawntype {
     SLIME,
     PROF,
     WOMAN,
-    PRIEST
+    PRIEST,
+    GLYPH
 };
 
 /// Spawn point where an entity starts.
@@ -46,7 +47,7 @@ struct spawnpoint {
 
 /// Level data utilities
 struct leveldata {
-    static const int NTYPE = static_cast<int>(spawntype::PRIEST) + 1;
+    static const int NTYPE = static_cast<int>(spawntype::GLYPH) + 1;
 
     /// Convert a spawn type to a string.
     static const char *type_to_string(spawntype type);

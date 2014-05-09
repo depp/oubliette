@@ -8,13 +8,15 @@
 #include <errno.h>
 namespace game {
 using ::graphics::sprite;
+using ::graphics::ui;
+using ::graphics::anysprite;
 
 struct spawninfo {
     char name[8];
     int width;
     int height;
     int order;
-    sprite sp;
+    anysprite sp;
 };
 
 static const spawninfo SPAWN_TYPES[leveldata::NTYPE] = {
@@ -24,7 +26,8 @@ static const spawninfo SPAWN_TYPES[leveldata::NTYPE] = {
     { "slime",  16, 16, 20, sprite::SLIME1 },
     { "prof",   12, 24, 20, sprite::PROFESSOR },
     { "woman",  12, 24, 20, sprite::WOMAN },
-    { "priest", 12, 24, 20, sprite::PRIEST }
+    { "priest", 12, 24, 20, sprite::PRIEST },
+    { "glyph",  16, 16, 25, ui::TREASURE01 }
 };
 
 static const spawninfo &get_spawninfo(spawntype type)

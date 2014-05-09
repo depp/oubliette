@@ -335,5 +335,18 @@ public:
     virtual void draw(::graphics::system &gr, int reltime);
 };
 
+/// A static sprite.
+class glyph : public entity {
+private:
+    const vec2 m_pos;
+    ::graphics::anysprite m_sprite;
+
+public:
+    glyph(entity_system &sys, vec2 pos, ::graphics::anysprite sp);
+    virtual ~glyph();
+
+    virtual void draw(::graphics::system &gr, int reltime);
+};
+
 }
 #endif

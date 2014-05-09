@@ -3,3 +3,6 @@
  +119  +216 door @love_intro:ruins_hub
  +143  +413 door @childhood_intro:modern_hub
  +985  +116 door @death_intro:dirt_hub
+ +122  +411 glyph t1
+  +98  +214 glyph t2
++1007  +114 glyph t3

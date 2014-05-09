@@ -1,4 +1,7 @@
 # Level: level/main_wake.txt
- +325   +40 door main_hub
-  +52   +66 door !end
-  +86   +63 player
+ +332   +40 door main_hub
+  +49   +66 door !end
+  +28  +102 glyph t1
+  +28   +83 glyph t2
+  +28   +64 glyph t3
+  +96   +63 player

@@ -37,12 +37,30 @@ struct entity_is_dead {
 
 // ======================================================================
 
-std::string door_name(const std::string &data)
+static std::string door_name(const std::string &data)
 {
     auto pos = data.rfind(':');
     if (pos == std::string::npos)
         return data;
     return data.substr(pos + 1);
+}
+
+static anysprite glyph_sprite(persistent_state &state,
+                              const std::string &data)
+{
+    if (data.empty())
+        core::die("Empty glyph data");
+
+    if (data[0] == 't') {
+        if (data.size() == 2) {
+            int treasure = data[1] - '1';
+            if (treasure >= 0 && treasure < 3)
+                return ::graphics::treasure_sprite(
+                    treasure, state.treasure[treasure]);
+        }
+    }
+
+    core::die("Invalid glyph data");
 }
 
 entity_system::entity_system(persistent_state &state,
@@ -92,6 +110,11 @@ entity_system::entity_system(persistent_state &state,
             entities_.emplace_back(
                 new enemy(*this, pos,
                           sprite::PRIEST, sprite::SKULL, sprite::SKULL));
+            break;
+
+        case spawntype::GLYPH:
+            entities_.emplace_back(
+                new glyph(*this, pos, glyph_sprite(state, i->data)));
             break;
 
         default:
@@ -800,9 +823,21 @@ void poof::draw(::graphics::system &gr, int reltime)
     default: return;
     }
     gr.add_sprite(s, m_pos + vec2(-8, -8), orientation::NORMAL);
-
 }
 
 // ======================================================================
+
+glyph::glyph(entity_system &sys, vec2 pos, ::graphics::anysprite sp)
+    : entity(sys, team::AMBIENT), m_pos(pos), m_sprite(sp)
+{ }
+
+glyph::~glyph()
+{ }
+
+void glyph::draw(::graphics::system &gr, int reltime)
+{
+    (void)reltime;
+    gr.add_sprite(m_sprite, m_pos + vec2(-8, -8), orientation::NORMAL);
+}
 
 }
