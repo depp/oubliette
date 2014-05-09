@@ -21,7 +21,7 @@ enum class sprite {
     SLIME2,
     WOMAN
 };
-static const int UI_COUNT = 18;
+static const int UI_COUNT = 21;
 enum class ui {
     ARROW,
     CROSS,
@@ -40,5 +40,8 @@ enum class ui {
     TREASURE23,
     TREASURE31,
     TREASURE32,
-    TREASURE33
+    TREASURE33,
+    TREASURE41,
+    TREASURE42,
+    TREASURE43
 };

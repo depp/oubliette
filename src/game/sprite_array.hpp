@@ -36,3 +36,6 @@
 { "ui/treasure31", 0, 0, 16, 16 },
 { "ui/treasure32", 0, 0, 16, 16 },
 { "ui/treasure33", 0, 0, 16, 16 },
+{ "ui/treasure41", 0, 0, 16, 16 },
+{ "ui/treasure42", 0, 0, 16, 16 },
+{ "ui/treasure43", 0, 0, 16, 16 },

@@ -13,12 +13,24 @@ const struct ::sprite::sprite SPRITES[] = {
 
 ui treasure_sprite(int which, int state)
 {
-    if (which < 0 || which >= 3 || state < 0 || state >= 4)
+    if (which < 0 || which >= 3 || state < 0 || state >= 5)
         core::die("Invalid treasure");
-    static const ui ARR[3][4] = {
-        { ui::TREASURE01, ui::TREASURE11, ui::TREASURE21, ui::TREASURE31 },
-        { ui::TREASURE02, ui::TREASURE12, ui::TREASURE22, ui::TREASURE32 },
-        { ui::TREASURE03, ui::TREASURE13, ui::TREASURE23, ui::TREASURE33 }
+    static const ui ARR[3][5] = {
+        { ui::TREASURE01,
+          ui::TREASURE11,
+          ui::TREASURE21,
+          ui::TREASURE31,
+          ui::TREASURE41 },
+        { ui::TREASURE02,
+          ui::TREASURE12,
+          ui::TREASURE22,
+          ui::TREASURE32,
+          ui::TREASURE42 },
+        { ui::TREASURE03,
+          ui::TREASURE13,
+          ui::TREASURE23,
+          ui::TREASURE33,
+          ui::TREASURE43 }
     };
     return ARR[which][state];
 }
