@@ -227,12 +227,6 @@ entity *entity_system::scan_target(irect range, team t)
     return nullptr;
 }
 
-void entity_system::die()
-{
-    state().hittime = HIT_TIME * 8;
-    nextlevel = "!dead";
-}
-
 void entity_system::mouse_click(int x, int y, int button)
 {
     if (button != 1 && button != 3)
@@ -609,7 +603,7 @@ void player::update()
     }
 
     if (physics.pos.y < -50.0f)
-        m_system.die();
+        player_die();
 }
 
 void player::damage(int amt)
@@ -619,7 +613,7 @@ void player::damage(int amt)
     if (s.maxhealth > 0) {
         s.health -= amt;
         if (s.health <= 0)
-            m_system.die();
+            player_die();
     }
 }
 
@@ -629,6 +623,15 @@ void player::draw(::graphics::system &gr, int reltime)
         sprite::PLAYER,
         physics.get_pos(reltime) + vec2(-8, -12),
         orientation::NORMAL);
+}
+
+void player::player_die()
+{
+    m_team = team::DEAD;
+    m_system.state().hittime = HIT_TIME * 8;
+    m_system.is_player_dead = true;
+    m_system.add_entity(new signal_glyph(
+        m_system, physics.pos, sprite::SKULL, "!dead", true));
 }
 
 // ======================================================================
@@ -700,7 +703,10 @@ void chest::interact()
         return;
     auto &s = m_system.state();
     s.treasure[m_which] = m_state;
-    m_system.nextlevel = "main_wake";
+    m_system.add_entity(new signal_glyph(
+        m_system, m_pos, ::graphics::treasure_sprite(m_which, m_state),
+        "main_wake", false));
+    m_team = team::DEAD;
 }
 
 void chest::draw(::graphics::system &gr, int reltime)
@@ -838,6 +844,50 @@ void glyph::draw(::graphics::system &gr, int reltime)
 {
     (void)reltime;
     gr.add_sprite(m_sprite, m_pos + vec2(-8, -8), orientation::NORMAL);
+}
+
+// ======================================================================
+
+static const int SIGNAL_RISETIME = 16;
+static const int SIGNAL_HOVERTIME = 32;
+static const int SIGNAL_RISEDISTANCE = 24;
+
+signal_glyph::signal_glyph(entity_system &sys, vec2 pos,
+                           ::graphics::anysprite sp,
+                           const std::string &target, bool is_player_death)
+    : entity(sys, team::AMBIENT),
+      m_sprite(sp), m_pos(pos), m_target(target), m_time(0),
+      m_is_player_death(is_player_death)
+{ }
+
+signal_glyph::~signal_glyph()
+{ }
+
+void signal_glyph::update()
+{
+    m_time++;
+    if (m_time == SIGNAL_RISETIME + SIGNAL_HOVERTIME) {
+        m_time = -1;
+        m_team = team::DEAD;
+        if (!m_target.empty() &&
+            (!m_system.is_player_dead || m_is_player_death))
+            m_system.nextlevel = std::move(m_target);
+    }
+}
+
+void signal_glyph::draw(::graphics::system &gr, int reltime)
+{
+    float delta;
+    if (m_time < SIGNAL_RISETIME)
+        delta = (m_time * defs::FRAMETIME + reltime) *
+            ((float) SIGNAL_RISEDISTANCE /
+                (SIGNAL_RISETIME * defs::FRAMETIME));
+    else
+        delta = SIGNAL_RISEDISTANCE;
+    gr.add_sprite(
+        m_sprite,
+        m_pos + vec2(-8.0f, -8.0f) + vec2(0.0f, delta),
+        orientation::NORMAL);
 }
 
 }

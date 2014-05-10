@@ -91,8 +91,6 @@ public:
     bool test_hover(irect rect);
     /// Scan for a target in the given range, on the given team.
     entity *scan_target(irect range, team t);
-    /// Record player death.
-    void die();
     /// Handle a mouse click.
     void mouse_click(int x, int y, int button);
     /// Spawn a projectile.
@@ -110,6 +108,8 @@ public:
 
     /// A hack... set this, and that level will be loaded.
     std::string nextlevel;
+    /// Whether the player is dead.
+    bool is_player_dead;
 };
 
 // ======================================================================
@@ -244,6 +244,9 @@ private:
     walking_component walking;
     jumping_component jumping;
 
+    /// Record player death.
+    void player_die();
+
 public:
     player(entity_system &sys, vec2 pos);
     virtual ~player();
@@ -345,6 +348,24 @@ public:
     glyph(entity_system &sys, vec2 pos, ::graphics::anysprite sp);
     virtual ~glyph();
 
+    virtual void draw(::graphics::system &gr, int reltime);
+};
+
+/// A rising glyph which possibly triggers a transition to another level.
+class signal_glyph : public entity {
+private:
+    const ::graphics::anysprite m_sprite;
+    const std::string m_target;
+    vec2 m_pos;
+    int m_time;
+    const bool m_is_player_death;
+
+public:
+    signal_glyph(entity_system &sys, vec2 pos, ::graphics::anysprite sp,
+                 const std::string &target, bool is_player_death);
+    virtual ~signal_glyph();
+
+    virtual void update();
     virtual void draw(::graphics::system &gr, int reltime);
 };
 
