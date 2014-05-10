@@ -127,7 +127,6 @@ void state::next_level()
                 st = persistent_state();
                 levelname_.clear();
             } else if (next[1] == '!') {
-                std::puts("TREASUER");
                 if (next.size() != 5)
                     core::die("Invalid cheat");
                 for (int i = 0; i < 3; i++) {
