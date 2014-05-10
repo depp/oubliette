@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		38DB3376191D7A0F00246D3E /* sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38DB3374191D7A0F00246D3E /* sprite.cpp */; };
+		38DB3379191D7A3100246D3E /* color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38DB3377191D7A3100246D3E /* color.cpp */; };
 		FB8829D71911CAB700ED4282 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB8829D61911CAB700ED4282 /* Cocoa.framework */; };
 		FBDF4C761911CC960051E010 /* file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FBDF4C431911CC960051E010 /* file.cpp */; };
 		FBDF4C781911CC960051E010 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FBDF4C471911CC960051E010 /* camera.cpp */; };
@@ -35,6 +37,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		38DB3374191D7A0F00246D3E /* sprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sprite.cpp; sourceTree = "<group>"; };
+		38DB3375191D7A0F00246D3E /* sprite.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = sprite.hpp; sourceTree = "<group>"; };
+		38DB3377191D7A3100246D3E /* color.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = color.cpp; sourceTree = "<group>"; };
+		38DB3378191D7A3100246D3E /* color.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = color.hpp; sourceTree = "<group>"; };
 		FB8829D31911CAB700ED4282 /* Oubliette.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Oubliette.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB8829D61911CAB700ED4282 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		FB8829D91911CAB700ED4282 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -187,6 +193,8 @@
 			children = (
 				FBDF4C471911CC960051E010 /* camera.cpp */,
 				FBDF4C481911CC960051E010 /* camera.hpp */,
+				38DB3377191D7A3100246D3E /* color.cpp */,
+				38DB3378191D7A3100246D3E /* color.hpp */,
 				FBDF4C491911CC960051E010 /* control.cpp */,
 				FBDF4C4A1911CC960051E010 /* control.hpp */,
 				FBDF4C4B1911CC960051E010 /* defs.hpp */,
@@ -204,6 +212,8 @@
 				FBDF4C581911CC960051E010 /* persistent.hpp */,
 				FBDF4C591911CC960051E010 /* script.cpp */,
 				FBDF4C5A1911CC960051E010 /* script.hpp */,
+				38DB3374191D7A0F00246D3E /* sprite.cpp */,
+				38DB3375191D7A0F00246D3E /* sprite.hpp */,
 				FBDF4C5B1911CC960051E010 /* sprite_array.hpp */,
 				FBDF4C5C1911CC960051E010 /* sprite_enum.hpp */,
 				FBDF4C5D1911CC960051E010 /* state.cpp */,
@@ -293,8 +303,10 @@
 				FBDF4C7D1911CC960051E010 /* graphics.cpp in Sources */,
 				FBDF4C781911CC960051E010 /* camera.cpp in Sources */,
 				FBDF4C891911CC960051E010 /* shader.cpp in Sources */,
+				38DB3379191D7A3100246D3E /* color.cpp in Sources */,
 				FBDF4C8D1911CC960051E010 /* surface.cpp in Sources */,
 				FBDF4C821911CC960051E010 /* stats.cpp in Sources */,
+				38DB3376191D7A0F00246D3E /* sprite.cpp in Sources */,
 				FBDF4C841911CC960051E010 /* image.cpp in Sources */,
 				FBDF4C7A1911CC960051E010 /* editor.cpp in Sources */,
 				FBDF4C881911CC960051E010 /* rand.cpp in Sources */,
