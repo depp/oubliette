@@ -141,19 +141,21 @@ void entity_system::update()
 {
     if (state_.hittime > 0)
         state_.hittime--;
-    auto part = std::stable_partition(
-        entities_.begin(), entities_.end(), entity_is_dead());
-    entities_.erase(part, entities_.end());
+    hover_trigger_ = ivec(-1000, -1000);
+
     entities_.insert(
         entities_.end(),
         std::make_move_iterator(new_entities_.begin()),
         std::make_move_iterator(new_entities_.end()));
     new_entities_.clear();
-    hover_trigger_ = ivec(-1000, -1000);
     for (auto i = entities_.begin(), e = entities_.end(); i != e; i++) {
         entity &ent = **i;
         ent.update();
     }
+    auto part = std::stable_partition(
+        entities_.begin(), entities_.end(), entity_is_dead());
+    entities_.erase(part, entities_.end());
+
     camera_.update();
     is_click_ = false;
 }

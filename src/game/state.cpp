@@ -143,6 +143,7 @@ void state::next_level()
             levelname_ = next;
             entity_.reset(
                 new entity_system(persistent_, control_, next, lastlevel));
+            entity_->update();
             graphics_.set_level(next);
             return;
         }
