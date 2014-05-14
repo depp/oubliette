@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		38A6AB281922CE5F00835405 /* SDL2_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38A6AB271922CE5F00835405 /* SDL2_mixer.framework */; };
 		38A6AB2B1922CF3F00835405 /* audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38A6AB291922CF3F00835405 /* audio.cpp */; };
+		38A6AB2D19234FD000835405 /* Oubliette.iconset in Resources */ = {isa = PBXBuildFile; fileRef = 38A6AB2C19234FCF00835405 /* Oubliette.iconset */; };
 		38DB3376191D7A0F00246D3E /* sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38DB3374191D7A0F00246D3E /* sprite.cpp */; };
 		38DB3379191D7A3100246D3E /* color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38DB3377191D7A3100246D3E /* color.cpp */; };
 		FB8829D71911CAB700ED4282 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB8829D61911CAB700ED4282 /* Cocoa.framework */; };
@@ -42,6 +43,7 @@
 		38A6AB271922CE5F00835405 /* SDL2_mixer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_mixer.framework; path = ../../../../Library/Frameworks/SDL2_mixer.framework; sourceTree = "<group>"; };
 		38A6AB291922CF3F00835405 /* audio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio.cpp; sourceTree = "<group>"; };
 		38A6AB2A1922CF3F00835405 /* audio.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = audio.hpp; sourceTree = "<group>"; };
+		38A6AB2C19234FCF00835405 /* Oubliette.iconset */ = {isa = PBXFileReference; lastKnownFileType = folder.iconset; path = Oubliette.iconset; sourceTree = "<group>"; };
 		38DB3374191D7A0F00246D3E /* sprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sprite.cpp; sourceTree = "<group>"; };
 		38DB3375191D7A0F00246D3E /* sprite.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = sprite.hpp; sourceTree = "<group>"; };
 		38DB3377191D7A3100246D3E /* color.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = color.cpp; sourceTree = "<group>"; };
@@ -122,6 +124,7 @@
 		FB8829CA1911CAB700ED4282 = {
 			isa = PBXGroup;
 			children = (
+				38A6AB2C19234FCF00835405 /* Oubliette.iconset */,
 				FBDF4C3E1911CC960051E010 /* src */,
 				FB8829DC1911CAB700ED4282 /* Oubliette */,
 				FB8829D51911CAB700ED4282 /* Frameworks */,
@@ -288,6 +291,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				38A6AB2D19234FD000835405 /* Oubliette.iconset in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
