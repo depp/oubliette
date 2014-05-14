@@ -4,7 +4,8 @@
 *.user
 /Debug
 /Release
+/build
 /Oubliette
-/Oubliette.zip
+/Oubliette*.zip
 *.xcworkspace
 xcuserdata
