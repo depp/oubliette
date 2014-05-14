@@ -188,12 +188,14 @@ void entity_system::draw(::graphics::system &gr, int reltime)
             true);
     }
 
-    for (int i = 0; i < 3; i++) {
-        gr.add_sprite(
-            ::graphics::treasure_sprite(i, state_.treasure[i]),
-            vec2(2 + 18*i, core::PHEIGHT - 17),
-            orientation::NORMAL,
-            true);
+    if (false) {
+        for (int i = 0; i < 3; i++) {
+            gr.add_sprite(
+                ::graphics::treasure_sprite(i, state_.treasure[i]),
+                vec2(2 + 18*i, core::PHEIGHT - 17),
+                orientation::NORMAL,
+                true);
+        }
     }
 
     vec2 camera = camera_.get_pos(reltime);
