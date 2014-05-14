@@ -1,4 +1,5 @@
 # Level: level/dirt_3.txt
+   +0    +0 music track_5
   +83   +52 door dirt_hub
  +206  +467 chest 33
  +195  +133 priest

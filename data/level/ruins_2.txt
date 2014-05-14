@@ -1,4 +1,5 @@
 # Level: level/ruins_2.txt
+   +0    +0 music track_4
  +187   +32 door ruins_hub
  +482  +153 chest 22
  +366   +45 woman

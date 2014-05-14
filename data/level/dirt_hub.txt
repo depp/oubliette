@@ -1,4 +1,5 @@
 # Level: level/dirt_hub.txt
+   +0    +0 music track_5
  +231   +55 door @death_1:dirt_1
  +536   +32 door @death_2:dirt_2
  +961   +41 door @death_3:dirt_3

@@ -1,4 +1,5 @@
 # Level: level/main_hub.txt
+   +0    +0 music track_2
  +937  +369 door main_wake
  +119  +216 door @love_intro:ruins_hub
  +143  +413 door @childhood_intro:modern_hub

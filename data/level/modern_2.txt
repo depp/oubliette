@@ -1,4 +1,5 @@
 # Level: level/modern_2.txt
+   +0    +0 music track_3
  +208  +172 door modern_hub
  +304  +169 chest 12
  +352   +26 prof

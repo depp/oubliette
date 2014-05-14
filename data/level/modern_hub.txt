@@ -1,4 +1,5 @@
 # Level: level/modern_hub.txt
+   +0    +0 music track_3
  +400   +28 door @childhood_1:modern_1
  +448  +460 door @childhood_2:modern_2
  +448   +28 door @childhood_3:modern_3

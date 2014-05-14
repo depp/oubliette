@@ -1,4 +1,5 @@
 # Level: level/main_wake.txt
+   +0    +0 music track_2
  +332   +40 door main_hub
   +49   +66 door !end
   +28  +102 glyph t1

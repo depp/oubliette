@@ -17,6 +17,7 @@ A: Perhaps we should try a different
 ####################################
 
 @ childhood_intro
+M: track_3
 A: Tell me about your childhood.
 B: Oh, college.
 
@@ -45,6 +46,7 @@ B: Yeah, ancient history.
 ####################################
 
 @ love_intro
+M: track_4
 A: What about your love life?
 B: Of course.  Her.
 
@@ -73,6 +75,7 @@ B: Yeah, well, we're making it work.
 ####################################
 
 @ death_intro
+M: track_5
 A: I heard that one of your friends
    passed away.
 B: Best friend.
@@ -104,26 +107,31 @@ A: Have you learned anything about
    your fears?
 
 @ epilogue_0
+M: end_1
 B: No!  I mean, I don't know.  I'm
    not sure.
 A: Perhaps we should talk some more.
 G: [Try again.]
 
 @ epilogue_1
+M: end_2
 B: Here I am, alone, in a city of
    millions.
 G: [Your fear: being alone.]
 
 @ epilogue_2
+M: end_2
 B: Is it worth it?  To keep trying?
 G: [Your fear: disappointment.]
 
 @ epilogue_3
+M: end_2
 B: If they knew what I was really
    like...
 G: [Your fear: being an impostor.]
 
 @ epilogue_4
+M: end_3
 B: I think I've learned more about
    courage.
 G: [You have accepted your fears.]

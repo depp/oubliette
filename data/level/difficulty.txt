@@ -1,4 +1,5 @@
 # Level: level/difficulty.txt
+   +0    +0 music track_1
  +462   +42 door !easy:@prologue:main_wake
  +556   +42 door !normal:@prologue:main_wake
  +555  +160 door !hard:@prologue:main_wake
