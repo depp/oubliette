@@ -7,10 +7,6 @@ $7zip = "C:\Program Files (x86)\7-Zip\7z.exe"
 $ErrorActionPreference = "Stop"
 mkdir Oubliette
 cp Oubliette.lnk Oubliette
-cp README.txt Oubliette
-cp LICENSE.txt Oubliette
-cp -r data Oubliette\Data
-rm Oubliette\Data\.gitignore, Oubliette\Data\quant.py
 mkdir Oubliette\Win32
 cp Release\Oubliette.exe Oubliette\Win32
 cp 'C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\redist\x86\Microsoft.VC120.CRT\msvcr120.dll','C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\redist\x86\Microsoft.VC120.CRT\msvcp120.dll' Oubliette\Win32
