@@ -27,6 +27,9 @@
     <ClInclude Include="src\game\state.hpp" />
     <ClInclude Include="src\game\stats.hpp" />
     <ClInclude Include="src\game\vec.hpp" />
+    <ClInclude Include="src\game\color.hpp" />
+    <ClInclude Include="src\game\sprite.hpp" />
+    <ClInclude Include="src\game\audio.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\file.cpp" />
@@ -50,5 +53,8 @@
     <ClCompile Include="src\game\state.cpp" />
     <ClCompile Include="src\game\stats.cpp" />
     <ClCompile Include="src\game\vec.cpp" />
+    <ClCompile Include="src\game\color.cpp" />
+    <ClCompile Include="src\game\sprite.cpp" />
+    <ClCompile Include="src\game\audio.cpp" />
   </ItemGroup>
 </Project>

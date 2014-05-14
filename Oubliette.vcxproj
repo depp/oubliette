@@ -14,7 +14,9 @@
     <ClInclude Include="src\array.hpp" />
     <ClInclude Include="src\defs.hpp" />
     <ClInclude Include="src\file.hpp" />
+    <ClInclude Include="src\game\audio.hpp" />
     <ClInclude Include="src\game\camera.hpp" />
+    <ClInclude Include="src\game\color.hpp" />
     <ClInclude Include="src\game\control.hpp" />
     <ClInclude Include="src\game\defs.hpp" />
     <ClInclude Include="src\game\editor.hpp" />
@@ -25,6 +27,7 @@
     <ClInclude Include="src\game\levelmap.hpp" />
     <ClInclude Include="src\game\persistent.hpp" />
     <ClInclude Include="src\game\script.hpp" />
+    <ClInclude Include="src\game\sprite.hpp" />
     <ClInclude Include="src\game\sprite_array.hpp" />
     <ClInclude Include="src\game\sprite_enum.hpp" />
     <ClInclude Include="src\game\state.hpp" />
@@ -40,7 +43,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\file.cpp" />
+    <ClCompile Include="src\game\audio.cpp" />
     <ClCompile Include="src\game\camera.cpp" />
+    <ClCompile Include="src\game\color.cpp" />
     <ClCompile Include="src\game\control.cpp" />
     <ClCompile Include="src\game\editor.cpp" />
     <ClCompile Include="src\game\entity.cpp" />
@@ -48,6 +53,7 @@
     <ClCompile Include="src\game\leveldata.cpp" />
     <ClCompile Include="src\game\levelmap.cpp" />
     <ClCompile Include="src\game\script.cpp" />
+    <ClCompile Include="src\game\sprite.cpp" />
     <ClCompile Include="src\game\state.cpp" />
     <ClCompile Include="src\game\stats.cpp" />
     <ClCompile Include="src\game\vec.cpp" />
@@ -92,13 +98,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\SDL2-2.0.3\lib\x86;C:\SDL2_image-2.0.0\lib\x86;C:\glew-1.10.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\SDL2-2.0.3\include;C:\SDL2_image-2.0.0\include;C:\glew-1.10.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\SDL2-2.0.3\lib\x86;C:\SDL2_image-2.0.0\lib\x86;C:\SDL2_mixer-2.0.0\lib\x86;C:\glew-1.10.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\SDL2-2.0.3\include;C:\SDL2_image-2.0.0\include;C:\SDL2_mixer-2.0.0\include;C:\glew-1.10.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>C:\SDL2-2.0.3\lib\x86;C:\SDL2_image-2.0.0\lib\x86;C:\glew-1.10.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\SDL2-2.0.3\include;C:\SDL2_image-2.0.0\include;C:\glew-1.10.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\SDL2-2.0.3\lib\x86;C:\SDL2_image-2.0.0\lib\x86;C:\SDL2_mixer-2.0.0\lib\x86;C:\glew-1.10.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\SDL2-2.0.3\include;C:\SDL2_image-2.0.0\include;C:\SDL2_mixer-2.0.0\include;C:\glew-1.10.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -111,7 +117,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_mixer.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -129,7 +135,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_mixer.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
