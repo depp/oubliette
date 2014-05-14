@@ -2,6 +2,7 @@
    This file is part of Oubliette.  Oubliette is licensed under the terms
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "script.hpp"
+#include "audio.hpp"
 #include "color.hpp"
 #include "control.hpp"
 #include "graphics.hpp"
@@ -52,14 +53,19 @@ script::script()
             l.text += str.substr(3);
             continue;
         }
-        int color;
+        int color = -1;
         switch (str[0]) {
         case 'A': color = 8; break;
         case 'B': color = 9; break;
         case 'G': color = 15; break;
+        case 'M':
+            sec->track = str.substr(3);
+            break;
         default:
             core::die("Invalid script");
         }
+        if (color == -1)
+            continue;
         sec->lines.emplace_back();
         auto &l = sec->lines.back();
         l.color = color;
@@ -79,11 +85,15 @@ const section *script::get_section(const std::string &name) const
     return i == sections_.end() ? nullptr : &i->second;
 }
 
-system::system(const section &sec, const ::game::control_system &control)
-    : m_section(sec), m_control(control), m_initted(false),
+system::system(const section &sec, const ::game::control_system &control,
+               ::audio::system &audio)
+    : m_section(sec), m_control(control), m_audio(audio), m_initted(false),
       m_lineno(0), m_linetime(0),
       m_revealed(false), m_done(false)
-{ }
+{
+    if (!sec.track.empty())
+        m_audio.play_music(sec.track, false);
+}
 
 system::~system()
 { }

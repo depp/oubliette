@@ -8,8 +8,8 @@
 #include <cmath>
 namespace audio {
 
-static const int MUSIC_CHANNELS = 2;
-static const int SFX_CHANNELS  = 6;
+static const int SFX_CHANNELS = 6;
+static const int FADE_OUT_TIME = 250;
 
 /// Convert decibels to magnitude (voltage ratio, not power ratio).
 static double db_to_linear(double db)
@@ -43,11 +43,16 @@ static const char WAVE_NAMES[SFX_COUNT][13] = {
 struct system::wave {
     Mix_Chunk *data;
     double volume;
+
+    wave() : data(nullptr), volume(1.0) { }
 };
 
 struct system::track_info {
     std::string name;
     double loop_length;
+    Mix_Chunk *data;
+
+    track_info() : loop_length(-1.0), data(nullptr) { }
 };
 
 static const std::string WHITESPACE(" \n\t\r");
@@ -80,8 +85,10 @@ static int parse_line(const std::string &input,
 }
 
 system::system()
-    : sfx_channel_(0)
+    : sfx_channel_(0), music_channel_(0)
 {
+    for (int i = 0; i < MUSIC_CHANNELS; i++)
+        music_tracks_[i] = false;
     load_sfx();
     load_trackinfo();
 }
@@ -164,9 +171,55 @@ void system::load_trackinfo()
     }
 }
 
-void system::play_music(const std::string &name, bool do_loop)
+void system::play_music(const std::string &name, bool one_shot)
 {
+    int new_track = -1;
+    if (!name.empty()) {
+        for (std::size_t i = 0, n = tracks_.size(); i < n; i++) {
+            if (tracks_[i].name == name) {
+                new_track = (int)i;
+                break;
+            }
+        }
+        if (new_track == -1) {
+            new_track = (int)tracks_.size();
+            track_info new_info;
+            new_info.name = name;
+            tracks_.push_back(std::move(new_info));
+        }
+    }
 
+    int &playing = music_tracks_[music_channel_];
+    if (playing >= 0) {
+        if (!Mix_Playing(SFX_CHANNELS + music_channel_))
+            playing = -1;
+    }
+    if (new_track == playing)
+        return;
+    if (playing >= 0) {
+        if (!music_one_shot_)
+            Mix_FadeOutChannel(SFX_CHANNELS + music_channel_, FADE_OUT_TIME);
+        music_channel_ = !music_channel_;
+        music_tracks_[music_channel_] = -1;
+    }
+    if (new_track >= 0) {
+        track_info &info = tracks_[new_track];
+        music_tracks_[music_channel_] = new_track;
+        if (!info.data) {
+            std::string path("music/");
+            path += info.name;
+            path += ".ogg";
+            info.data = Mix_LoadWAV(path.c_str());
+            if (!info.data)
+                std::printf("Failed to load %s: %s\n",
+                            path.c_str(), Mix_GetError());
+        }
+        if (info.data) {
+            Mix_PlayChannel(SFX_CHANNELS + music_channel_, info.data,
+                            one_shot ? 0 : -1);
+            music_one_shot_ = one_shot;
+        }
+    }
 }
 
 void system::play_sfx(sfx s)

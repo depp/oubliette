@@ -6,6 +6,9 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+namespace audio {
+class system;
+}
 namespace game {
 class control_system;
 }
@@ -22,6 +25,7 @@ struct line {
 
 struct section {
     std::string name;
+    std::string track;
     std::vector<line> lines;
 };
 
@@ -44,6 +48,7 @@ class system {
 private:
     const section &m_section;
     const ::game::control_system &m_control;
+    ::audio::system &m_audio;
     bool m_initted;
     std::vector<int> m_blocks;
     int m_lineno;
@@ -52,7 +57,8 @@ private:
     bool m_done;
 
 public:
-    system(const section &sec, const ::game::control_system &control);
+    system(const section &sec, const ::game::control_system &control,
+           ::audio::system &audio);
     system(const script &) = delete;
     system(system &&) = delete;
     ~system();

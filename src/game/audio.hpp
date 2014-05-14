@@ -24,12 +24,17 @@ static const int SFX_COUNT = static_cast<int>(sfx::SHOT_IMPACT) + 1;
 /// The audio system.
 class system {
 private:
+    static const int MUSIC_CHANNELS = 2;
     struct wave;
     struct track_info;
 
     std::vector<wave> sfx_wave_;
-    std::vector<track_info> tracks_;
     int sfx_channel_;
+
+    std::vector<track_info> tracks_;
+    int music_channel_;
+    int music_tracks_[MUSIC_CHANNELS];
+    bool music_one_shot_;
 
     void load_trackinfo();
     void load_sfx();
@@ -43,7 +48,7 @@ public:
     system &operator=(system &&) = delete;
 
     /// Set the current music track.  Set to empty to stop music.
-    void play_music(const std::string &name, bool do_loop);
+    void play_music(const std::string &name, bool one_shot);
 
     /// Play a sound effect.
     void play_sfx(sfx s);

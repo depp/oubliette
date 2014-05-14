@@ -91,7 +91,7 @@ void state::next_level()
                 std::printf("Invalid section: %s\n", next.c_str());
                 core::die("Could not load script");
             }
-            scriptsys_.reset(new script::system(*sec, control_));
+            scriptsys_.reset(new script::system(*sec, control_, *audio_));
             graphics_.set_level(std::string());
             return;
         } else if (next[0] == '!') {

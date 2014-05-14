@@ -27,7 +27,8 @@ static const spawninfo SPAWN_TYPES[leveldata::NTYPE] = {
     { "prof",   12, 24, 20, sprite::PROFESSOR },
     { "woman",  12, 24, 20, sprite::WOMAN },
     { "priest", 12, 24, 20, sprite::PRIEST },
-    { "glyph",  16, 16, 25, ui::TREASURE01 }
+    { "glyph",  16, 16, 25, ui::TREASURE01 },
+    { "music",  24, 24,  0, ui::NOTES },
 };
 
 static const spawninfo &get_spawninfo(spawntype type)

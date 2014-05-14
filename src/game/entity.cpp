@@ -120,6 +120,10 @@ entity_system::entity_system(persistent_state &state,
                 new glyph(*this, pos, glyph_sprite(state, i->data)));
             break;
 
+        case spawntype::MUSIC:
+            audio_.play_music(i->data, false);
+            break;
+
         default:
             core::die("Cannot spawn entity, unknown type");
         }
@@ -653,6 +657,7 @@ void player::draw(::graphics::system &gr, int reltime)
 void player::player_die()
 {
     m_team = team::DEAD;
+    m_system.audio().play_music("die", false);
     m_system.state().hittime = HIT_TIME * 8;
     m_system.is_player_dead = true;
     m_system.add_entity(new signal_glyph(
@@ -728,6 +733,8 @@ void chest::interact()
 {
     if (m_which < 0)
         return;
+    m_system.audio().play_music(
+        m_state == 4 ? "fanfare_2" : "fanfare_1", true);
     auto &s = m_system.state();
     s.treasure[m_which] = m_state;
     m_system.add_entity(new signal_glyph(
