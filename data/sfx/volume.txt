@@ -1,0 +1,3 @@
+player_step -6
+player_shoot -3
+shot_impact -3
