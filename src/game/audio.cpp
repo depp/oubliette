@@ -84,7 +84,7 @@ static int parse_line(const std::string &input,
     double value = std::stod(fields[1]);
     name = std::move(fields[0]);
     data = value;
-    return 0;
+    return 1;
 }
 
 system::system()
