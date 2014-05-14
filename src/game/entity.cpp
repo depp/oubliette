@@ -438,7 +438,7 @@ vec2 projectile_component::get_pos(int reltime)
 // ======================================================================
 
 walking_component::walking_component()
-    : xmove(0.0f)
+    : xmove(0.0f), step_distance(0.0f)
 { }
 
 static const float STEP_DISTANCE = 32.0f;
