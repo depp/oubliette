@@ -3,6 +3,7 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "entity.hpp"
 #include "../defs.hpp"
+#include "audio.hpp"
 #include "color.hpp"
 #include "control.hpp"
 #include "defs.hpp"
@@ -14,6 +15,7 @@
 #include <algorithm>
 namespace game {
 
+using ::audio::sfx;
 using ::graphics::sprite;
 using ::graphics::ui;
 using ::graphics::anysprite;
@@ -65,9 +67,10 @@ static anysprite glyph_sprite(persistent_state &state,
 
 entity_system::entity_system(persistent_state &state,
                              const control_system &control,
+                             audio::system &audio,
                              const std::string &levelname,
                              const std::string &lastlevel)
-    : state_(state), control_(control), levelname_(levelname),
+    : state_(state), control_(control), audio_(audio), levelname_(levelname),
       is_click_(false)
 {
     level_.set_level(levelname);
@@ -380,13 +383,11 @@ vec2 physics_component::get_pos(int reltime)
 projectile_component::projectile_component(
     irect bbox, vec2 pos, vec2 vel, int damage)
     : bbox(bbox), lastpos(pos), pos(pos), vel(vel),
-      is_hit(false), damage(damage)
+      damage(damage)
 { }
 
 void projectile_component::update(entity_system &sys, entity &e)
 {
-    if (is_hit)
-        return;
     lastpos = pos;
     pos += vel * DT;
 
@@ -394,14 +395,14 @@ void projectile_component::update(entity_system &sys, entity &e)
     int y1 = (int)std::floor(pos.y);
     e.m_bbox = bbox.offset(x1, y1);
 
-    if (sys.level().hit_test(e.m_bbox))
-        hit(sys, e);
+    bool hit_level = sys.level().hit_test(e.m_bbox);
+    bool hit_actor = false;
 
     team enemy;
     switch (e.m_team) {
+    default:
     case team::FRIEND_SHOT: enemy = team::FOE; break;
     case team::FOE_SHOT: enemy = team::FRIEND; break;
-    default: return;
     }
 
     auto be = sys.entities().begin(), ee = sys.entities().end();
@@ -412,17 +413,15 @@ void projectile_component::update(entity_system &sys, entity &e)
         if (!target.m_bbox.test_intersect(e.m_bbox))
             continue;
         target.damage(damage);
-        hit(sys, e);
+        hit_actor = true;
     }
-}
 
-void projectile_component::hit(entity_system &sys, entity &e)
-{
-    if (is_hit)
-        return;
-    is_hit = true;
-    e.m_team = team::DEAD;
-    sys.add_entity(new poof(sys, pos));
+    if (hit_level || hit_actor) {
+        e.m_team = team::DEAD;
+        sys.add_entity(new poof(sys, pos));
+        if (!hit_actor)
+            sys.audio().play_sfx(sfx::SHOT_IMPACT);
+    }
 }
 
 vec2 projectile_component::get_pos(int reltime)
@@ -436,6 +435,9 @@ walking_component::walking_component()
     : xmove(0.0f)
 { }
 
+static const float STEP_DISTANCE = 32.0f;
+static const float STEP_FALL_SPEED = 50.0f;
+
 void walking_component::update(physics_component &physics,
                                const walking_stats &stats)
 {
@@ -448,6 +450,18 @@ void walking_component::update(physics_component &physics,
     else if (accel < -max_accel)
         accel = -max_accel;
     physics.accel.x += accel;
+    walk_sound = false;
+    if (on_floor) {
+        step_distance += std::abs(physics.vel.x * DT);
+        if (step_distance > STEP_DISTANCE) {
+            step_distance -= STEP_DISTANCE;
+            walk_sound = true;
+        }
+    } else {
+        if (physics.vel.y < -STEP_FALL_SPEED) {
+            step_distance = STEP_DISTANCE;
+        }
+    }
 }
 
 // ======================================================================
@@ -468,6 +482,7 @@ jumping_component::jumping_component()
 void jumping_component::update(physics_component &physics,
                                const jumping_stats &stats)
 {
+    jump_sound = false;
     bool do_jump = false;
     if (physics.on_floor) {
         jumptime = 0;
@@ -496,6 +511,7 @@ void jumping_component::update(physics_component &physics,
     }
 
     if (do_jump) {
+        jump_sound = true;
         jumptime = stats.jumptime;
         if (stats.speed > physics.vel.y)
             physics.accel.y +=
@@ -575,10 +591,16 @@ void player::update()
     jumping.update(physics, stats::player_jump);
     physics.update(m_system, *this);
 
+    if (walking.walk_sound)
+        m_system.audio().play_sfx(sfx::PLAYER_STEP);
+    if (jumping.jump_sound)
+        m_system.audio().play_sfx(sfx::PLAYER_JUMP);
+
     m_system.set_camera_target(CAMERA.offset(physics.pos));
     m_system.set_hover(ivec(physics.pos));
 
     if (m_system.is_click()) {
+        m_system.audio().play_sfx(sfx::PLAYER_SHOOT);
         auto target = m_system.click_pos();
         m_system.spawn_shot(
             team::FRIEND_SHOT,
@@ -610,6 +632,7 @@ void player::update()
 
 void player::damage(int amt)
 {
+    m_system.audio().play_sfx(sfx::PLAYER_HIT);
     auto &s = m_system.state();
     s.hittime += HIT_TIME * amt;
     if (s.maxhealth > 0) {
@@ -658,8 +681,10 @@ door::~door()
 
 void door::interact()
 {
-    if (!m_is_locked)
+    if (!m_is_locked) {
+        m_system.audio().play_sfx(sfx::DOOR_OPEN);
         m_system.nextlevel = m_target;
+    }
 }
 
 void door::draw(::graphics::system &gr, int reltime)
@@ -746,6 +771,7 @@ void enemy::update()
 {
     m_enemy.update(m_system, *this, stats::prof);
     if (m_enemy.start_attack()) {
+        m_system.audio().play_sfx(sfx::ENEMY_SHOOT);
         m_system.spawn_shot(
             team::FOE_SHOT, physics.pos, m_enemy.m_targetpos,
             stats::prof.shotspeed, m_shot1, m_shot2, SHOT_DELAY);
@@ -761,6 +787,9 @@ void enemy::damage(int amount)
     if (m_health <= 0) {
         m_team = team::DEAD;
         m_system.add_entity(new poof(m_system, physics.pos));
+        m_system.audio().play_sfx(sfx::ENEMY_DIE);
+    } else {
+        m_system.audio().play_sfx(sfx::ENEMY_HIT);
     }
 }
 

@@ -10,6 +10,9 @@
 #include <string>
 #include <vector>
 #include <memory>
+namespace audio {
+class system;
+}
 namespace graphics {
 class system;
 }
@@ -52,6 +55,8 @@ private:
     persistent_state &state_;
     /// The control system.
     const control_system &control_;
+    /// The audio system.
+    audio::system &audio_;
     /// The level name.
     const std::string levelname_;
     /// List of all entities in the game.
@@ -74,6 +79,7 @@ private:
 public:
     entity_system(persistent_state &state,
                   const control_system &control,
+                  audio::system &audio,
                   const std::string &levelname,
                   const std::string &lastlevel);
 
@@ -105,6 +111,7 @@ public:
     persistent_state &state() { return state_; }
     ivec click_pos() const { return click_pos_; }
     bool is_click() const { return is_click_; }
+    audio::system &audio() { return audio_; }
 
     /// A hack... set this, and that level will be loaded.
     std::string nextlevel;
@@ -171,15 +178,12 @@ public:
     vec2 lastpos;
     vec2 pos;
     vec2 vel;
-    bool is_hit;
     int damage;
 
     projectile_component(irect bbox, vec2 pos, vec2 vel, int damage);
 
     /// Update the physics component of this entity.
     void update(entity_system &sys, entity &e);
-    /// Handle a collision.
-    void hit(entity_system &sys, entity &e);
     /// Get the position at the given time since the last update.
     vec2 get_pos(int reltime);
 };
@@ -192,6 +196,8 @@ enum jumpstate {
 class walking_component {
 public:
     float xmove;
+    bool walk_sound;
+    float step_distance;
 
     walking_component();
 
@@ -206,6 +212,7 @@ public:
     float ymove;
     int jumptime;
     jumpstate jstate;
+    bool jump_sound;
 
     jumping_component();
 

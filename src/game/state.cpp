@@ -2,6 +2,7 @@
    This file is part of Oubliette.  Oubliette is licensed under the terms
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "state.hpp"
+#include "audio.hpp"
 #include "defs.hpp"
 #include "editor.hpp"
 #include "entity.hpp"
@@ -13,6 +14,7 @@ namespace game {
 state::state(bool edit_mode)
     : edit_mode_(edit_mode), initted_(false)
 {
+    audio_.reset(new audio::system);
     if (!edit_mode)
         script_.reset(new script::script());
     persistent_.health = -1;
@@ -141,8 +143,8 @@ void state::next_level()
         } else {
             std::string lastlevel(std::move(levelname_));
             levelname_ = next;
-            entity_.reset(
-                new entity_system(persistent_, control_, next, lastlevel));
+            entity_.reset(new entity_system(
+                persistent_, control_, *audio_, next, lastlevel));
             entity_->update();
             graphics_.set_level(next);
             return;

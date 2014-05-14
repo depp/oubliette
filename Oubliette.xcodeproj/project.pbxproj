@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		38A6AB281922CE5F00835405 /* SDL2_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38A6AB271922CE5F00835405 /* SDL2_mixer.framework */; };
+		38A6AB2B1922CF3F00835405 /* audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38A6AB291922CF3F00835405 /* audio.cpp */; };
 		38DB3376191D7A0F00246D3E /* sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38DB3374191D7A0F00246D3E /* sprite.cpp */; };
 		38DB3379191D7A3100246D3E /* color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38DB3377191D7A3100246D3E /* color.cpp */; };
 		FB8829D71911CAB700ED4282 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB8829D61911CAB700ED4282 /* Cocoa.framework */; };
@@ -37,6 +39,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		38A6AB271922CE5F00835405 /* SDL2_mixer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_mixer.framework; path = ../../../../Library/Frameworks/SDL2_mixer.framework; sourceTree = "<group>"; };
+		38A6AB291922CF3F00835405 /* audio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio.cpp; sourceTree = "<group>"; };
+		38A6AB2A1922CF3F00835405 /* audio.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = audio.hpp; sourceTree = "<group>"; };
 		38DB3374191D7A0F00246D3E /* sprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sprite.cpp; sourceTree = "<group>"; };
 		38DB3375191D7A0F00246D3E /* sprite.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = sprite.hpp; sourceTree = "<group>"; };
 		38DB3377191D7A3100246D3E /* color.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = color.cpp; sourceTree = "<group>"; };
@@ -104,6 +109,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FBDF4C971911D0510051E010 /* OpenGL.framework in Frameworks */,
+				38A6AB281922CE5F00835405 /* SDL2_mixer.framework in Frameworks */,
 				FBDF4C901911CE7D0051E010 /* SDL2_image.framework in Frameworks */,
 				FBDF4C911911CE7D0051E010 /* SDL2.framework in Frameworks */,
 				FB8829D71911CAB700ED4282 /* Cocoa.framework in Frameworks */,
@@ -135,8 +141,9 @@
 			isa = PBXGroup;
 			children = (
 				FBDF4C961911D0510051E010 /* OpenGL.framework */,
-				FBDF4C8E1911CE7D0051E010 /* SDL2_image.framework */,
 				FBDF4C8F1911CE7D0051E010 /* SDL2.framework */,
+				FBDF4C8E1911CE7D0051E010 /* SDL2_image.framework */,
+				38A6AB271922CE5F00835405 /* SDL2_mixer.framework */,
 				FB8829D61911CAB700ED4282 /* Cocoa.framework */,
 				FB8829D81911CAB700ED4282 /* Other Frameworks */,
 			);
@@ -191,6 +198,8 @@
 		FBDF4C451911CC960051E010 /* game */ = {
 			isa = PBXGroup;
 			children = (
+				38A6AB291922CF3F00835405 /* audio.cpp */,
+				38A6AB2A1922CF3F00835405 /* audio.hpp */,
 				FBDF4C471911CC960051E010 /* camera.cpp */,
 				FBDF4C481911CC960051E010 /* camera.hpp */,
 				38DB3377191D7A3100246D3E /* color.cpp */,
@@ -293,6 +302,7 @@
 				FBDF4C8A1911CC960051E010 /* sprite_array.cpp in Sources */,
 				FBDF4C7E1911CC960051E010 /* leveldata.cpp in Sources */,
 				FBDF4C7B1911CC960051E010 /* entity.cpp in Sources */,
+				38A6AB2B1922CF3F00835405 /* audio.cpp in Sources */,
 				FBDF4C791911CC960051E010 /* control.cpp in Sources */,
 				FBDF4C851911CC960051E010 /* main.cpp in Sources */,
 				FBDF4C7F1911CC960051E010 /* levelmap.cpp in Sources */,
@@ -402,7 +412,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "/Library/Frameworks/SDL2.framework/Headers /Library/Frameworks/SDL2_image.framework/Headers";
+				USER_HEADER_SEARCH_PATHS = "/Library/Frameworks/SDL2.framework/Headers /Library/Frameworks/SDL2_image.framework/Headers /Library/Frameworks/SDL2_mixer.framework/Headers";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -421,7 +431,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "/Library/Frameworks/SDL2.framework/Headers /Library/Frameworks/SDL2_image.framework/Headers";
+				USER_HEADER_SEARCH_PATHS = "/Library/Frameworks/SDL2.framework/Headers /Library/Frameworks/SDL2_image.framework/Headers /Library/Frameworks/SDL2_mixer.framework/Headers";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

@@ -3,6 +3,7 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -158,14 +159,26 @@ static void init_path(const char *data_dir)
 
 void init()
 {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    int result, flags;
+
+    flags = SDL_INIT_VIDEO | SDL_INIT_TIMER |
+        SDL_INIT_AUDIO | SDL_INIT_EVENTS;
+    result = SDL_Init(flags);
+    if (result < 0)
         die("Unable to initialize SDL");
 
-    int flags = IMG_INIT_PNG;
-    int result = IMG_Init(flags);
+    flags = IMG_INIT_PNG;
+    result = IMG_Init(flags);
     check_sdl_error(HERE);
     if ((result & flags) != flags)
         die("Unable to initialize SDL_image");
+
+    flags = MIX_INIT_OGG;
+    result = Mix_Init(flags);
+    if ((result & flags) != flags) {
+        std::puts("Unable to initialize SDL_mixer");
+        return;
+    }
 
     // SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     // SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
@@ -200,6 +213,10 @@ void init()
     if (!GLEW_VERSION_2_1)
         die("OpenGL 2.1 is missing");
 #endif
+
+    result = Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
+    if (result != 0)
+        std::printf("Could not start audio: %s\n", Mix_GetError());
 
     rng::global.init();
 }

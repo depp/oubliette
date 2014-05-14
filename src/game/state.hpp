@@ -12,6 +12,9 @@
 #include "levelmap.hpp"
 #include "graphics.hpp"
 #include "persistent.hpp"
+namespace audio {
+class system;
+}
 namespace graphics {
 class system;
 }
@@ -50,6 +53,8 @@ private:
     std::unique_ptr<script::system> scriptsys_;
     /// Queue for level changes.
     std::vector<std::string> levelqueue_;
+    /// The audio system.
+    std::unique_ptr<audio::system> audio_;
 
     /// Advance to the given frame.
     void advance(unsigned time);
