@@ -18,6 +18,9 @@ static double db_to_linear(double db)
     return std::exp(db * factor);
 }
 
+static const double MUSIC_VOLUME = db_to_linear(-6.0);
+static const double SFX_VOLUME = db_to_linear(-10.0);
+
 static int convert_volume(double gain)
 {
     int volume = std::floor(MIX_MAX_VOLUME * gain + 0.5);
@@ -215,6 +218,7 @@ void system::play_music(const std::string &name, bool one_shot)
                             path.c_str(), Mix_GetError());
         }
         if (info.data) {
+            Mix_Volume(SFX_CHANNELS + music_channel_, convert_volume(MUSIC_VOLUME));
             Mix_PlayChannel(SFX_CHANNELS + music_channel_, info.data,
                             one_shot ? 0 : -1);
             music_one_shot_ = one_shot;
@@ -234,7 +238,7 @@ void system::play_sfx(sfx s)
     const wave &w = sfx_wave_.at((int)s);
     if (!w.data)
         return;
-    Mix_Volume(channel, convert_volume(w.volume));
+    Mix_Volume(channel, convert_volume(w.volume * SFX_VOLUME));
     Mix_PlayChannel(channel, w.data, 0);
     sfx_channel_ = channel;
 }
