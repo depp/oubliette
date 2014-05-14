@@ -5,6 +5,12 @@
  +811  +374 door @love_3:ruins_3
  +343  +471 door main_hub
  +877   +48 chest 24
+ +634  +271 woman
+ +272  +240 woman
+ +413  +241 woman
+ +365  +171 woman
+ +406   +48 woman
+ +275   +48 woman
  +835  +371 woman
  +785  +371 woman
  +606   +48 woman

@@ -2,5 +2,9 @@
    +0    +0 music track_4
  +187   +32 door ruins_hub
  +482  +153 chest 22
+ +386   +45 woman
+ +345   +45 woman
+ +121  +188 woman
+ +185  +188 woman
  +366   +45 woman
  +156  +188 woman
