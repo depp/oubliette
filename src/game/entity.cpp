@@ -182,19 +182,9 @@ void entity_system::draw(::graphics::system &gr, int reltime)
     for (int i = 0; i < state_.maxhealth; i++) {
         gr.add_sprite(
             i < state_.health ? ui::HEART1 : ui::HEART2,
-            ivec(core::PWIDTH - 16 - 16*i, core::PHEIGHT - 16),
+            ivec(core::PWIDTH - 8 - 16*i, core::PHEIGHT - 8),
             orientation::NORMAL,
             true);
-    }
-
-    if (false) {
-        for (int i = 0; i < 3; i++) {
-            gr.add_sprite(
-                ::graphics::treasure_sprite(i, state_.treasure[i]),
-                ivec(2 + 18*i, core::PHEIGHT - 17),
-                orientation::NORMAL,
-                true);
-        }
     }
 
     fvec camera = camera_.get_pos(reltime);
@@ -645,7 +635,7 @@ void player::draw(::graphics::system &gr, int reltime)
 {
     gr.add_sprite(
         sprite::PLAYER,
-        ivec(physics.get_pos(reltime)) + ivec(-8, -12),
+        ivec(physics.get_pos(reltime)),
         orientation::NORMAL);
 }
 
@@ -692,12 +682,12 @@ void door::draw(::graphics::system &gr, int reltime)
     (void)reltime;
     gr.add_sprite(
         m_is_locked ? sprite::DOOR3 : sprite::DOOR2,
-        m_pos + ivec(-12, -16),
+        m_pos,
         orientation::NORMAL);
     if (!m_is_locked && m_system.test_hover(m_bbox)) {
         gr.add_sprite(
             ui::ARROW,
-            m_pos + ivec(-8, +20),
+            m_pos + ivec(0, 28),
             orientation::NORMAL);
     }
 }
@@ -743,12 +733,12 @@ void chest::draw(::graphics::system &gr, int reltime)
     (void)reltime;
     gr.add_sprite(
         sprite::CHEST,
-        m_pos + ivec(-12, -12),
+        m_pos,
         orientation::NORMAL);
     if (m_system.test_hover(m_bbox)) {
         gr.add_sprite(
             ui::ARROW,
-            m_pos + ivec(-8, +16),
+            m_pos,
             orientation::NORMAL);
     }
 }
@@ -799,7 +789,7 @@ void enemy::draw(::graphics::system &gr, int reltime)
 {
     gr.add_sprite(
         m_actor,
-        physics.get_pos(reltime) + ivec(-8, -12),
+        physics.get_pos(reltime),
         orientation::NORMAL);
 }
 
@@ -829,7 +819,7 @@ void shot::draw(::graphics::system &gr, int reltime)
 {
     gr.add_sprite(
         time > 0 ? m_sp1 : m_sp2,
-        projectile.get_pos(reltime) + ivec(-8, -8),
+        projectile.get_pos(reltime),
         orientation::NORMAL);
 }
 
@@ -861,7 +851,7 @@ void poof::draw(::graphics::system &gr, int reltime)
     case 2: s = sprite::POOF3; break;
     default: return;
     }
-    gr.add_sprite(s, m_pos + ivec(-8, -8), orientation::NORMAL);
+    gr.add_sprite(s, m_pos, orientation::NORMAL);
 }
 
 // ======================================================================
@@ -876,7 +866,7 @@ glyph::~glyph()
 void glyph::draw(::graphics::system &gr, int reltime)
 {
     (void)reltime;
-    gr.add_sprite(m_sprite, m_pos + ivec(-8, -8), orientation::NORMAL);
+    gr.add_sprite(m_sprite, m_pos, orientation::NORMAL);
 }
 
 // ======================================================================
@@ -919,7 +909,7 @@ void signal_glyph::draw(::graphics::system &gr, int reltime)
         delta = SIGNAL_RISEDISTANCE;
     gr.add_sprite(
         m_sprite,
-        m_pos + ivec(-8, -8) + ivec(0, std::floor(delta)),
+        m_pos + ivec(0, std::floor(delta)),
         orientation::NORMAL);
 }
 

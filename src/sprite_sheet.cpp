@@ -91,6 +91,8 @@ sheet::sheet(const std::string &dirname, const sprite *sprites)
         rect.y = sprites[i].y + loc.y;
         rect.w = sprites[i].w;
         rect.h = sprites[i].h;
+        rect.cx = sprites[i].cx;
+        rect.cy = sprites[i].cy;
         sprites_.push_back(rect);
     }
 

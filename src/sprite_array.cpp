@@ -53,62 +53,64 @@ void array::add(rect tex, int x, int y, orientation orient)
     data[4][2] = tx1; data[4][3] = ty0;
     data[5][2] = tx1; data[5][3] = ty1;
 
+    short rx0 = -tex.cx, rx1 = tex.w - tex.cx;
+    short ry0 = -tex.cy, ry1 = tex.h - tex.cy;
     short vx[4], vy[4];
     switch (orient) {
     case orientation::NORMAL:
-        vx[0] = vx[2] = x;
-        vx[1] = vx[3] = x + tex.w;
-        vy[0] = vy[1] = y;
-        vy[2] = vy[3] = y + tex.h;
+        vx[0] = vx[2] = x + rx0;
+        vx[1] = vx[3] = x + rx1;
+        vy[0] = vy[1] = y + ry0;
+        vy[2] = vy[3] = y + ry1;
         break;
 
     case orientation::ROTATE_90:
-        vx[2] = vx[3] = x;
-        vx[0] = vx[1] = x + tex.h;
-        vy[2] = vy[0] = y;
-        vy[3] = vy[1] = y + tex.w;
+        vx[2] = vx[3] = x + ry0;
+        vx[0] = vx[1] = x + ry1;
+        vy[2] = vy[0] = y + rx0;
+        vy[3] = vy[1] = y + rx1;
         break;
 
     case orientation::ROTATE_180:
-        vx[3] = vx[1] = x;
-        vx[2] = vx[0] = x + tex.w;
-        vy[3] = vy[2] = y;
-        vy[1] = vy[0] = y + tex.h;
+        vx[3] = vx[1] = x + rx0;
+        vx[2] = vx[0] = x + rx1;
+        vy[3] = vy[2] = y + ry0;
+        vy[1] = vy[0] = y + ry1;
         break;
 
     case orientation::ROTATE_270:
-        vx[1] = vx[0] = x;
-        vx[3] = vx[2] = x + tex.h;
-        vy[1] = vy[3] = y;
-        vy[0] = vy[2] = y + tex.w;
+        vx[1] = vx[0] = x + ry0;
+        vx[3] = vx[2] = x + ry1;
+        vy[1] = vy[3] = y + rx0;
+        vy[0] = vy[2] = y + rx1;
         break;
 
     case orientation::FLIP_VERTICAL:
-        vx[0] = vx[2] = x;
-        vx[1] = vx[3] = x + tex.w;
-        vy[0] = vy[1] = y + tex.h;
-        vy[2] = vy[3] = y;
+        vx[0] = vx[2] = x + rx0;
+        vx[1] = vx[3] = x + rx1;
+        vy[0] = vy[1] = y + ry1;
+        vy[2] = vy[3] = y + ry0;
         break;
 
     case orientation::TRANSPOSE_2:
-        vx[2] = vx[3] = x;
-        vx[0] = vx[1] = x + tex.h;
-        vy[2] = vy[0] = y + tex.w;
-        vy[3] = vy[1] = y;
+        vx[2] = vx[3] = x + ry0;
+        vx[0] = vx[1] = x + ry1;
+        vy[2] = vy[0] = y + rx1;
+        vy[3] = vy[1] = y + rx0;
         break;
 
     case orientation::FLIP_HORIZONTAL:
-        vx[3] = vx[1] = x;
-        vx[2] = vx[0] = x + tex.w;
-        vy[3] = vy[2] = y + tex.h;
-        vy[1] = vy[0] = y;
+        vx[3] = vx[1] = x + rx0;
+        vx[2] = vx[0] = x + rx1;
+        vy[3] = vy[2] = y + ry1;
+        vy[1] = vy[0] = y + ry0;
         break;
 
     case orientation::TRANSPOSE:
-        vx[1] = vx[0] = x;
-        vx[3] = vx[2] = x + tex.h;
-        vy[1] = vy[3] = y + tex.w;
-        vy[0] = vy[2] = y;
+        vx[1] = vx[0] = x + ry0;
+        vx[3] = vx[2] = x + ry1;
+        vy[1] = vy[3] = y + rx1;
+        vy[0] = vy[2] = y + rx0;
         break;
 
     default:

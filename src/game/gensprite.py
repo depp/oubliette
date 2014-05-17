@@ -66,8 +66,9 @@ def run():
         print(AUTOGEN, file=fp)
         for category, images in zip(categories, allimages):
             for image in images:
-                print('{{ "{}/{}", 0, 0, {}, {} }},'
+                print('{{ "{}/{}", 0, 0, {}, {}, {}, {} }},'
                       .format(category, image.name,
-                              image.width, image.height), file=fp)
+                              image.width, image.height,
+                              image.width//2, image.height//2), file=fp)
 
 run()

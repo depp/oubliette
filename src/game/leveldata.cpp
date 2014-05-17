@@ -44,7 +44,7 @@ void spawnpoint::draw(::graphics::system &gr) const
     auto &s = get_spawninfo(type);
     gr.add_sprite(
         s.sp,
-        pos - ivec(s.width/2, s.height/2),
+        pos,
         ::sprite::orientation::NORMAL);
 }
 

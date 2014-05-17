@@ -22,13 +22,13 @@ orientation operator*(orientation x, orientation y);
 
 /// A 2D integer rectangle.
 struct rect {
-    short x, y, w, h;
+    short x, y, w, h, cx, cy;
 };
 
 /// A sprite to add to a sprite sheet.
 struct sprite {
     const char *name;
-    short x, y, w, h;
+    short x, y, w, h, cx, cy;
 };
 
 /// A sprite sheet.
