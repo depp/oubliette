@@ -5,16 +5,19 @@
 #define LD_GAME_COLOR_HPP
 namespace graphics {
 
-// DB's 16-color palette, plus transparent at #16
-extern const float PALETTE[17][4];
+struct color {
+    float v[4];
 
-void blend(float out[4], const float a[4], float alpha);
-void blend(float out[4], const float a[4], float aalpha,
-           const float b[4], float balpha, float t);
-void blend(float out[4], const float a[4], const float b[4], float t);
-void blend(float out[4], int a, float alpha);
-void blend(float out[4], int a, float aalpha, int b, float balpha, float t);
-void blend(float out[4], int a, int b, float t);
+    /// The transparent color.
+    static color transparent();
+    /// A color from DB's 16-color palette.
+    static color palette(int index);
+    /// Produce a fade between this color and black.
+    /// 1.0 produces the original color, 0.0 produces transparent.
+    color fade(float alpha) const;
+    /// Fade between two colors.
+    static color blend(const color &a, const color &b, float t);
+};
 
 }
 #endif

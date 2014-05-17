@@ -14,6 +14,7 @@ namespace script {
 static const int LINETIME = 30;
 
 using game::defs;
+using ::graphics::color;
 
 script::script()
 {
@@ -129,23 +130,17 @@ void system::draw(::graphics::system &gr, int reltime)
 
     for (int i = 0, e = m_blocks.size(); i != e; i++) {
         auto &l = m_section.lines[i];
-        float color[4];
-        const float *colorp;
-        if (i < m_lineno) {
-            colorp = graphics::PALETTE[l.color];
+        color text_color;
+        if (i > m_lineno) {
+            text_color = color::palette(l.color);
         } else if (i > m_lineno) {
-            colorp = graphics::PALETTE[16];
+            text_color = color::transparent();
         } else {
-            float frac = (float)m_linetime * (1.0f / LINETIME)
-                + (float)reltime * (1.0f / (LINETIME * defs::FRAMETIME));
-            graphics::blend(
-                color,
-                graphics::PALETTE[16],
-                graphics::PALETTE[l.color],
-                frac);
-            colorp = color;
+            text_color = color::palette(l.color).fade(
+                (float)m_linetime * (1.0f / LINETIME)
+                + (float)reltime * (1.0f / (LINETIME * defs::FRAMETIME)));
         }
-        gr.set_text_color(m_blocks[i], colorp);
+        gr.set_text_color(m_blocks[i], text_color);
     }
 }
 

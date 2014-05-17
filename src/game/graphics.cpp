@@ -227,7 +227,7 @@ void font_data::draw(const common_data &com)
 
     int pos = 0;
     for (auto i = blocks.begin(), e = blocks.end(); i != e; i++) {
-        glUniform4fv(com.text->u_color, 1, i->color);
+        glUniform4fv(com.text->u_color, 1, i->text_color.v);
         glDrawArrays(GL_TRIANGLES, pos, i->vertcount);
         pos += i->vertcount;
     }
@@ -272,22 +272,17 @@ int font_data::add_text(const std::string &text, int x, int y)
     dirty = true;
     block b;
     b.vertcount = vertcount * 6;
-    b.color[0] = 1.0f;
-    b.color[1] = 0.0f;
-    b.color[2] = 1.0f;
-    b.color[3] = 1.0f;
+    b.text_color = color::transparent();
     blocks.push_back(b);
 
     return blocks.size() - 1;
 }
 
-void font_data::set_color(int block, const float color[4])
+void font_data::set_color(int block, const color &text_color)
 {
     if (block < 0 || (std::size_t)block >= blocks.size())
         return;
-    auto &b = blocks[block];
-    for (int i = 0; i < 4; i++)
-        b.color[i] = color[i];
+    blocks[block].text_color = text_color;
 }
 
 // ======================================================================
@@ -347,7 +342,8 @@ void scale_data::begin()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, fbuf);
     glViewport(0, 0, width, height);
-    glClearColor(PALETTE[0][0], PALETTE[0][1], PALETTE[0][2], PALETTE[0][3]);
+    color c = color::palette(0);
+    glClearColor(c.v[0], c.v[1], c.v[2], c.v[3]);
     glClear(GL_COLOR_BUFFER_BIT);
     glViewport(0, 0, core::PWIDTH, core::PHEIGHT);
 
@@ -388,7 +384,7 @@ void scale_data::end(const common_data &com)
     glUniform1i(com.tv->u_noise, 3);
     glUniform4fv(com.tv->u_noiseoffset, 1, offsets);
     glUniform2fv(com.tv->u_texscale, 1, scale);
-    glUniform4fv(com.tv->u_color, 1, color);
+    glUniform4fv(com.tv->u_color, 1, blend_color.v);
     array.set_attrib(com.tv->a_vert);
 
     glDrawArrays(GL_TRIANGLES, 0, array.size());
@@ -413,8 +409,7 @@ void system::begin()
     sprite_.clear();
     background_.clear();
     selection_.clear();
-    for (int i = 0; i < 4; i++)
-        scale_.color[i] = 0.0f;
+    scale_.blend_color = color::transparent();
 }
 
 void system::end()
@@ -476,10 +471,9 @@ void system::set_selection(const irect &rect)
     d[5][0] = rect.x1; d[5][1] = rect.y1;
 }
 
-void system::set_blend_color(const float color[4])
+void system::set_blend_color(const color &blend_color)
 {
-    for (int i = 0; i < 4; i++)
-        scale_.color[i] = color[i];
+    scale_.blend_color = blend_color;
 }
 
 void system::clear_text()
@@ -492,9 +486,9 @@ int system::add_text(const std::string &text, int x, int y)
     return font_.add_text(text, x, y);
 }
 
-void system::set_text_color(int block, const float color[4])
+void system::set_text_color(int block, const color &text_color)
 {
-    font_.set_color(block, color);
+    font_.set_color(block, text_color);
 }
 
 }

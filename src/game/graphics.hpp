@@ -9,6 +9,7 @@
 #include "../image.hpp"
 #include "sprite.hpp"
 #include "vec.hpp"
+#include "color.hpp"
 namespace graphics {
 class state;
 
@@ -63,7 +64,7 @@ struct selection_data {
 struct font_data {
     struct block {
         int vertcount;
-        float color[4];
+        color text_color;
     };
 
     image::texture tex;
@@ -76,7 +77,7 @@ struct font_data {
     void upload();
     void draw(const common_data &com);
     int add_text(const std::string &text, int x, int y);
-    void set_color(int block, const float color[4]);
+    void set_color(int block, const color &text_color);
 };
 
 /// Pixel scaling data.
@@ -89,7 +90,7 @@ struct scale_data {
     image::texture texbanding;
     image::texture texnoise;
     float scale[2];
-    float color[4];
+    color blend_color;
 
     scale_data();
     void begin();
@@ -128,13 +129,13 @@ public:
     /// Set the editor's selection.
     void set_selection(const irect &rect);
     /// Set the blend effect color.
-    void set_blend_color(const float color[4]);
+    void set_blend_color(const color &blend_color);
     /// Clear the text buffer.
     void clear_text();
     /// Add text to the buffer, return the block index.
     int add_text(const std::string &text, int x, int y);
     /// Set text block color.
-    void set_text_color(int block, const float color[4]);
+    void set_text_color(int block, const color &text_color);
 };
 
 }

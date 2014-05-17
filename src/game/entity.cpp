@@ -16,6 +16,7 @@
 namespace game {
 
 using ::audio::sfx;
+using ::graphics::color;
 using ::graphics::sprite;
 using ::graphics::ui;
 using ::graphics::anysprite;
@@ -168,16 +169,15 @@ void entity_system::update()
 
 void entity_system::draw(::graphics::system &gr, int reltime)
 {
-    static const int BASE = 0, HURT = 6;
-    float color[4];
+    color base = color::palette(0).fade(0.5f);
+    color hurt = color::palette(6);
     if (state_.hittime > 0) {
-        graphics::blend(
-            color, BASE, 0.5f, HURT, 1.0f,
-            state_.hittime * (1.0f / HIT_TIME));
+        gr.set_blend_color(color::blend(
+            base, hurt,
+            state_.hittime * (1.0f / HIT_TIME)));
     } else {
-        graphics::blend(color, BASE, 0.5f);
+        gr.set_blend_color(base);
     }
-    gr.set_blend_color(color);
 
     for (int i = 0; i < state_.maxhealth; i++) {
         gr.add_sprite(
