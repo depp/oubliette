@@ -738,7 +738,7 @@ void chest::draw(::graphics::system &gr, int reltime)
     if (m_system.test_hover(m_bbox)) {
         gr.add_sprite(
             ui::ARROW,
-            m_pos,
+            m_pos + ivec(0, 24),
             orientation::NORMAL);
     }
 }
