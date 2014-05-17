@@ -44,14 +44,14 @@ void spawnpoint::draw(::graphics::system &gr) const
     auto &s = get_spawninfo(type);
     gr.add_sprite(
         s.sp,
-        vec2(x - s.width/2, y - s.height/2),
+        pos - ivec(s.width/2, s.height/2),
         ::sprite::orientation::NORMAL);
 }
 
 irect spawnpoint::bounds() const
 {
     auto &s = get_spawninfo(type);
-    return irect::centered(s.width, s.height).offset(x, y);
+    return irect::centered(s.width, s.height).offset(pos);
 }
 
 int spawnpoint::order() const
@@ -139,8 +139,7 @@ std::vector<spawnpoint> leveldata::read_level(
         }
 
         spawnpoint s;
-        s.x = std::stoi(fields[0]);
-        s.y = std::stoi(fields[1]);
+        s.pos = ivec(std::stoi(fields[0]), std::stoi(fields[1]));
         s.type = type_from_string(fields[2]);
         s.data = std::move(fields[3]);
         data.push_back(std::move(s));
@@ -163,7 +162,7 @@ void leveldata::write_level(
     for (auto i = data.begin(), e = data.end(); i != e; i++) {
         std::fprintf(
             fp, "%+5d %+5d %s",
-            i->x, i->y, type_to_string(i->type));
+            i->pos.x, i->pos.y, type_to_string(i->type));
         if (!i->data.empty()) {
             std::fputc(' ', fp);
             std::fputs(i->data.c_str(), fp);

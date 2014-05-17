@@ -21,17 +21,17 @@ private:
     const std::string levelname_;
     std::vector<spawnpoint> entities_;
     int selection_;
-    vec2 camera_pos_, camera_lastpos_;
+    fvec camera_pos_, camera_lastpos_;
     bool dragging_, panning_;
-    int clickx_, clicky_;
+    ivec click_;
     spawntype type_;
     bool dirty_;
     int savetime_;
 
     /// Get the selection under the given point.
-    int hit(int x, int y);
+    int hit(ivec pos);
     /// Convert window to world coordinates.
-    void window_to_world(int &x, int &y);
+    ivec window_to_world(ivec window_pos);
     /// Mark the editor as dirty.
     void mark_dirty();
     /// Sort entities.
@@ -59,9 +59,9 @@ public:
     /// Save level data to disk.
     void save_data();
     /// Handle a mouse click event, or button == -1 for release.
-    void mouse_click(int x, int y, int button);
+    void mouse_click(ivec pos, int button);
     /// Handle a mouse movement event.
-    void mouse_move(int x, int y);
+    void mouse_move(ivec pos);
 
     /// Are there unsaved changes?
     bool dirty() const { return dirty_; }

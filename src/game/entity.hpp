@@ -90,7 +90,7 @@ public:
     /// Add an entity to the game.
     void add_entity(entity *ent);
     /// Set the camera target.
-    void set_camera_target(const rect &target);
+    void set_camera_target(const frect &target);
     /// Add a hover trigger.
     void set_hover(ivec pos);
     /// Test if there are hover triggers in the rect.
@@ -98,9 +98,9 @@ public:
     /// Scan for a target in the given range, on the given team.
     entity *scan_target(irect range, team t);
     /// Handle a mouse click.
-    void mouse_click(int x, int y, int button);
+    void mouse_click(ivec pos, int button);
     /// Spawn a projectile.
-    void spawn_shot(team t, vec2 origin, vec2 target, float speed,
+    void spawn_shot(team t, fvec origin, fvec target, float speed,
                     ::graphics::anysprite sp1, ::graphics::anysprite sp2,
                     int delay);
 
@@ -141,8 +141,6 @@ public:
     virtual void damage(int amount);
     /// Draw the sprite to the graphics system.
     virtual void draw(::graphics::system &gr, int reltime) = 0;
-    /// Get the entity's center.
-    vec2 center() const;
 
     /// Link to the enclosing world state.
     entity_system &m_system;
@@ -157,35 +155,35 @@ class physics_component {
 public:
     // Only the accel should be changed by others.
     irect bbox;
-    vec2 lastpos;
-    vec2 pos;
-    vec2 vel;
-    vec2 accel;
+    fvec lastpos;
+    fvec pos;
+    fvec vel;
+    fvec accel;
     bool on_floor;
 
-    physics_component(irect bbox, vec2 pos, vec2 vel);
+    physics_component(irect bbox, fvec pos, fvec vel);
 
     /// Update the physics component of this entity.
     void update(entity_system &sys, entity &e);
     /// Get the position at the given time since the last update.
-    vec2 get_pos(int reltime);
+    ivec get_pos(int reltime);
 };
 
 /// Physics for projectile entities.
 class projectile_component {
 public:
     irect bbox;
-    vec2 lastpos;
-    vec2 pos;
-    vec2 vel;
+    fvec lastpos;
+    fvec pos;
+    fvec vel;
     int damage;
 
-    projectile_component(irect bbox, vec2 pos, vec2 vel, int damage);
+    projectile_component(irect bbox, fvec pos, fvec vel, int damage);
 
     /// Update the physics component of this entity.
     void update(entity_system &sys, entity &e);
     /// Get the position at the given time since the last update.
-    vec2 get_pos(int reltime);
+    ivec get_pos(int reltime);
 };
 
 enum jumpstate {
@@ -226,7 +224,7 @@ public:
     enum class state { IDLE, ALERT, ATTACK };
     state m_state;
     int m_time;
-    vec2 m_targetpos;
+    ivec m_targetpos;
 
     enemy_component();
 
@@ -255,7 +253,7 @@ private:
     void player_die();
 
 public:
-    player(entity_system &sys, vec2 pos);
+    player(entity_system &sys, fvec pos);
     virtual ~player();
 
     virtual void update();
@@ -266,12 +264,12 @@ public:
 /// Doors between areas.
 class door : public entity {
 private:
-    const vec2 m_pos;
+    const ivec m_pos;
     const std::string m_target;
     bool m_is_locked;
 
 public:
-    door(entity_system &sys, vec2 pos, const std::string target);
+    door(entity_system &sys, fvec pos, const std::string target);
     virtual ~door();
 
     virtual void interact();
@@ -281,11 +279,11 @@ public:
 /// Treasure chest.
 class chest : public entity {
 private:
-    const vec2 m_pos;
+    const ivec m_pos;
     int m_which, m_state;
 
 public:
-    chest(entity_system &sys, vec2 pos, const std::string &contents);
+    chest(entity_system &sys, fvec pos, const std::string &contents);
     virtual ~chest();
 
     virtual void interact();
@@ -304,7 +302,7 @@ private:
     int m_health;
 
 public:
-    enemy(entity_system &sys, vec2 pos,
+    enemy(entity_system &sys, fvec pos,
           ::graphics::anysprite actor,
           ::graphics::anysprite shot1, ::graphics::anysprite shot2);
     virtual ~enemy();
@@ -323,7 +321,7 @@ private:
     ::graphics::anysprite m_sp2;
 
 public:
-    shot(entity_system &sys, team t, vec2 pos, vec2 vel, int time,
+    shot(entity_system &sys, team t, fvec pos, fvec vel, int time,
          ::graphics::anysprite sp1, ::graphics::anysprite sp2);
     virtual ~shot();
 
@@ -334,11 +332,11 @@ public:
 /// Projectile poof.
 class poof : public entity {
 public:
-    vec2 m_pos;
+    ivec m_pos;
     int m_time;
     int m_frame;
 
-    poof(entity_system &sys, vec2 pos);
+    poof(entity_system &sys, fvec pos);
     virtual ~poof();
 
     virtual void update();
@@ -348,11 +346,11 @@ public:
 /// A static sprite.
 class glyph : public entity {
 private:
-    const vec2 m_pos;
+    const ivec m_pos;
     ::graphics::anysprite m_sprite;
 
 public:
-    glyph(entity_system &sys, vec2 pos, ::graphics::anysprite sp);
+    glyph(entity_system &sys, fvec pos, ::graphics::anysprite sp);
     virtual ~glyph();
 
     virtual void draw(::graphics::system &gr, int reltime);
@@ -363,12 +361,12 @@ class signal_glyph : public entity {
 private:
     const ::graphics::anysprite m_sprite;
     const std::string m_target;
-    vec2 m_pos;
+    ivec m_pos;
     int m_time;
     const bool m_is_player_death;
 
 public:
-    signal_glyph(entity_system &sys, vec2 pos, ::graphics::anysprite sp,
+    signal_glyph(entity_system &sys, fvec pos, ::graphics::anysprite sp,
                  const std::string &target, bool is_player_death);
     virtual ~signal_glyph();
 

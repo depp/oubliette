@@ -11,37 +11,37 @@ camera_system::camera_system()
     : has_bounds_(false), targetset_(false),
       maxspeed_(120.0f)
 {
-    lastpos_ = pos_ = targetpt_ = vec2::zero();
+    lastpos_ = pos_ = targetpt_ = fvec::zero();
 }
 
-camera_system::camera_system(const rect &bounds)
+camera_system::camera_system(const frect &bounds)
     : has_bounds_(true), targetset_(false), bounds_(bounds),
       maxspeed_(120.0f)
 {
-    bounds_.min.x += core::PWIDTH / 2;
-    bounds_.min.y += core::PHEIGHT / 2;
-    bounds_.max.x -= core::PWIDTH / 2;
-    bounds_.max.y -= core::PHEIGHT / 2;
+    bounds_.x0 += core::PWIDTH / 2;
+    bounds_.y0 += core::PHEIGHT / 2;
+    bounds_.x1 -= core::PWIDTH / 2;
+    bounds_.y1 -= core::PHEIGHT / 2;
 
-    if (bounds_.min.x > bounds_.max.x) {
-        bounds_.min.x = bounds_.max.x =
-            0.5f * (bounds_.min.x + bounds_.max.x);
+    if (bounds_.x0 > bounds_.x1) {
+        bounds_.x0 = bounds_.x1 =
+            0.5f * (bounds_.x0 + bounds_.x1);
     }
 
-    if (bounds_.min.y > bounds_.max.y) {
-        bounds_.min.y = bounds_.max.y =
-            0.5f * (bounds_.min.y + bounds_.max.y);
+    if (bounds_.y0 > bounds_.y1) {
+        bounds_.y0 = bounds_.y1 =
+            0.5f * (bounds_.y0 + bounds_.y1);
     }
 
-    lastpos_ = pos_ = targetpt_ = bounds.nearest(vec2::zero());
+    lastpos_ = pos_ = targetpt_ = bounds.nearest(fvec::zero());
 }
 
-void camera_system::set_target(const rect &target)
+void camera_system::set_target(const frect &target)
 {
     target_ = target;
     if (!targetset_) {
         targetset_ = true;
-        vec2 center = 0.5f * (target.min + target.max);
+        fvec center = target.center();
         if (has_bounds_)
             center = bounds_.nearest(center);
         lastpos_ = center;
@@ -66,7 +66,7 @@ void camera_system::update()
         pos_ += delta * (maxmove / std::sqrt(mag2));
 }
 
-vec2 camera_system::get_pos(int reltime) const
+fvec camera_system::get_pos(int reltime) const
 {
     return defs::interp(lastpos_, pos_, reltime);
 }

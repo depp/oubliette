@@ -13,9 +13,9 @@ struct defs {
     /// Maximum interval between updates.
     static const int MAXUPDATE = 500;
 
-    static vec2 interp(vec2 a, vec2 b, int reltime)
+    static fvec interp(fvec a, fvec b, int reltime)
     {
-        scalar frac = (scalar) reltime * (scalar)(1.0 / defs::FRAMETIME);
+        float frac = reltime * (1.0f / defs::FRAMETIME);
         return a + (b - a) * frac;
     }
 };

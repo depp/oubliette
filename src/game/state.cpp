@@ -169,16 +169,18 @@ void state::draw(unsigned time)
 
 void state::mouse_click(int x, int y, int button)
 {
+    ivec pos(x, y);
     if (editor_)
-        editor_->mouse_click(x, y, button);
+        editor_->mouse_click(pos, button);
     if (entity_)
-        entity_->mouse_click(x, y, button);
+        entity_->mouse_click(pos, button);
 }
 
 void state::mouse_move(int x, int y)
 {
+    ivec pos(x, y);
     if (editor_)
-        editor_->mouse_move(x, y);
+        editor_->mouse_move(pos);
 }
 
 void state::event_key(key k, bool state)

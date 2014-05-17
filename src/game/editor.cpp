@@ -32,23 +32,20 @@ editor_system::editor_system(const control_system &control,
 editor_system::~editor_system()
 { }
 
-int editor_system::hit(int x, int y)
+int editor_system::hit(ivec pos)
 {
     auto b = entities_.begin(), e = entities_.end();
     for (auto i = b; i != e; i++) {
-        auto bbox = i->bounds();
-        if (x >= bbox.x0 && x < bbox.x1 &&
-            y >= bbox.y0 && y < bbox.y1)
+        if (i->bounds().contains(pos))
             return i - b;
     }
     return SEL_NONE;
 }
 
-void editor_system::window_to_world(int &x, int &y)
+ivec editor_system::window_to_world(ivec window_pos)
 {
-    auto cpos = camera_pos_ - vec2(core::PWIDTH / 2, core::PHEIGHT / 2);
-    x += (int)std::round(cpos.x);
-    y += (int)std::round(cpos.y);
+    return window_pos + ivec(camera_pos_) -
+        ivec(core::PWIDTH / 2, core::PHEIGHT / 2);
 }
 
 void editor_system::mark_dirty()
@@ -121,14 +118,15 @@ void editor_system::update()
     }
     camera_lastpos_ = camera_pos_;
     float speed = EDITOR_CAMSPEED * (1e-3 * defs::FRAMETIME);
-    camera_pos_ += vec2(control_.get_xaxis(), control_.get_yaxis()) * speed;
+    camera_pos_ += fvec(control_.get_xaxis(), control_.get_yaxis()) * speed;
 }
 
 void editor_system::draw(::graphics::system &gr, int reltime)
 {
     if (selection_ >= 0)
         gr.set_selection(entities_.at(selection_).bounds().expand(2));
-    gr.set_camera_pos(defs::interp(camera_lastpos_, camera_pos_, reltime));
+    gr.set_camera_pos(
+        ivec(defs::interp(camera_lastpos_, camera_pos_, reltime)));
     for (auto i = entities_.begin(), e = entities_.end(); i != e; i++)
         i->draw(gr);
 }
@@ -150,9 +148,9 @@ void editor_system::save_data()
     dirty_ = false;
 }
 
-void editor_system::mouse_click(int x, int y, int button)
+void editor_system::mouse_click(ivec pos, int button)
 {
-    window_to_world(x, y);
+    ivec apos = window_to_world(pos);
     dragging_ = false;
     panning_ = false;
     switch (button) {
@@ -160,31 +158,27 @@ void editor_system::mouse_click(int x, int y, int button)
         break;
 
     case 1:
-        selection_ = hit(x, y);
+        selection_ = hit(apos);
         if (selection_ >= 0) {
             auto &s = entities_.at(selection_);
             dragging_ = true;
-            clickx_ = s.x - x;
-            clicky_ = s.y - y;
+            click_ = s.pos - apos;
             dragging_ = true;
         }
         break;
 
     case 2:
-        clickx_ = x;
-        clicky_ = y;
+        click_ = apos;
         panning_ = true;
         break;
 
     case 3:
         mark_dirty();
-        clickx_ = 0;
-        clicky_ = 0;
+        click_ = ivec::zero();
         selection_ = entities_.size();
         dragging_ = true;
         spawnpoint pt;
-        pt.x = x;
-        pt.y = y;
+        pt.pos = apos;
         pt.type = type_;
         entities_.push_back(std::move(pt));
         sort();
@@ -192,17 +186,14 @@ void editor_system::mouse_click(int x, int y, int button)
     }
 }
 
-void editor_system::mouse_move(int x, int y)
+void editor_system::mouse_move(ivec pos)
 {
     if (dragging_) {
-        window_to_world(x, y);
-        auto &s = entities_.at(selection_);
-        s.x = x + clickx_;
-        s.y = y + clicky_;
+        entities_.at(selection_).pos = window_to_world(pos) + click_;
         mark_dirty();
     } else if (panning_) {
-        camera_pos_.x = clickx_ - x + core::PWIDTH / 2;
-        camera_pos_.y = clicky_ - y + core::PHEIGHT / 2;
+        camera_pos_ = fvec(click_ - pos +
+                           ivec(core::PWIDTH / 2, core::PHEIGHT / 2));
         camera_lastpos_ = camera_pos_;
     }
 }

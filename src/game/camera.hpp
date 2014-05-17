@@ -14,28 +14,28 @@ private:
     /// Whether the target has been set.
     bool targetset_;
     /// The limits of the camera focus.
-    rect bounds_;
+    frect bounds_;
     /// The target rectangle.
-    rect target_;
+    frect target_;
     /// The most recent camera position.
-    vec2 lastpos_;
+    fvec lastpos_;
     /// The current camera position.
-    vec2 pos_;
+    fvec pos_;
     /// The point that the camera is moving towards.
-    vec2 targetpt_;
+    fvec targetpt_;
     /// The maximum camera speed.
     float maxspeed_;
 
 public:
     camera_system();
-    camera_system(const rect &bounds);
+    camera_system(const frect &bounds);
 
     /// Set the camera target.
-    void set_target(const rect &target);
+    void set_target(const frect &target);
     /// Update the camera system.
     void update();
     /// Get the camera position.
-    vec2 get_pos(int reltime) const;
+    fvec get_pos(int reltime) const;
 };
 
 }

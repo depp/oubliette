@@ -100,7 +100,7 @@ struct scale_data {
 class system {
 private:
     common_data common_;
-    game::vec2 camera_;
+    ivec camera_;
     sprite_data sprite_;
     background_data background_;
     selection_data selection_;
@@ -120,13 +120,13 @@ public:
     /// Set the current level.
     void set_level(const std::string &path);
     /// Add a sprite to the screen.
-    void add_sprite(anysprite sp, game::vec2 pos,
+    void add_sprite(anysprite sp, ivec pos,
                     ::sprite::orientation orient,
                     bool screen_relative=false);
     /// Set the camera target.
-    void set_camera_pos(game::vec2 target);
+    void set_camera_pos(ivec target);
     /// Set the editor's selection.
-    void set_selection(game::irect rect);
+    void set_selection(const irect &rect);
     /// Set the blend effect color.
     void set_blend_color(const float color[4]);
     /// Clear the text buffer.

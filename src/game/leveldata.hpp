@@ -27,7 +27,7 @@ enum class spawntype {
 
 /// Spawn point where an entity starts.
 struct spawnpoint {
-    int x, y;
+    ivec pos;
     spawntype type;
     std::string data;
 

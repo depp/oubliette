@@ -24,12 +24,12 @@ using ::sprite::orientation;
 static const int HIT_TIME = 25;
 static const int SHOT_DELAY = 8;
 
-static const scalar DT = 1e-3 * defs::FRAMETIME;
-static const scalar INV_DT = 1.0 / (1e-3 * defs::FRAMETIME);
+static const float DT = 1e-3 * defs::FRAMETIME;
+static const float INV_DT = 1.0 / (1e-3 * defs::FRAMETIME);
 
 static const int CAMERA_X = 16;
 static const int CAMERA_Y = 16;
-static const rect CAMERA(-CAMERA_X, -CAMERA_Y, +CAMERA_X, +CAMERA_Y);
+static const frect CAMERA(-CAMERA_X, -CAMERA_Y, +CAMERA_X, +CAMERA_Y);
 
 struct entity_is_dead {
     bool operator()(const std::unique_ptr<entity> &p) {
@@ -80,44 +80,43 @@ entity_system::entity_system(persistent_state &state,
     std::string dname;
 
     for (auto i = b; i != e; i++) {
-        vec2 pos(i->x, i->y);
         switch (i->type) {
         case spawntype::PLAYER:
             pspawn = &*i;
             break;
 
         case spawntype::DOOR:
-            entities_.emplace_back(new door(*this, pos, i->data));
+            entities_.emplace_back(new door(*this, fvec(i->pos), i->data));
             if (door_name(i->data) == lastlevel)
                 dspawn = &*i;
             dspawn2 = &*i;
             break;
 
         case spawntype::CHEST:
-            entities_.emplace_back(new chest(*this, pos, i->data));
+            entities_.emplace_back(new chest(*this, fvec(i->pos), i->data));
             break;
 
         case spawntype::PROF:
             entities_.emplace_back(
-                new enemy(*this, pos,
+                new enemy(*this, fvec(i->pos),
                           sprite::PROFESSOR, sprite::BOOK1, sprite::BOOK2));
             break;
 
         case spawntype::WOMAN:
             entities_.emplace_back(
-                new enemy(*this, pos,
+                new enemy(*this, fvec(i->pos),
                           sprite::WOMAN, sprite::MOUTH1, sprite::MOUTH2));
             break;
 
         case spawntype::PRIEST:
             entities_.emplace_back(
-                new enemy(*this, pos,
+                new enemy(*this, fvec(i->pos),
                           sprite::PRIEST, sprite::SKULL, sprite::SKULL));
             break;
 
         case spawntype::GLYPH:
             entities_.emplace_back(
-                new glyph(*this, pos, glyph_sprite(state, i->data)));
+                new glyph(*this, fvec(i->pos), glyph_sprite(state, i->data)));
             break;
 
         case spawntype::MUSIC:
@@ -138,10 +137,10 @@ entity_system::entity_system(persistent_state &state,
     }
     if (pspawn != nullptr)
         entities_.emplace_back(
-            new player(*this, vec2(pspawn->x, pspawn->y)));
+            new player(*this, fvec(pspawn->pos)));
 
     camera_ = camera_system(
-        rect(vec2::zero(), vec2(level_.width(), level_.height())));
+        frect(0.0f, 0.0f, level_.width(), level_.height()));
 }
 
 void entity_system::update()
@@ -183,7 +182,7 @@ void entity_system::draw(::graphics::system &gr, int reltime)
     for (int i = 0; i < state_.maxhealth; i++) {
         gr.add_sprite(
             i < state_.health ? ui::HEART1 : ui::HEART2,
-            vec2(core::PWIDTH - 16 - 16*i, core::PHEIGHT - 16),
+            ivec(core::PWIDTH - 16 - 16*i, core::PHEIGHT - 16),
             orientation::NORMAL,
             true);
     }
@@ -192,15 +191,15 @@ void entity_system::draw(::graphics::system &gr, int reltime)
         for (int i = 0; i < 3; i++) {
             gr.add_sprite(
                 ::graphics::treasure_sprite(i, state_.treasure[i]),
-                vec2(2 + 18*i, core::PHEIGHT - 17),
+                ivec(2 + 18*i, core::PHEIGHT - 17),
                 orientation::NORMAL,
                 true);
         }
     }
 
-    vec2 camera = camera_.get_pos(reltime);
+    fvec camera = camera_.get_pos(reltime);
     lastcamera_ = ivec(camera);
-    gr.set_camera_pos(camera);
+    gr.set_camera_pos(lastcamera_);
     for (auto i = entities_.begin(), e = entities_.end(); i != e; i++) {
         entity &ent = **i;
         ent.draw(gr, reltime);
@@ -213,7 +212,7 @@ void entity_system::add_entity(entity *ent)
         new_entities_.push_back(std::unique_ptr<entity>(ent));
 }
 
-void entity_system::set_camera_target(const rect &target)
+void entity_system::set_camera_target(const frect &target)
 {
     camera_.set_target(target);
 }
@@ -232,34 +231,34 @@ entity *entity_system::scan_target(irect range, team t)
 {
     for (auto i = entities_.begin(), e = entities_.end(); i != e; i++) {
         entity &ent = **i;
-        if (ent.m_team == t && ent.m_bbox.test_intersect(range))
+        if (ent.m_team == t && irect::test_intersect(ent.m_bbox, range))
             return &ent;
     }
     return nullptr;
 }
 
-void entity_system::mouse_click(int x, int y, int button)
+void entity_system::mouse_click(ivec pos, int button)
 {
     if (button != 1 && button != 3)
         return;
     is_click_ = true;
-    click_pos_ = ivec(x + lastcamera_.x - core::PWIDTH/2,
-                      y + lastcamera_.y - core::PHEIGHT/2);
+    click_pos_ = pos + lastcamera_
+        - ivec(core::PWIDTH / 2, core::PHEIGHT / 2);
 }
 
 void entity_system::spawn_shot(
-    team t, vec2 origin, vec2 target, float speed,
+    team t, fvec origin, fvec target, float speed,
     ::graphics::anysprite sp1, ::graphics::anysprite sp2,
     int delay)
 {
-    origin += vec2(
+    origin += fvec(
         std::copysign(10.0f, target.x - origin.x),
         4.0f);
-    vec2 delta = target - origin;
+    fvec delta = target - origin;
     float mag2 = delta.mag2();
-    vec2 shotvel;
+    fvec shotvel;
     if (mag2 < 1)
-        shotvel = vec2(speed, 0.0f);
+        shotvel = fvec(speed, 0.0f);
     else
         shotvel = delta * (speed / std::sqrt(mag2));
     add_entity(
@@ -287,15 +286,9 @@ void entity::damage(int amount)
     (void)amount;
 }
 
-vec2 entity::center() const
-{
-    return vec2(0.5f * (float)(m_bbox.x0 + m_bbox.x1),
-                0.5f * (float)(m_bbox.y0 + m_bbox.y1));
-}
-
 // ======================================================================
 
-physics_component::physics_component(irect bbox, vec2 pos, vec2 vel)
+physics_component::physics_component(irect bbox, fvec pos, fvec vel)
     : bbox(bbox), pos(pos), vel(vel), accel(0, -stats::gravity),
       on_floor(false)
 { }
@@ -306,14 +299,14 @@ void physics_component::update(entity_system &sys, entity &e)
 
     on_floor = false;
     lastpos = pos;
-    vec2 old_pos = pos;
-    vec2 new_pos = old_pos + DT * vel + (DT * DT / 2) * accel;
-    vec2 old_vel = vel;
-    vec2 new_vel = old_vel + DT * accel;
+    fvec old_pos = pos;
+    fvec new_pos = old_pos + DT * vel + (DT * DT / 2) * accel;
+    fvec old_vel = vel;
+    fvec new_vel = old_vel + DT * accel;
 
     int x1 = (int)std::floor(new_pos.x);
     int y1 = (int)std::floor(new_pos.y);
-    irect new_bbox = bbox.offset(x1, y1);
+    irect new_bbox = bbox.offset(ivec(x1, y1));
     const levelmap &level = sys.level();
     // std::printf("%d %d %d %d\n",
     // new_bbox.x0, new_bbox.y0, new_bbox.x1, new_bbox.y1);
@@ -376,18 +369,18 @@ void physics_component::update(entity_system &sys, entity &e)
     vel = new_vel;
 
     e.m_bbox = new_bbox;
-    accel = vec2(0, -stats::gravity);
+    accel = fvec(0, -stats::gravity);
 }
 
-vec2 physics_component::get_pos(int reltime)
+ivec physics_component::get_pos(int reltime)
 {
-    return defs::interp(lastpos, pos, reltime);
+    return ivec(defs::interp(lastpos, pos, reltime));
 }
 
 // ======================================================================
 
 projectile_component::projectile_component(
-    irect bbox, vec2 pos, vec2 vel, int damage)
+    irect bbox, fvec pos, fvec vel, int damage)
     : bbox(bbox), lastpos(pos), pos(pos), vel(vel),
       damage(damage)
 { }
@@ -399,7 +392,7 @@ void projectile_component::update(entity_system &sys, entity &e)
 
     int x1 = (int)std::floor(pos.x);
     int y1 = (int)std::floor(pos.y);
-    e.m_bbox = bbox.offset(x1, y1);
+    e.m_bbox = bbox.offset(ivec(x1, y1));
 
     bool hit_level = sys.level().hit_test(e.m_bbox);
     bool hit_actor = false;
@@ -416,7 +409,7 @@ void projectile_component::update(entity_system &sys, entity &e)
         entity &target = **i;
         if (target.m_team != enemy)
             continue;
-        if (!target.m_bbox.test_intersect(e.m_bbox))
+        if (!irect::test_intersect(target.m_bbox, e.m_bbox))
             continue;
         target.damage(damage);
         hit_actor = true;
@@ -430,9 +423,9 @@ void projectile_component::update(entity_system &sys, entity &e)
     }
 }
 
-vec2 projectile_component::get_pos(int reltime)
+ivec projectile_component::get_pos(int reltime)
 {
-    return defs::interp(lastpos, pos, reltime);
+    return ivec(defs::interp(lastpos, pos, reltime));
 }
 
 // ======================================================================
@@ -473,7 +466,7 @@ void walking_component::update(physics_component &physics,
 // ======================================================================
 
 #if 0
-static void jump_simple(physics_component &physics, vec2 vel)
+static void jump_simple(physics_component &physics, fvec vel)
 {
     physics.accel += (vel - physics.vel) * INV_DT;
 }
@@ -543,7 +536,7 @@ void enemy_component::update(entity_system &sys, entity &e,
         if (target != nullptr) {
             m_state = state::ALERT;
             m_time = stats.reaction;
-            m_targetpos = target->center();
+            m_targetpos = target->m_bbox.center();
         }
         break;
 
@@ -554,7 +547,7 @@ void enemy_component::update(entity_system &sys, entity &e,
             if (target != nullptr) {
                 m_state = state::ATTACK;
                 m_time = 0;
-                m_targetpos = target->center();
+                m_targetpos = target->m_bbox.center();
             } else {
                 m_state = state::IDLE;
             }
@@ -580,9 +573,9 @@ entity *enemy_component::scan(entity_system &sys, entity &e,
 
 // ======================================================================
 
-player::player(entity_system &sys, vec2 pos)
+player::player(entity_system &sys, fvec pos)
     : entity(sys, team::FRIEND),
-      physics(irect::centered(8, 20), pos, vec2::zero())
+      physics(irect::centered(8, 20), pos, fvec::zero())
 { }
 
 player::~player()
@@ -611,7 +604,7 @@ void player::update()
         m_system.spawn_shot(
             team::FRIEND_SHOT,
             physics.pos,
-            vec2(target.x, target.y),
+            fvec(target.x, target.y),
             stats::player_shotspeed,
             sprite::SHOT,
             sprite::SHOT,
@@ -652,7 +645,7 @@ void player::draw(::graphics::system &gr, int reltime)
 {
     gr.add_sprite(
         sprite::PLAYER,
-        physics.get_pos(reltime) + vec2(-8, -12),
+        ivec(physics.get_pos(reltime)) + ivec(-8, -12),
         orientation::NORMAL);
 }
 
@@ -668,11 +661,11 @@ void player::player_die()
 
 // ======================================================================
 
-door::door(entity_system &sys, vec2 pos, const std::string target)
+door::door(entity_system &sys, fvec pos, const std::string target)
     : entity(sys, team::INTERACTIVE), m_pos(pos), m_target(target),
       m_is_locked(false)
 {
-    m_bbox = irect::centered(24, 32).offset(pos);
+    m_bbox = irect::centered(24, 32).offset(m_pos);
     if (door_name(target) == "!end") {
         for (int i = 0; i < 3; i++) {
             if (sys.state().treasure[i] == 0) {
@@ -699,22 +692,22 @@ void door::draw(::graphics::system &gr, int reltime)
     (void)reltime;
     gr.add_sprite(
         m_is_locked ? sprite::DOOR3 : sprite::DOOR2,
-        m_pos + vec2(-12, -16),
+        m_pos + ivec(-12, -16),
         orientation::NORMAL);
     if (!m_is_locked && m_system.test_hover(m_bbox)) {
         gr.add_sprite(
             ui::ARROW,
-            m_pos + vec2(-8, +20),
+            m_pos + ivec(-8, +20),
             orientation::NORMAL);
     }
 }
 
 // ======================================================================
 
-chest::chest(entity_system &sys, vec2 pos, const std::string &contents)
+chest::chest(entity_system &sys, fvec pos, const std::string &contents)
     : entity(sys, team::INTERACTIVE), m_pos(pos), m_which(-1), m_state(-1)
 {
-    m_bbox = irect::centered(24, 24).offset(pos);
+    m_bbox = irect::centered(24, 24).offset(m_pos);
     if (contents.empty()) {
         std::printf("WARNING: No treasure contents at (%f, %f)\n",
                     pos.x, pos.y);
@@ -740,7 +733,7 @@ void chest::interact()
     auto &s = m_system.state();
     s.treasure[m_which] = m_state;
     m_system.add_entity(new signal_glyph(
-        m_system, m_pos, ::graphics::treasure_sprite(m_which, m_state),
+        m_system, fvec(m_pos), ::graphics::treasure_sprite(m_which, m_state),
         "main_wake", false));
     m_team = team::DEAD;
 }
@@ -750,23 +743,23 @@ void chest::draw(::graphics::system &gr, int reltime)
     (void)reltime;
     gr.add_sprite(
         sprite::CHEST,
-        m_pos + vec2(-12, -12),
+        m_pos + ivec(-12, -12),
         orientation::NORMAL);
     if (m_system.test_hover(m_bbox)) {
         gr.add_sprite(
             ui::ARROW,
-            m_pos + vec2(-8, +16),
+            m_pos + ivec(-8, +16),
             orientation::NORMAL);
     }
 }
 
 // ======================================================================
 
-enemy::enemy(entity_system &sys, vec2 pos,
+enemy::enemy(entity_system &sys, fvec pos,
              ::graphics::anysprite actor,
              ::graphics::anysprite shot1, ::graphics::anysprite shot2)
     : entity(sys, team::FOE),
-      physics(irect::centered(8, 20), pos, vec2::zero()),
+      physics(irect::centered(8, 20), pos, fvec::zero()),
       m_actor(actor),
       m_shot1(shot1),
       m_shot2(shot2),
@@ -782,7 +775,7 @@ void enemy::update()
     if (m_enemy.start_attack()) {
         m_system.audio().play_sfx(sfx::ENEMY_SHOOT);
         m_system.spawn_shot(
-            team::FOE_SHOT, physics.pos, m_enemy.m_targetpos,
+            team::FOE_SHOT, physics.pos, fvec(m_enemy.m_targetpos),
             stats::prof.shotspeed, m_shot1, m_shot2, SHOT_DELAY);
     }
 
@@ -806,13 +799,13 @@ void enemy::draw(::graphics::system &gr, int reltime)
 {
     gr.add_sprite(
         m_actor,
-        physics.get_pos(reltime) + vec2(-8, -12),
+        physics.get_pos(reltime) + ivec(-8, -12),
         orientation::NORMAL);
 }
 
 // ======================================================================
 
-shot::shot(entity_system &sys, team t, vec2 pos, vec2 vel, int time,
+shot::shot(entity_system &sys, team t, fvec pos, fvec vel, int time,
          ::graphics::anysprite sp1, ::graphics::anysprite sp2)
     : entity(sys, t),
       projectile(irect::centered(10, 10), pos, vel, 1),
@@ -836,7 +829,7 @@ void shot::draw(::graphics::system &gr, int reltime)
 {
     gr.add_sprite(
         time > 0 ? m_sp1 : m_sp2,
-        projectile.get_pos(reltime) + vec2(-8, -8),
+        projectile.get_pos(reltime) + ivec(-8, -8),
         orientation::NORMAL);
 }
 
@@ -844,7 +837,7 @@ void shot::draw(::graphics::system &gr, int reltime)
 
 static const int POOF_FRAMETIME = 3;
 
-poof::poof(entity_system &sys, vec2 pos)
+poof::poof(entity_system &sys, fvec pos)
     : entity(sys, team::AMBIENT), m_pos(pos), m_time(0)
 { }
 
@@ -868,12 +861,12 @@ void poof::draw(::graphics::system &gr, int reltime)
     case 2: s = sprite::POOF3; break;
     default: return;
     }
-    gr.add_sprite(s, m_pos + vec2(-8, -8), orientation::NORMAL);
+    gr.add_sprite(s, m_pos + ivec(-8, -8), orientation::NORMAL);
 }
 
 // ======================================================================
 
-glyph::glyph(entity_system &sys, vec2 pos, ::graphics::anysprite sp)
+glyph::glyph(entity_system &sys, fvec pos, ::graphics::anysprite sp)
     : entity(sys, team::AMBIENT), m_pos(pos), m_sprite(sp)
 { }
 
@@ -883,7 +876,7 @@ glyph::~glyph()
 void glyph::draw(::graphics::system &gr, int reltime)
 {
     (void)reltime;
-    gr.add_sprite(m_sprite, m_pos + vec2(-8, -8), orientation::NORMAL);
+    gr.add_sprite(m_sprite, m_pos + ivec(-8, -8), orientation::NORMAL);
 }
 
 // ======================================================================
@@ -892,7 +885,7 @@ static const int SIGNAL_RISETIME = 16;
 static const int SIGNAL_HOVERTIME = 32;
 static const int SIGNAL_RISEDISTANCE = 24;
 
-signal_glyph::signal_glyph(entity_system &sys, vec2 pos,
+signal_glyph::signal_glyph(entity_system &sys, fvec pos,
                            ::graphics::anysprite sp,
                            const std::string &target, bool is_player_death)
     : entity(sys, team::AMBIENT),
@@ -926,7 +919,7 @@ void signal_glyph::draw(::graphics::system &gr, int reltime)
         delta = SIGNAL_RISEDISTANCE;
     gr.add_sprite(
         m_sprite,
-        m_pos + vec2(-8.0f, -8.0f) + vec2(0.0f, delta),
+        m_pos + ivec(-8, -8) + ivec(0, std::floor(delta)),
         orientation::NORMAL);
 }
 

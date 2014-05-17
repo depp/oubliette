@@ -8,7 +8,6 @@
 #include "../defs.hpp"
 #include "../rand.hpp"
 namespace graphics {
-using game::vec2;
 
 static int round_up_pow2(int x)
 {
@@ -403,7 +402,7 @@ void scale_data::end(const common_data &com)
 // ======================================================================
 
 system::system()
-    : camera_(vec2::zero())
+    : camera_(ivec::zero())
 { }
 
 system::~system()
@@ -450,24 +449,22 @@ void system::set_level(const std::string &path)
     background_.set_level(path);
 }
 
-void system::add_sprite(anysprite sp, vec2 pos,
+void system::add_sprite(anysprite sp, ivec pos,
                         ::sprite::orientation orient,
                         bool screen_relative)
 {
     auto &arr = screen_relative ? sprite_.array2 : sprite_.array;
     arr.add(
         sprite_.sheet.get(static_cast<int>(sp)),
-        (int)std::floor(pos.x),
-        (int)std::floor(pos.y),
-        orient);
+        pos.x, pos.y, orient);
 }
 
-void system::set_camera_pos(vec2 target)
+void system::set_camera_pos(ivec target)
 {
-    camera_ = vec2(std::floor(target.x), std::floor(target.y));
+    camera_ = target;
 }
 
-void system::set_selection(game::irect rect)
+void system::set_selection(const irect &rect)
 {
     selection_.array.clear();
     auto d = selection_.array.insert(6);

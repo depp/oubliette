@@ -4,59 +4,57 @@
 #ifndef LD_GAME_VEC_HPP
 #define LD_GAME_VEC_HPP
 #include <cmath>
-namespace game {
-
-typedef float scalar;
 
 /// Two-dimensional vector.
-struct vec2 {
-    scalar x, y;
+struct fvec {
+    float x, y;
 
-    vec2() { }
-    vec2(scalar x, scalar y) : x(x), y(y) { }
-    static vec2 zero() { return vec2(0, 0); }
+    fvec() { }
+    fvec(float x, float y) : x(x), y(y) { }
+    static fvec zero() { return fvec(0, 0); }
 
     /// Get the magnitude of the vector, squared.
-    scalar mag2() const;
+    float mag2() const;
     /// Get the magnitude of the vector.
-    scalar mag() const;
+    float mag() const;
     /// Get the dot product of two vectors.
-    static scalar dot(vec2 u, vec2 v);
+    static float dot(fvec u, fvec v);
     /// Get the distance between two vectors, squared.
-    static scalar dist2(vec2 u, vec2 v);
+    static float dist2(fvec u, fvec v);
     /// Get the distance between two vectors.
-    static scalar dist(vec2 u, vec2 v);
+    static float dist(fvec u, fvec v);
 };
 
-inline vec2 operator+(vec2 u, vec2 v) { return vec2(u.x + v.x, u.y + v.y); }
-inline vec2 &operator+=(vec2 &u, vec2 v) { u.x += v.x; u.y += v.y; return u; }
-inline vec2 operator-(vec2 u, vec2 v) { return vec2(u.x - v.x, u.y - v.y); }
-inline vec2 &operator-=(vec2 &u, vec2 v) { u.x -= v.x; u.y -= v.y; return u; }
-inline vec2 operator*(scalar a, vec2 v) { return vec2(a * v.x, a * v.y); }
-inline vec2 operator*(vec2 v, scalar a) { return vec2(a * v.x, a * v.y); }
-inline vec2 &operator*=(vec2 &v, scalar a) { v.x *= a; v.y *= a; return v; }
+inline fvec operator+(fvec u, fvec v) { return fvec(u.x + v.x, u.y + v.y); }
+inline fvec &operator+=(fvec &u, fvec v) { u.x += v.x; u.y += v.y; return u; }
+inline fvec operator-(fvec u, fvec v) { return fvec(u.x - v.x, u.y - v.y); }
+inline fvec &operator-=(fvec &u, fvec v) { u.x -= v.x; u.y -= v.y; return u; }
+inline fvec operator*(float a, fvec v) { return fvec(a * v.x, a * v.y); }
+inline fvec operator*(fvec v, float a) { return fvec(a * v.x, a * v.y); }
+inline fvec &operator*=(fvec &v, float a) { v.x *= a; v.y *= a; return v; }
 
-inline scalar vec2::mag2() const { return x * x + y * y; }
-inline scalar vec2::mag() const { return std::sqrt(mag()); }
-inline scalar vec2::dot(vec2 u, vec2 v) { return u.x * v.x + u.y * v.y; }
-inline scalar vec2::dist2(vec2 u, vec2 v) { return (u - v).mag2(); }
-inline scalar vec2::dist(vec2 u, vec2 v) { return std::sqrt(dist2(u, v)); }
+inline float fvec::mag2() const { return x * x + y * y; }
+inline float fvec::mag() const { return std::sqrt(mag()); }
+inline float fvec::dot(fvec u, fvec v) { return u.x * v.x + u.y * v.y; }
+inline float fvec::dist2(fvec u, fvec v) { return (u - v).mag2(); }
+inline float fvec::dist(fvec u, fvec v) { return std::sqrt(dist2(u, v)); }
 
 // Floating-point rectangle.
-struct rect {
-    vec2 min, max;
+struct frect {
+    float x0, y0, x1, y1;
 
-    rect() { }
-    rect(vec2 min, vec2 max)
-        : min(min), max(max)
-    { }
-    rect(float x0, float y0, float x1, float y1)
-        : min(x0, y0), max(x1, y1)
+    frect() { }
+    frect(float x0, float y0, float x1, float y1)
+        : x0(x0), y0(y0), x1(x1), y1(y1)
     { }
 
-    static bool test_intersect(const rect &a, const rect &b);
-    rect offset(vec2 v) const;
-    vec2 nearest(vec2 v) const;
+    static bool test_intersect(const frect &a, const frect &b);
+    fvec center() const;
+    frect offset(fvec v) const;
+    frect expand(float amt) const;
+    frect expand(float horiz, float vert) const;
+    frect expand(const frect &r) const;
+    fvec nearest(fvec v) const;
 };
 
 /// Integer vector.
@@ -64,11 +62,22 @@ struct ivec {
     int x, y;
     ivec() { };
     ivec(int x, int y) : x(x), y(y) { }
-    explicit ivec(vec2 v)
+    explicit ivec(fvec v)
         : x((int)std::floor(v.x)),
           y((int)std::floor(v.y))
     { }
+
+    static ivec zero() { return ivec(0, 0); }
+    explicit operator fvec() const { return fvec(x, y); }
 };
+
+inline ivec operator+(ivec u, ivec v) { return ivec(u.x + v.x, u.y + v.y); }
+inline ivec &operator+=(ivec &u, ivec v) { u.x += v.x; u.y += v.y; return u; }
+inline ivec operator-(ivec u, ivec v) { return ivec(u.x - v.x, u.y - v.y); }
+inline ivec &operator-=(ivec &u, ivec v) { u.x -= v.x; u.y -= v.y; return u; }
+inline ivec operator*(int a, ivec v) { return ivec(a * v.x, a * v.y); }
+inline ivec operator*(ivec v, int a) { return ivec(a * v.x, a * v.y); }
+inline ivec &operator*=(ivec &v, int a) { v.x *= a; v.y *= a; return v; }
 
 /// Integer rectangle.
 struct irect {
@@ -79,52 +88,14 @@ struct irect {
         : x0(x0), y0(y0), x1(x1), y1(y1)
     { }
 
-    irect offset(int x, int y) const
-    {
-        return irect(x0 + x, y0 + y, x1 + x, y1 + y);
-    }
-
-    irect offset(vec2 v) const
-    {
-        return offset(std::floor(v.x), std::floor(v.y));
-    }
-
-    irect expand(int amt) const
-    {
-        return irect(x0 - amt, y0 - amt, x1 + amt, y1 + amt);
-    }
-
-    irect expand(const irect &r) const
-    {
-        return irect(x0 + r.x0, y0 + r.y0, x1 + r.x1, y1 + r.y1);
-    }
-
-    bool contains(vec2 pt) const
-    {
-        int x = (int)std::floor(pt.x), y = (int)std::floor(pt.y);
-        return x0 <= x && x < x1 && y0 <= y && y < y1;
-    }
-
-    bool contains(ivec v) const
-    {
-        return contains(v.x, v.y);
-    }
-
-    bool contains(int x, int y) const
-    {
-        return x0 <= x && x < x1 && y0 <= y && y < y1;
-    }
-
-    bool test_intersect(const irect &r) const
-    {
-        return x0 < r.x1 && x1 > r.x0 && y0 < r.y1 && y1 > r.y0;
-    }
-
-    static irect centered(int w, int h)
-    {
-        return irect(-(w/2), -(h/2), w - (w/2), h - (h/2));
-    }
+    static irect centered(int w, int h);
+    static bool test_intersect(const irect &a, const irect &b);
+    ivec center() const;
+    irect offset(ivec v) const;
+    irect expand(int amt) const;
+    irect expand(int horiz, int vert) const;
+    irect expand(const irect &r) const;
+    bool contains(ivec v) const;
 };
 
-}
 #endif
