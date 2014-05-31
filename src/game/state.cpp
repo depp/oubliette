@@ -7,7 +7,7 @@
 #include "editor.hpp"
 #include "entity.hpp"
 #include "script.hpp"
-#include "../defs.hpp"
+#include "base/defs.hpp"
 #include <algorithm>
 namespace game {
 

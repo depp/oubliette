@@ -6,7 +6,7 @@
 #include "leveldata.hpp"
 #include "defs.hpp"
 #include "graphics.hpp"
-#include "../defs.hpp"
+#include "base/defs.hpp"
 #include <algorithm>
 namespace game {
 

@@ -3,7 +3,7 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "camera.hpp"
 #include "defs.hpp"
-#include "../defs.hpp"
+#include "base/defs.hpp"
 #include <cmath>
 namespace game {
 

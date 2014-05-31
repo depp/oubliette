@@ -4,9 +4,9 @@
 #ifndef LD_GAME_GRAPHICS_HPP
 #define LD_GAME_GRAPHICS_HPP
 #include <memory>
-#include "../sprite.hpp"
-#include "../shader.hpp"
-#include "../image.hpp"
+#include "base/sprite.hpp"
+#include "base/shader.hpp"
+#include "base/image.hpp"
 #include "sprite.hpp"
 #include "vec.hpp"
 #include "color.hpp"

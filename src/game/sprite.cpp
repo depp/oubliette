@@ -2,8 +2,8 @@
    This file is part of Oubliette.  Oubliette is licensed under the terms
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "sprite.hpp"
-#include "../defs.hpp"
-#include "../sprite.hpp"
+#include "base/defs.hpp"
+#include "base/sprite.hpp"
 namespace graphics {
 
 const struct ::sprite::sprite SPRITES[] = {

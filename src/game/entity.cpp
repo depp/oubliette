@@ -2,7 +2,7 @@
    This file is part of Oubliette.  Oubliette is licensed under the terms
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "entity.hpp"
-#include "../defs.hpp"
+#include "base/defs.hpp"
 #include "audio.hpp"
 #include "color.hpp"
 #include "control.hpp"

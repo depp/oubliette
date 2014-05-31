@@ -3,7 +3,7 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #include "leveldata.hpp"
 #include "graphics.hpp"
-#include "../defs.hpp"
+#include "base/defs.hpp"
 #include <cstdio>
 #include <errno.h>
 namespace game {

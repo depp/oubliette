@@ -6,7 +6,7 @@
 #include "color.hpp"
 #include "control.hpp"
 #include "graphics.hpp"
-#include "../defs.hpp"
+#include "base/defs.hpp"
 #include "defs.hpp"
 #include <cstdio>
 namespace script {

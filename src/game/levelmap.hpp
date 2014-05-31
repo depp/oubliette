@@ -4,7 +4,7 @@
 #ifndef LD_GAME_LEVELMAP_HPP
 #define LD_GAME_LEVELMAP_HPP
 #include <string>
-#include "../image.hpp"
+#include "base/image.hpp"
 #include "vec.hpp"
 namespace game {
 

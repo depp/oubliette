@@ -5,8 +5,8 @@
 #include "color.hpp"
 #include "state.hpp"
 #include "defs.hpp"
-#include "../defs.hpp"
-#include "../rand.hpp"
+#include "base/defs.hpp"
+#include "base/rand.hpp"
 namespace graphics {
 
 static int round_up_pow2(int x)
