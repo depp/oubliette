@@ -3,7 +3,7 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #ifndef LD_GAME_DEFS_HPP
 #define LD_GAME_DEFS_HPP
-#include "vec.hpp"
+#include "base/vec.hpp"
 namespace game {
 
 struct defs {

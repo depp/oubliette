@@ -8,7 +8,7 @@
 #include "base/shader.hpp"
 #include "base/image.hpp"
 #include "sprite.hpp"
-#include "vec.hpp"
+#include "base/vec.hpp"
 #include "color.hpp"
 namespace graphics {
 class state;

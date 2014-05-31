@@ -5,7 +5,7 @@
 #define LD_GAME_EDITOR_HPP
 #include <vector>
 #include <string>
-#include "vec.hpp"
+#include "base/vec.hpp"
 #include "leveldata.hpp"
 namespace graphics {
 class system;

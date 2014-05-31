@@ -3,7 +3,7 @@
    of the 2-clause BSD license.  For more information, see LICENSE.txt. */
 #ifndef LD_GAME_ENTITY_HPP
 #define LD_GAME_ENTITY_HPP
-#include "vec.hpp"
+#include "base/vec.hpp"
 #include "camera.hpp"
 #include "levelmap.hpp"
 #include "sprite.hpp"
