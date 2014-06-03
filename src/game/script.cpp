@@ -131,7 +131,7 @@ void system::draw(::graphics::system &gr, int reltime)
     for (int i = 0, e = m_blocks.size(); i != e; i++) {
         auto &l = m_section.lines[i];
         color text_color;
-        if (i > m_lineno) {
+        if (i < m_lineno) {
             text_color = color::palette(l.color);
         } else if (i > m_lineno) {
             text_color = color::transparent();
